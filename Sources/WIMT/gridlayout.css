@@ -1,0 +1,117 @@
+﻿
+/* ======================================================================= */
+/* grid layout Layout                                                      */
+/* ======================================================================= */
+
+/* use the box-model */
+* {
+   -moz-box-sizing: border-box;
+   -webkit-box-sizing: border-box;
+   -o-box-sizing: border-box;
+   -ms-box-sizing: border-box;
+   box-sizing: border-box;r>
+}
+
+/* ----------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------- */
+/* Container Layout                                                        */
+/* ----------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------- */
+#gGridLayoutRoot {
+  /* position */
+  position: absolute;
+  /* box */
+  width: 100%;
+  height: 100%;
+}
+
+
+html, body {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+[data-g-layout-container] {
+  position: relative;
+}
+
+[data-g-layout-container] > * {
+  position: absolute;
+}
+
+[data-g-layout-container-auto] > * {
+  position: relative;
+}
+
+.gScrollView {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.gLayoutGhostItem {
+	pointer-events: none;
+}
+
+.gLayoutDebugGrid {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: none;
+	z-index: -1;
+}
+
+.gLayoutDebugColumns {
+	position:absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.gLayoutDebugColumn {
+	position: absolute;
+	height: 100%;
+}
+
+.gLayoutDebugColumn:not(:first-child) {
+	border-left: 1px solid blue;
+}
+
+.gLayoutDebugRows {
+	position:absolute;
+	width: 100%;
+	height: 100%;
+}
+
+.gLayoutDebugRow {
+	position: absolute;
+	width: 100%;
+}
+
+.gLayoutDebugRow:not(:first-child) {
+	border-top: 1px solid blue;
+}
+
+@media only screen and (max-device-width: 1024px) {
+	/* For general iPad layouts */
+
+	/* Resize vertical splitters bigger */
+	.gVerticalSplitter > .gGridLayoutSplitter > * > * {
+		margin: 4px auto;
+		height: 4px;
+	}
+
+	/* Resize horizontal splitters bigger */
+	.gHorizontalSplitter > .gGridLayoutSplitter > * > * {
+		margin: 0px 4px;
+		width: 4px;
+	}
+}
