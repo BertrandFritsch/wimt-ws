@@ -40,6 +40,7 @@ var Main = React.createClass({
 React.render(<Main />, document.body);
 GridLayout.initialize();
 
-for (var s in Stops) {
-  console.log(Stops[s].name);
-}
+//debugger;
+//for (var s in Stops) {
+//  console.log(Stops[s].name);
+//}

@@ -129,7 +129,7 @@ function generate-stops() {
            me._trips_$($stop_id) = [
 "
              $_.Value | %{ 
-"             $($_.agency_id)Trips.get_$($_.trip_id)(), " 
+"             $($_.agency_id)Trips[`"$($_.trip_id)`"], " 
              }
 "
            ]
@@ -142,7 +142,7 @@ function generate-stops() {
            me._stopTimes_$($stop_id) = [ 
 "
              $_.Value | %{ 
-"             { stop: this, time: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), sequence: $($_.stop_time.stop_sequence), trip: $($_.agency_id)Trips.get_$($_.trip_id)() },"
+"             { stop: this, time: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), sequence: $($_.stop_time.stop_sequence), trip: $($_.agency_id)Trips[`"$($_.trip_id)`"] },"
              }
 "
            ]

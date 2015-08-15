@@ -26,26 +26,15 @@ $calendar = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scr
 
 function generate-services() {
 "
-Services = (function() {
-  var me = {};
-
-  return {
+Services = {
 "
 $calendar |% {
 "   
-    get_$($_.service_id): function() {
-      if (me._service_$($_.service_id) === undefined)
-      {
-        me._service_$($_.service_id) = { id: `"$($_.service_id)`", startDate: new Date(`"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1/$2/$3')`"), endDate: new Date(`"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1/$2/$3')`"), days: [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] };
-      }
-
-      return me._service_$($_.service_id);
-    },
+  `"$($_.service_id)`": { id: `"$($_.service_id)`", startDate: new Date(`"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1/$2/$3')`"), endDate: new Date(`"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1/$2/$3')`"), days: [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] },
 "
 }
 "
-  }
-})();
+};
 "
 }
 

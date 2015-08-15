@@ -103,41 +103,34 @@ $agencyTrips |? {
   $agencyTripsStopTimesColl[$trip_id]
   } |% {
 "
-      get_$($trip_id): function() {
-        if (me._trip_$trip_id === undefined)
-        {
-          me._trip_$trip_id = {
-            id: `"$trip_id`", number: `"$($trip_id -replace 'DUASN(\d+).+','$1')`", route: Routes[`"$($_.route_id)`"], service: $(if ($servicesColl[$_.service_id]) { "Services.get_$($_.service_id)()" } else { "null" }), mission: `"$($_.trip_headsign)`", forward: $($TrueOrFalse[$_.direction_id]),
-            getServiceExceptions: function() {
-              if (me._serviceException_$($_.service_id) === undefined) {
-                me._serviceException_$($_.service_id) = {
+      `"$($trip_id)`": {
+        id: `"$trip_id`", number: `"$($trip_id -replace 'DUASN(\d+).+','$1')`", route: Routes[`"$($_.route_id)`"], service: $(if ($servicesColl[$_.service_id]) { "Services['$($_.service_id)']" } else { "null" }), mission: `"$($_.trip_headsign)`", forward: $($TrueOrFalse[$_.direction_id]),
+        getServiceExceptions: function() {
+          if (me._serviceException_$($_.service_id) === undefined) {
+            me._serviceException_$($_.service_id) = {
 "  
-                  $calendarDatesColl[$_.service_id] |? { $_ -ne $null } |% { $_.GetEnumerator() } |% {
-"                  `"$($_.Name)`": $($TrueOrFalse[$_.Value.exception_type]),"
-                  }
-"
-                }
-
-                return me._serviceException_$($_.service_id);
-              };
-            },
-            getStopTimes: function() {
-              if (me._stopTimes_$trip_id === undefined) {
-                me._stopTimes_$trip_id = [
-"
-                  $agencyTripsStopTimesColl[$trip_id] |% { 
-"                  { stop: Stops[`"$trip_id`"], time: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), sequence: $($_.stop_time.stop_sequence), trip: me._trip_$trip_id }," 
-                  }
-"
-                ];
+              $calendarDatesColl[$_.service_id] |? { $_ -ne $null } |% { $_.GetEnumerator() } |% {
+"              `"$($_.Name)`": $($TrueOrFalse[$_.Value.exception_type]),"
               }
-
-              return me._stopTimes_$($_.stop_id);
+"
             }
-          };
-        }
 
-        return me._trip_$trip_id;
+            return me._serviceException_$($_.service_id);
+          };
+        },
+        getStopTimes: function() {
+          if (me._stopTimes_$trip_id === undefined) {
+            me._stopTimes_$trip_id = [
+"
+              $agencyTripsStopTimesColl[$trip_id] |% { 
+"              { stop: Stops[`"$($_.stop_id)`"], time: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), sequence: $($_.stop_time.stop_sequence), trip: this }," 
+              }
+"
+            ];
+          }
+
+          return me._stopTimes_$trip_id;
+        }
       },
 "
 }
