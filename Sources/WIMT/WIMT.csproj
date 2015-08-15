@@ -27,6 +27,10 @@
     <Content Include="gridlayout.js" />
     <Content Include="helpers.js" />
     <Content Include="index.html" />
+    <Content Include="kendo-ui-core\js\jquery.js" />
+    <Content Include="kendo-ui-core\js\kendo.ui.core.js" />
+    <Content Include="kendo-ui-core\styles\web\kendo.common-bootstrap.core.css" />
+    <Content Include="kendo-ui-core\styles\web\kendo.default.css" />
     <Content Include="SNCFData\Routes.js" />
     <Content Include="SNCFData\Services.js" />
     <Content Include="SNCFData\Stops.js" />
