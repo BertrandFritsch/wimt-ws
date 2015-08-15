@@ -27,6 +27,10 @@
     <Content Include="gridlayout.js" />
     <Content Include="helpers.js" />
     <Content Include="index.html" />
+    <Content Include="SNCFData\Routes.js" />
+    <Content Include="SNCFData\Services.js" />
+    <Content Include="SNCFData\Stops.js" />
+    <Content Include="SNCFData\Trips.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>

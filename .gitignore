@@ -176,10 +176,7 @@ temp/
 TestResults.xml
 
 ## Personal
-Sources/TJIT.SNCFData/Routes.cs
-Sources/TJIT.SNCFData/Services.cs
-Sources/TJIT.SNCFData/Stops.cs
-Sources/TJIT.SNCFData/Trips.cs
+Sources/WIMT/SNCFData
 
 ## Node
 node_modules
