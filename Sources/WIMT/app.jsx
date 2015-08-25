@@ -4,7 +4,8 @@ var AutoCompleteSelector = React.createClass({
   getDefaultProps: function () {
     return {
       placeholder: '',
-      data: []
+      data: [],
+      value: null
     }
   },
 
@@ -14,11 +15,23 @@ var AutoCompleteSelector = React.createClass({
     $(this.getDOMNode()).kendoAutoComplete({
       placeholder: this.props.placeholder,
       dataSource: this.props.data,
+      value: this.props.value,
+      dataTextField: 'name',
       filter: 'contains',
       select: function (e) {
         me.props.onStopChange(this.dataItem(e.item.index()));
       }
     });
+  },
+
+  componentWillReceiveProps: function (nextProps) {
+    if(nextProps.data !== this.props.data) {
+      $(this.getDOMNode()).data("kendoAutoComplete").dataSource.data(nextProps.data);
+    }
+
+    if (nextProps.value !== this.props.value) {
+      $(this.getDOMNode()).data("kendoAutoComplete").value(nextProps.value);
+    }
   },
 
   render: function () {
@@ -31,24 +44,49 @@ var AutoCompleteSelector = React.createClass({
 var Trips = React.createClass({
   render: function () {
     var me = this,
-      stops = this.props.stops.map(function (stop) {
-      return stop.name;
-    });
+        departureStops = me.props.stops,
+        arrivalStops;
 
-    function onStopChange(stopName, eventToCall) {
+    function onStopChange(stop, eventToCall) {
       var index;
 
-      index = stops.indexOf(stopName);
       //TODO: ensure the name has been found
-      me.props[eventToCall](me.props.stops[index]);
+      me.props[eventToCall](stop);
     }
 
-    function onDepartureStopChange(stopName) {
-      onStopChange(stopName, 'onDepartureStopChange');
+    function onDepartureStopChange(stop) {
+      onStopChange(stop, 'onDepartureStopChange');
     }
 
-    function onArrivalStopChange(stopName) {
-      onStopChange(stopName, 'onArrivalStopChange');
+    function onArrivalStopChange(stop) {
+      onStopChange(stop, 'onArrivalStopChange');
+    }
+
+    if (me.props.departureStop) {
+      // filter the possible arrival stops
+      arrivalStops = (function () {
+        var stopsMap;
+
+        // use a map to make stops being unique
+        stopsMap = me.props.departureStop.getTrips().reduce(function (res, trip) {
+          return trip.getStopTimes().reduce(function (res, stopTime) {
+            // !!! stop object references cannot be compared as they are two distinct objects !!!
+            if (stopTime.stop.id !== me.props.departureStop.id) {
+              res[stopTime.stop.id] = stopTime.stop;
+            }
+
+            return res;
+          }, res)
+        }, {});
+
+        // use the initial stops list to keep the arrival stop list sorted
+        return departureStops.filter(function (stop) {
+          return stopsMap[stop.id] !== undefined;
+        });
+      })();
+    }
+    else {
+      arrivalStops = departureStops;
     }
 
     return (
@@ -56,16 +94,17 @@ var Trips = React.createClass({
           <div data-g-layout-item='"row": 0'>
             <AutoCompleteSelector ref="from"
                                   placeholder="De..."
-                                  data={stops}
-                                  onStopChange={onDepartureStopChange}
-                                   />
+                                  data={departureStops}
+                                  value={this.props.departureStop}
+                                  onStopChange={onDepartureStopChange} />
           </div>
           <div data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true' />
           <div data-g-layout-item='"row": 2'>
             <AutoCompleteSelector ref="to"
                                   placeholder="Vers..."
-                                  data={stops}
-                                 onStopChange={onArrivalStopChange} />
+                                  data={arrivalStops}
+                                  value={this.props.arrivalStop}
+                                  onStopChange={onArrivalStopChange} />
           </div>
         </div>
       )
@@ -89,7 +128,7 @@ var Main = React.createClass({
     };
   },
 
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       departureStop: null,
       arrivalStop: null
@@ -117,8 +156,8 @@ var Main = React.createClass({
           <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true'
                data-g-layout-policy='"widthPolicy": "Container", "widthHint": "600px"'
                className="root-container">
-            <Trips stops={this.props.stops} 
-                   departureStop={this.state.departureStop} 
+            <Trips stops={this.props.stops}
+                   departureStop={this.state.departureStop}
                    arrivalStop={this.state.arrivalStop}
                    onDepartureStopChange={this.onDepartureStopChange}
                    onArrivalStopChange={this.onArrivalStopChange} />
