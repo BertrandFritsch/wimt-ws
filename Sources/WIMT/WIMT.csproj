@@ -38,8 +38,14 @@
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="app.jsx" />
+    <Content Include="UIComponents\AutoCompleteSelector.jsx" />
+    <Content Include="UIComponents\DayHeaderRow.jsx" />
     <None Include="Local IIS.pubxml" />
+    <Content Include="UIComponents\StopTimeRow.jsx" />
+    <Content Include="UIComponents\SelectedTrips.jsx" />
+    <Content Include="UIComponents\Trips.jsx" />
+    <Content Include="UIComponents\Main.jsx" />
+    <Content Include="UIComponents\app.jsx" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
