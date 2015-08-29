@@ -1,14 +1,12 @@
 ﻿/** @jsx React.DOM */
 
 var SelectedTrips = React.createClass({
-  nextStopTimes: function (expectedStopCount) {
+  firstStopTimes: function (expectedStopCount) {
     var me = this,
+      minutesPerDay = 24 * 60,
       startStopTimes = me.props.startStopTimes,
       currentStopTime = -1,
-      minutesPerDay = 24 * 60,
       date = new Date(),
-      time,
-      stopTime, endStopTime, endSeq, d,
       result = [];
 
     function getDateAsString(date) {
@@ -27,7 +25,66 @@ var SelectedTrips = React.createClass({
       return day + '/' + month + '/' + year;
     }
 
-    // generate the 10 first stop times, then return a function to get the next 10 ones
+    // add the currentStopTime if it is a valid one
+    function nextStopTime(date, currentStopTime, result) {
+      var stopTime = startStopTimes[currentStopTime],
+        endStopTime, endSeq, d, doesRunAt, endDate;
+
+      if (me.props.departureStop && me.props.arrivalStop) {
+        // filter end stops trips
+        endStopTime = stopTime.trip.getStopTimes().firstOrDefault(function (stopTime) {
+          return stopTime.stop.id === me.props.arrivalStop.id;
+        });
+
+        endSeq = endStopTime ? endStopTime.sequence : 0;
+
+        if (stopTime.sequence >= endSeq) {
+          return;
+        }
+      }
+
+      d = date;
+      // be aware of trips that starts the day before
+      if (stopTime.time > minutesPerDay) {
+        d = new Date(d.getTime());
+        d.setDate(d.getDate() - 1);
+      }
+
+      doesRunAt = stopTime.trip.getServiceExceptions()[getDateAsString(d)];
+      endDate = stopTime.trip.service && stopTime.trip.service.endDate;
+      if (endDate) {
+        endDate = new Date(endDate.getTime());
+        endDate.setDate(endDate.getDate() + 1);
+      }
+
+      if (doesRunAt === true || (doesRunAt === undefined && stopTime.trip.service !== null && stopTime.trip.service.startDate.getTime() <= d.getTime() && d < endDate && stopTime.trip.service.days[d.getDay()])) {
+        result.push({ date: date, stopTime: stopTime });
+      }
+    }
+
+    // get the next expectedStopCount stops
+    function nextStopTimes(result) {
+      while (result.length < expectedStopCount) {
+        ++currentStopTime;
+        if (currentStopTime === startStopTimes.length) {
+          currentStopTime = 0;
+          date = new Date(date.getTime());
+          date.setDate(date.getDate() + 1);
+        }
+
+        nextStopTime(date, currentStopTime, result);
+      }
+
+      return {
+        stopTimes: result,
+        nextStopTimes: function () {
+          var result = [];
+          return nextStopTimes(result);
+        }
+      };
+    }
+
+    // generate the first stop times, then return a function to get the next ones
     if (startStopTimes) {
       // progress to the stop time 0
       for (currentStopTime = 0; currentStopTime < startStopTimes.length; ++currentStopTime) {
@@ -45,54 +102,8 @@ var SelectedTrips = React.createClass({
       // it's all right even if we go at the -1 index, as the first action is to go forward
       --currentStopTime;
 
-      while (true) {
-        ++currentStopTime;
-        if (currentStopTime === startStopTimes.length) {
-          currentStopTime = 0;
-          date = new Date(date.getTime());
-          date.setDate(date.getDate() + 1);
-        }
-
-        stopTime = startStopTimes[currentStopTime];
-
-        if (me.props.departureStop && me.props.arrivalStop) {
-          // filter end stops trips
-          endStopTime = stopTime.trip.getStopTimes().firstOrDefault(function (stopTime) {
-            return stopTime.stop.id === me.props.arrivalStop.id;
-          });
-
-          endSeq = endStopTime ? endStopTime.sequence : 0;
-
-          if (stopTime.sequence >= endSeq) {
-            continue;
-          }
-        }
-
-        d = date;
-        // be aware of trips that starts the day before
-        if (stopTime.time > minutesPerDay) {
-          d = new Date(d.getTime());
-          d.setDate(d.getDate() - 1);
-        }
-
-        var doesRunAt = stopTime.trip.getServiceExceptions()[getDateAsString(d)];
-        var endDate = stopTime.trip.service && stopTime.trip.service.endDate;
-        if (endDate) {
-          endDate = new Date(endDate.getTime());
-          endDate.setDate(endDate.getDate() + 1);
-        }
-
-        if (doesRunAt === true || (doesRunAt === undefined && stopTime.trip.service !== null && stopTime.trip.service.startDate.getTime() <= d.getTime() && d < endDate && stopTime.trip.service.days[d.getDay()])) {
-          result.push({ date: date, stopTime: stopTime });
-        }
-
-        if (result.length === expectedStopCount) {
-          return result;
-        }
-      }
+      return nextStopTimes(result);
     }
-
-    return result;
   },
 
   render: function () {
@@ -101,16 +112,18 @@ var SelectedTrips = React.createClass({
       rows = [],
       date;
 
-    stopTimes = me.nextStopTimes(130);
-    length = stopTimes.length;
+    if (me.props.startStopTimes) {
+      stopTimes = me.firstStopTimes(10).stopTimes;
+      length = stopTimes.length;
 
-    for (i = 0; i < length; ++i) {
-      if (date !== stopTimes[i].date) {
-        date = stopTimes[i].date;
-        rows.push(<DayHeaderRow key={date} date={date} />);
+      for (i = 0; i < length; ++i) {
+        if (date !== stopTimes[i].date) {
+          date = stopTimes[i].date;
+          rows.push(<DayHeaderRow key={date} date={date} />);
+        }
+
+        rows.push(<StopTimeRow key={i} stopTime={stopTimes[i].stopTime} />)
       }
-
-      rows.push(<StopTimeRow key={i} stopTime={stopTimes[i].stopTime} />)
     }
 
     return (
