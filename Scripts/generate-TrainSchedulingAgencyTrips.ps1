@@ -110,13 +110,13 @@ $agencyTrips |? {
             me._serviceException_$($_.service_id) = {
 "  
               $calendarDatesColl[$_.service_id] |? { $_ -ne $null } |% { $_.GetEnumerator() } |% {
-"              `"$($_.Name)`": $($TrueOrFalse[$_.Value.exception_type]),"
+"              `"$($_.Name -replace '(\d{4})(\d{2})(\d{2})','$3/$2/$1')`": $($TrueOrFalse[$_.Value.exception_type]),"
               }
 "
-            }
+            };
+          }
 
-            return me._serviceException_$($_.service_id);
-          };
+          return me._serviceException_$($_.service_id);
         },
         getStopTimes: function() {
           if (me._stopTimes_$trip_id === undefined) {
