@@ -1,11 +1,11 @@
 ﻿/** @jsx React.DOM */
 
 var SelectedTrips = React.createClass({
-  nextStopTimes: function () {
+  nextStopTimes: function (expectedStopCount) {
     var me = this,
       startStopTimes = me.props.startStopTimes,
       currentStopTime = -1,
-      dayInMinutes = 24 * 60,
+      minutesPerDay = 24 * 60,
       date = new Date(),
       time,
       stopTime, endStopTime, endSeq, d,
@@ -32,8 +32,8 @@ var SelectedTrips = React.createClass({
       // progress to the stop time 0
       for (currentStopTime = 0; currentStopTime < startStopTimes.length; ++currentStopTime) {
         time = startStopTimes[currentStopTime].time
-        if (time > dayInMinutes) {
-          time -= dayInMinutes;
+        if (time > minutesPerDay) {
+          time -= minutesPerDay;
         }
 
         if (time >= date.getHours() * 60 + date.getMinutes()) {
@@ -49,6 +49,7 @@ var SelectedTrips = React.createClass({
         ++currentStopTime;
         if (currentStopTime === startStopTimes.length) {
           currentStopTime = 0;
+          date = new Date(date.getTime());
           date.setDate(date.getDate() + 1);
         }
 
@@ -69,13 +70,15 @@ var SelectedTrips = React.createClass({
 
         d = date;
         // be aware of trips that starts the day before
-        if (stopTime.time > dayInMinutes) {
+        if (stopTime.time > minutesPerDay) {
+          d = new Date(d.getTime());
           d.setDate(d.getDate() - 1);
         }
 
         var doesRunAt = stopTime.trip.getServiceExceptions()[getDateAsString(d)];
         var endDate = stopTime.trip.service && stopTime.trip.service.endDate;
         if (endDate) {
+          endDate = new Date(endDate.getTime());
           endDate.setDate(endDate.getDate() + 1);
         }
 
@@ -83,7 +86,7 @@ var SelectedTrips = React.createClass({
           result.push({ date: date, stopTime: stopTime });
         }
 
-        if (result.length === 10) {
+        if (result.length === expectedStopCount) {
           return result;
         }
       }
@@ -98,7 +101,7 @@ var SelectedTrips = React.createClass({
       rows = [],
       date;
 
-    stopTimes = me.nextStopTimes();
+    stopTimes = me.nextStopTimes(130);
     length = stopTimes.length;
 
     for (i = 0; i < length; ++i) {
