@@ -2769,10 +2769,35 @@ var GridLayout = (function() {
     }
   }
 
-  var resizeHelper = function(container) {
+  var resizeListeners = (function () {
+    var listeners = [];
+
+    return {
+      add: function (listener) {
+        listeners.push(listener);
+      },
+
+      remove: function (listener) {
+        var i = listeners.indexOf(listener);
+
+        if (i > -1) {
+          listeners.splice(i, 1);
+        }
+      },
+
+      triggerResize: function () {
+        listeners.slice().forEach(function (listener) {
+          listener();
+        });
+      }
+    }
+  })();
+
+  var resizeHelper = function (container) {
 
     container.layoutData.resize(container.getBoundingClientRect());
     //gwc.api.callForEachComponent('onAfterLayout');
+    resizeListeners.triggerResize();
   }
 
   var hideSiblings = function(element) {
@@ -3050,6 +3075,11 @@ var GridLayout = (function() {
     		}
     	}
     },
+
+    /**
+     * Listeners interested in resize events
+     */
+    resizeListeners: resizeListeners,
 
   	/**
 		 * Freeze a container.
