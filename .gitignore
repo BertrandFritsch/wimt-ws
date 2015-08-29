@@ -178,6 +178,7 @@ TestResults.xml
 ## Personal
 Sources/WIMT/SNCFData
 Sources/WIMT/kendo-ui-core
+Sources/WIMT/react-infinite
 
 ## Node
 node_modules
