@@ -18,10 +18,10 @@ var StopTimeRow = React.createClass({
       minutes = '0' + minutes;
     }
 
-    lastStop = this.props.stopTime.trip.getStopTimes()[this.props.stopTime.trip.getStopTimes().length - 1].stop.name;
+    lastStop = SNCFData.stops[SNCFData.trips[this.props.stopTime.trip].stopTimes[SNCFData.trips[this.props.stopTime.trip].stopTimes.length - 1].stop].name;
 
     return (
-      <div className="stop-time-row">{hours}:{minutes} - {this.props.stopTime.trip.mission} - {lastStop}</div>
+      <div className="stop-time-row">{hours}:{minutes} - {SNCFData.trips[this.props.stopTime.trip].mission} - {lastStop}</div>
       )
   }
 });

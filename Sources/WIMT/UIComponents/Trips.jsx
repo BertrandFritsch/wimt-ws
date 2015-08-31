@@ -26,13 +26,13 @@ var Trips = React.createClass({
       // filter the possible arrival stops
       arrivalStops = (function () {
         var stopsMap;
-
+        debugger;
         // use a map to make stops being unique
-        stopsMap = me.props.departureStop.getTrips().reduce(function (res, trip) {
-          return trip.getStopTimes().reduce(function (res, stopTime) {
+        stopsMap = me.props.departureStop.trips.reduce(function (res, trip) {
+          return SNCFData.trips[trip].stopTimes.reduce(function (res, stopTime) {
             // !!! stop object references cannot be compared as they are two distinct objects !!!
-            if (stopTime.stop.id !== me.props.departureStop.id) {
-              res[stopTime.stop.id] = stopTime.stop;
+            if (SNCFData.stops[stopTime.stop].id !== me.props.departureStop.id) {
+              res[SNCFData.stops[stopTime.stop].id] = SNCFData.stops[stopTime.stop];
             }
 
             return res;
@@ -45,7 +45,7 @@ var Trips = React.createClass({
         });
       })();
 
-      startStopTimes = me.props.departureStop.getStopTimes();
+      startStopTimes = me.props.departureStop.stopTimes;
     }
     else {
       arrivalStops = departureStops;

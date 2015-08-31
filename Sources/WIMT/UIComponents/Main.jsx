@@ -1,20 +1,22 @@
 ﻿/** @jsx React.DOM */
 
+var SNCFData = {};
+
 var Main = React.createClass({
   loadData: function () {
     var me = this,
       dataToLoad = 4;
 
     function complete(prop, responseText) {
-      window[prop] = JSON.parse(responseText);
+      SNCFData[prop] = JSON.parse(responseText);
 
       if (--dataToLoad === 0) {
         me.setState({
           stops: (function () {
             var stops = [], stop;
 
-            for (stop in Stops) {
-              stops.push(Stops[stop]);
+            for (stop in SNCFData.stops) {
+              stops.push(SNCFData.stops[stop]);
             }
 
             return stops.sort(function (stop1, stop2) {
@@ -30,28 +32,28 @@ var Main = React.createClass({
     $.ajax({
       url: 'SNCFData/routes.json',
       complete: function (xhr, status) {
-        complete('Routes', xhr.responseText);
+        complete('routes', xhr.responseText);
       }
     });
 
     $.ajax({
       url: 'SNCFData/services.json',
       complete: function (xhr, status) {
-        complete('Services', xhr.responseText);
+        complete('services', xhr.responseText);
       }
     });
 
     $.ajax({
       url: 'SNCFData/stops.json',
       complete: function (xhr, status) {
-        complete('Stops', xhr.responseText);
+        complete('stops', xhr.responseText);
       }
     });
 
     $.ajax({
       url: 'SNCFData/trips.json',
       complete: function (xhr, status) {
-        complete('Trips', xhr.responseText);
+        complete('trips', xhr.responseText);
       }
     });
   },

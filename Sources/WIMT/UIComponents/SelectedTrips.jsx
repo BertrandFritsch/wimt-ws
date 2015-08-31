@@ -13,7 +13,7 @@ var SelectedTrips = React.createClass({
     }
   },
 
-  onResize: function() {
+  onResize: function () {
     var me = this;
 
     me.setState({
@@ -27,7 +27,7 @@ var SelectedTrips = React.createClass({
     GridLayout.resizeListeners.add(me.onResize);
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     var me = this;
 
     GridLayout.resizeListeners.remove(me.onResize);
@@ -61,12 +61,12 @@ var SelectedTrips = React.createClass({
       // add the currentStopTime if it is a valid one
       function nextStopTime(date, currentStopTime, result) {
         var stopTime = startStopTimes[currentStopTime],
-          endStopTime, endSeq, d, doesRunAt, endDate;
+          endStopTime, endSeq, d, doesRunAt;
 
         if (props.departureStop && props.arrivalStop) {
           // filter end stops trips
-          endStopTime = stopTime.trip.getStopTimes().firstOrDefault(function (stopTime) {
-            return stopTime.stop.id === props.arrivalStop.id;
+          endStopTime = SNCFData.trips[stopTime.trip].stopTimes.firstOrDefault(function (stopTime) {
+            return SNCFData.stops[stopTime.stop].id === props.arrivalStop.id;
           });
 
           endSeq = endStopTime ? endStopTime.sequence : 0;
@@ -83,14 +83,27 @@ var SelectedTrips = React.createClass({
           d.setDate(d.getDate() - 1);
         }
 
-        doesRunAt = stopTime.trip.getServiceExceptions()[getDateAsString(d)];
-        endDate = stopTime.trip.service && stopTime.trip.service.endDate;
-        if (endDate) {
-          endDate = new Date(endDate.getTime());
-          endDate.setDate(endDate.getDate() + 1);
-        }
+        doesRunAt = SNCFData.trips[stopTime.trip].serviceExceptions[getDateAsString(d)];
 
-        if (doesRunAt === true || (doesRunAt === undefined && stopTime.trip.service !== null && stopTime.trip.service.startDate.getTime() <= d.getTime() && d < endDate && stopTime.trip.service.days[d.getDay()])) {
+        if (doesRunAt === true
+          || (doesRunAt === undefined && (function () {
+          var endDate;
+
+          if (SNCFData.services[SNCFData.trips[stopTime.trip].service] !== undefined) {
+            if (new Date(SNCFData.services[SNCFData.trips[stopTime.trip].service].startDate).getTime() <= d.getTime()) {
+              endDate = SNCFData.services[SNCFData.trips[stopTime.trip].service].endDate;
+              endDate = new Date(endDate);
+              endDate = new Date(endDate.getTime());
+              endDate.setDate(endDate.getDate() + 1);
+
+              if (d.getTime() < endDate.getTime()) {
+                if (SNCFData.services[SNCFData.trips[stopTime.trip].service].days[d.getDay()]) {
+                  return true;
+                }
+              }
+            }
+          }
+        })())) {
           result.push({ date: date, stopTime: stopTime });
         }
       }
