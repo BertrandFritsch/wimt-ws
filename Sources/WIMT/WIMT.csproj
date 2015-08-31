@@ -25,6 +25,7 @@
     <Content Include="app.css" />
     <Content Include="gridlayout.css" />
     <Content Include="gridlayout.js" />
+    <Content Include="gulpfile.js" />
     <Content Include="helpers.js" />
     <Content Include="index.html" />
     <Content Include="kendo-ui-core\js\jquery.js" />
@@ -32,10 +33,6 @@
     <Content Include="kendo-ui-core\styles\web\kendo.common-bootstrap.core.css" />
     <Content Include="kendo-ui-core\styles\web\kendo.default.css" />
     <Content Include="react-infinite\react-infinite.js" />
-    <Content Include="SNCFData\Routes.js" />
-    <Content Include="SNCFData\Services.js" />
-    <Content Include="SNCFData\Stops.js" />
-    <Content Include="SNCFData\Trips.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -47,12 +44,20 @@
     <Content Include="UIComponents\Trips.jsx" />
     <Content Include="UIComponents\Main.jsx" />
     <Content Include="UIComponents\app.jsx" />
+    <Content Include="package.json" />
+    <Content Include="SNCFData\routes.json" />
+    <Content Include="SNCFData\services.json" />
+    <Content Include="SNCFData\stops.json" />
+    <Content Include="SNCFData\trips.json" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
     <None Include="web.Release.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
