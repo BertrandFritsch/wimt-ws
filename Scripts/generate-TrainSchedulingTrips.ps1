@@ -24,9 +24,20 @@ $paths = $agencies | foreach -Begin { $i = 0 } -Process { ++$i; [PSCustomObject]
 }
 
 function generate-trips($paths) {
-  Get-Content $paths
+"
+{
+"
+  $isFirstPath = $true
+  $paths |% {
+    $(if (-not ($isFirstPath)) {","}) 
+    Get-Content $_
+    $isFirstPath = $false 
+  }
+"
+}
+"
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\Trips.js"
-generate-trips $paths | Out-File $RootDir\Sources\WIMT\SNCFData\Trips.js -Encoding utf8
+Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\trips.json"
+generate-trips $paths | Out-File $RootDir\Sources\WIMT\SNCFData\trips.json -Encoding utf8
 $paths | Remove-Item

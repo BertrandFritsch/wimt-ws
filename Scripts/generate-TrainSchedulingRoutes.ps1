@@ -20,15 +20,17 @@ $routes = gi $RootDir\Assets\export-TN-GTFS-LAST\routes.txt | &"$RootDir\Scripts
 
 function generate-routes() {
 "
-Routes = {
+{
 "
+  $isFirst = $true
   $routes |% {
-"  `"$($_.route_id)`": { id: `"$($_.route_id)`", name: `"$($_.route_long_name)`", shortName: `"$($_.route_short_name)`" },"
+"  $(if (-not ($isFirst)) {","})`"$($_.route_id)`": { `"id`": `"$($_.route_id)`", `"name`": `"$($_.route_long_name)`", `"shortName`": `"$($_.route_short_name)`" }"
+   $isFirst = $false
   }
 "
-};
+}
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\Routes.js"
-generate-routes | Out-File $RootDir\Sources\WIMT\SNCFData\Routes.js -Encoding utf8
+Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\routes.json"
+generate-routes | Out-File $RootDir\Sources\WIMT\SNCFData\routes.json -Encoding utf8

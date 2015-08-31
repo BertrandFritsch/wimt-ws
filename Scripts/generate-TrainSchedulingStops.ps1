@@ -55,18 +55,19 @@ $paths = $jobs | Receive-Job -Wait
 
 function generate-stops($paths) {
 "
-Stops = (function() {
-  var me = {};
-
-  return {
+{
 "
-  Get-Content $paths
-"
+  $isFirstPath = $true
+  $paths |% {
+    $(if (-not ($isFirstPath)) {","}) 
+    Get-Content $_
+    $isFirstPath = $false 
   }
-})();
+"
+}
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\Stops.js"
-generate-stops $paths | Out-File $RootDir\Sources\WIMT\SNCFData\Stops.js -Encoding utf8
+Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\stops.json"
+generate-stops $paths | Out-File $RootDir\Sources\WIMT\SNCFData\stops.json -Encoding utf8
 $paths | Remove-Item

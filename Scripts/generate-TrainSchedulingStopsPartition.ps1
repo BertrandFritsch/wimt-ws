@@ -102,6 +102,7 @@ $sortedStopTimes |% {
 $TrueOrFalse = @{ '0' = 'false'; '1' = 'true'; '2' = 'false' }
 
 function generate-stops() {
+  $isFirstStop = $true
   $sortedStopTimesColl.GetEnumerator() |% {
     $stop_id = $_.Name
     if ($stationsColl[$stop_id]) {
@@ -120,38 +121,31 @@ function generate-stops() {
         }
     }
 "   
-    `"$($stop_id)`": { 
-       id: `"$stop_id`",
-       UICCode: `"$stop_UIC`",
-       name: `"$stop_name`",
-       getTrips: function() {
-         if (me._trips_$($stop_id) === undefined) { 
-           me._trips_$($stop_id) = [
+  $(if (-not ($isFirstStop)) {","})`"$($stop_id)`": { 
+     `"id`": `"$stop_id`",
+     `"UICCode`": `"$stop_UIC`",
+     `"name`": `"$stop_name`",
+     `"trips`": [
 "
-             $_.Value | %{ 
-"             $($_.agency_id)Trips[`"$($_.trip_id)`"], " 
-             }
+       $isFirst = $true
+       $_.Value | %{ 
+"       $(if (-not ($isFirst)) {","})`"$($_.trip_id)`"" 
+        $isFirst = $false
+       }
 "
-           ]
-         }
-
-         return me._trips_$($stop_id);
-       },
-       getStopTimes: function() {
-         if (me._stopTimes_$($stop_id) === undefined) {
-           me._stopTimes_$($stop_id) = [ 
+     ],
+     `"stopTimes`": [ 
 "
-             $_.Value | %{ 
-"             { stop: this, time: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), sequence: $($_.stop_time.stop_sequence), trip: $($_.agency_id)Trips[`"$($_.trip_id)`"] },"
-             }
+       $isFirst = $true
+       $_.Value | %{ 
+"       $(if (-not ($isFirst)) {","}){ `"time`": $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), `"sequence`": $($_.stop_time.stop_sequence), `"trip`": `"$($_.trip_id)`" }"
+        $isFirst = $false
+       }
 "
-           ]
-         }
-
-         return me._stopTimes_$($stop_id);
-       } 
-    },
+     ]
+  }
 "
+    $isFirstStop = $false
   }
 }
 
