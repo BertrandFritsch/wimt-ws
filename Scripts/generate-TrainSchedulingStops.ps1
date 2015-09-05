@@ -34,8 +34,8 @@ function Create-IndexedCollectoin($coll, $props) {
 # get filtered stops by valid trips
 function getStopTimesColl() {
 
-  $servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.end_date }) service_id
-  $calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.date }) service_id
+  $calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
+  $servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
   $tripsColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }) trip_id
   Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $tripsColl[$_.trip_id] }) stop_id
 }

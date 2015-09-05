@@ -52,8 +52,7 @@ if (-not $RootDir) {
 $trips = gi $rootDir\Assets\export-TN-GTFS-LAST\trips.txt | & $rootDir\Scripts\load-GTFS2.ps1
 $stop_times = gi $rootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | & $rootDir\Scripts\load-GTFS2.ps1
 $agencyColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\agency.txt | & $rootDir\Scripts\load-GTFS2.ps1) agency_id
-$servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.end_date }) service_id
-$calendar_dates = gi $rootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.date }
+$calendar_dates = gi $rootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
 $calendarDatesColl = @{}
 $calendar_dates |% {
     if (-not $calendarDatesColl[$_.service_id]) {
@@ -62,6 +61,7 @@ $calendar_dates |% {
 
     $calendarDatesColl[$_.service_id][$_.date] = $_
 }
+$servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
 $routesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\routes.txt | & $rootDir\Scripts\load-GTFS2.ps1) route_id
 $agencyTrips = $trips |
   ? { $routesColl[$_.route_id].agency_id -eq $AgencyId } |

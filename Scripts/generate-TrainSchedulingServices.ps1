@@ -3,6 +3,18 @@ param(
     [string] $RootDir
 )
 
+function Create-IndexedCollectoin($coll, $props) {
+  $collIndexed = @{}
+  $coll |% { 
+    $e = $_
+    $name = ($props |% { $e.$_ }) -join '_'
+   
+    # assume if the same element is there twice, just overwrite it
+    $collIndexed.$name = $_;
+  }
+  return $collIndexed
+}
+
 # filter no longer running trips
 $Date = "{0:yyyyMMdd}" -f (Get-Date)
 
@@ -20,9 +32,9 @@ if (-not $RootDir) {
 }
 
 $TrueOrFalse = @{ '0' = 'false'; '1' = 'true'; '2' = 'false' }
-
+$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
 $calendar = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
-  ? { $Date -lt $_.end_date }
+  ? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }
 
 function generate-services() {
 "

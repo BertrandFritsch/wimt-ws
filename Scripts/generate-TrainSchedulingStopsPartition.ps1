@@ -53,8 +53,7 @@ $stations = Get-Content $RootDir\Assets\sncf-gares-et-arrets-transilien-ile-de-f
 $stationsColl = @{}
 $stations | %{ $stationsColl[$_.'Code UIC' -replace '.$'] = $_ }
 
-$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.end_date }) service_id
-$calendar_dates = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -lt $_.date }
+$calendar_dates = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
 $calendarDatesColl = @{}
 $calendar_dates |% {
     if (-not $calendarDatesColl[$_.service_id]) {
@@ -63,6 +62,7 @@ $calendar_dates |% {
 
     $calendarDatesColl[$_.service_id][$_.date] = $_
 }
+$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
 
 $trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1"  |
     ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }
