@@ -22,7 +22,9 @@ var Main = React.createClass({
             return stops.sort(function (stop1, stop2) {
               return stop1.name < stop2.name ? -1 : 1;
             });
-          })()
+          })(),
+
+          departureStop: SNCFData.stops['8738288']
         });
       }
     }
