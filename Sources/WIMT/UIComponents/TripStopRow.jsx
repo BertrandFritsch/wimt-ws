@@ -1,6 +1,6 @@
 ﻿/** @jsx React.DOM */
 
-var StopTimeRow = React.createClass({
+var TripStopRow = React.createClass({
   render: function () {
     var me = this,
       hours = Math.floor(this.props.stopTime.time / 60),
@@ -23,10 +23,8 @@ var StopTimeRow = React.createClass({
       minutes = '0' + minutes;
     }
 
-    lastStop = SNCFData.stops[SNCFData.trips[this.props.stopTime.trip].stopTimes[SNCFData.trips[this.props.stopTime.trip].stopTimes.length - 1].stop].name;
-
     return (
-      <div className="stop-time-row" onClick={onStopTimeSelected}>{hours}:{minutes} - {SNCFData.trips[this.props.stopTime.trip].mission} - {lastStop}</div>
+      <div className="trip-stop-row">{hours}:{minutes} - {SNCFData.stops[this.props.stopTime.stop].name}</div>
       )
   }
 });

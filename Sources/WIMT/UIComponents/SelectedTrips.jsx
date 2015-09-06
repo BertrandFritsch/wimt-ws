@@ -4,7 +4,7 @@ var SelectedTrips = React.createClass({
   getInitialState: function () {
     var me = this,
       generator = SelectedTrips.firstStopTimes(me.props, 40) || null,
-      rows = generator ? SelectedTrips.transformToElements(generator.stopTimes) : [];
+      rows = generator ? me.transformToElements(generator.stopTimes) : [];
 
     return {
       generator: generator,
@@ -151,32 +151,32 @@ var SelectedTrips = React.createClass({
         return nextStopTimes(result);
       }
     },
+  },
 
-    transformToElements: function (stopTimes, date) {
-      var me = this,
-        length, i,
-        rows = [];
+  transformToElements: function (stopTimes, date) {
+    var me = this,
+      length, i,
+      rows = [];
 
-      length = stopTimes.length;
+    length = stopTimes.length;
 
-      for (i = 0; i < length; ++i) {
-        if (date !== stopTimes[i].date) {
-          date = stopTimes[i].date;
-          rows.push(<DayHeaderRow key={date} date={date} />);
-        }
-
-        rows.push(<StopTimeRow key={i} stopTime={stopTimes[i].stopTime} />)
+    for (i = 0; i < length; ++i) {
+      if (date !== stopTimes[i].date) {
+        date = stopTimes[i].date;
+        rows.push(<DayHeaderRow key={date} date={date} />);
       }
 
-      return rows;
+      rows.push(<StopTimeRow key={i} stopTime={stopTimes[i].stopTime} onStopTimeSelected={this.props.onStopTimeSelected} />)
     }
+
+    return rows;
   },
 
   handleInfiniteLoad: function () {
     var me = this,
       lastDate = me.state.generator.stopTimes[me.state.generator.stopTimes.length - 1].date,
       generator = me.state.generator.nextStopTimes(),
-      rows = me.state.rows.concat(SelectedTrips.transformToElements(generator.stopTimes, lastDate));
+      rows = me.state.rows.concat(me.transformToElements(generator.stopTimes, lastDate));
 
     return me.setState({
       generator: generator,
@@ -190,7 +190,7 @@ var SelectedTrips = React.createClass({
 
     if (nextProps.departureStop !== me.props.departureStop || nextProps.arrivalStop !== me.props.arrivalStop) {
       generator = SelectedTrips.firstStopTimes(nextProps, 40) || null;
-      rows = generator ? SelectedTrips.transformToElements(generator.stopTimes) : [];
+      rows = generator ? me.transformToElements(generator.stopTimes) : [];
 
       me.setState({
         generator: generator,

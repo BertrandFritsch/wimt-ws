@@ -49,6 +49,8 @@
     <Content Include="SNCFData\services.json" />
     <Content Include="SNCFData\stops.json" />
     <Content Include="SNCFData\trips.json" />
+    <Content Include="UIComponents\Trip.jsx" />
+    <Content Include="UIComponents\TripStopRow.jsx" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>

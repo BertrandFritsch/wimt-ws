@@ -6,14 +6,34 @@
   background-color: rgba(237, 237, 241, 1);
 }
 
-.main-frame {
+.trips-frame {
 }
 
 .trips-container {
 }
 
+.trip-frame {
+  height: 100%;
+  width: 100%;
+
+  background-color:  rgba(238, 238, 238, 1);
+  overflow-y: auto;
+}
+
 .stop-time-row {
   height: 50px;
+}
+
+.trip-stop-row {
+  height: 50px;
+}
+
+.stop-time-row:hover {
+  background-color: silver;
+}
+
+.trip-stop-row:hover {
+  background-color: silver;
 }
 
 .day-header-row {

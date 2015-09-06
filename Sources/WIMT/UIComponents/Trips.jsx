@@ -26,7 +26,7 @@ var Trips = React.createClass({
       // filter the possible arrival stops
       arrivalStops = (function () {
         var stopsMap;
-        debugger;
+
         // use a map to make stops being unique
         stopsMap = me.props.departureStop.trips.reduce(function (res, trip) {
           return SNCFData.trips[trip].stopTimes.reduce(function (res, stopTime) {
@@ -52,7 +52,7 @@ var Trips = React.createClass({
     }
 
     return (
-        <div data-g-layout-container='"horizontalBubbling": false, "verticalBubbling": false' className="main-frame">
+        <div data-g-layout-container='' className="trips-frame">
           <div data-g-layout-item='"row": 0'>
             <AutoCompleteSelector ref="from"
                                   placeholder="De..."
@@ -63,7 +63,8 @@ var Trips = React.createClass({
           <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
             <SelectedTrips departureStop={this.props.departureStop}
                            startStopTimes={startStopTimes}
-                           arrivalStop={this.props.arrivalStop} />
+                           arrivalStop={this.props.arrivalStop}
+                           onStopTimeSelected={this.props.onStopTimeSelected} />
           </div>
           <div data-g-layout-item='"row": 2'>
             <AutoCompleteSelector ref="to"

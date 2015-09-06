@@ -60,10 +60,23 @@ var Main = React.createClass({
     });
   },
 
+  setUpHistoryNavigation: function() {
+    var me = this;
+
+    window.addEventListener('popstate', function (event) {
+      event.preventDefault();
+      
+      me.setState({
+        selectedStopTime: event.state && event.state.selectedStopTime
+      });
+    });
+  },
+
   getInitialState: function () {
     var me = this;
 
     me.loadData();
+    me.setUpHistoryNavigation();
 
     return {
       stops: [],
@@ -84,7 +97,19 @@ var Main = React.createClass({
     });
   },
 
+  onStopTimeSelected: function (stopTime) {
+    this.setState({
+      selectedStopTime: stopTime
+    });
+
+    window.history.pushState({
+      selectedStopTime: stopTime
+    }, 'Voyage d\'un train', '#selectedTrip');
+  },
+
   render: function () {
+    var me = this;
+
     return (
         <div id="gGridLayoutRoot"
              className="gLayoutMeasuring"
@@ -93,11 +118,19 @@ var Main = React.createClass({
           <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true'
                data-g-layout-policy='"widthPolicy": "Container", "widthHint": "600px"'
                className="root-container">
-            <Trips stops={this.state.stops}
-                   departureStop={this.state.departureStop}
-                   arrivalStop={this.state.arrivalStop}
-                   onDepartureStopChange={this.onDepartureStopChange}
-                   onArrivalStopChange={this.onArrivalStopChange} />
+            <div data-g-layout-container='"horizontalBubbling": false, "verticalBubbling": false'>
+              <Trips stops={me.state.stops}
+                     departureStop={me.state.departureStop}
+                     arrivalStop={me.state.arrivalStop}
+                     onDepartureStopChange={me.onDepartureStopChange}
+                     onArrivalStopChange={me.onArrivalStopChange}
+                     onStopTimeSelected={me.onStopTimeSelected} />
+              {(function() {
+                if (me.state.selectedStopTime) {
+                  return <Trip trip={SNCFData.trips[me.state.selectedStopTime.trip]} selectedStopTime={me.state.selectedStopTime} />;
+                }
+              })()}
+            </div>
           </div>
           <div data-g-layout-item='"row": 0, "column": 2, "isXSpacer": true' />
         </div>
