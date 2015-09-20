@@ -38,6 +38,6 @@ function generate-trips($paths) {
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\trips.json"
-generate-trips $paths | Out-File $RootDir\Sources\WIMT\SNCFData\trips.json -Encoding utf8
+Write-Host "Generate $RootDir\Sources\src\SNCFData\trips.json"
+generate-trips $paths | Out-File $RootDir\Sources\src\SNCFData\trips.json -Encoding utf8
 $paths | Remove-Item

@@ -32,5 +32,5 @@ function generate-routes() {
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\routes.json"
-generate-routes | Out-File $RootDir\Sources\WIMT\SNCFData\routes.json -Encoding utf8
+Write-Host "Generate $RootDir\Sources\src\SNCFData\routes.json"
+generate-routes | Out-File $RootDir\Sources\src\SNCFData\routes.json -Encoding utf8

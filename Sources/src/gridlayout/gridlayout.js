@@ -5,68 +5,6 @@
  * <p>The API is exposed through the {@link GridLayout} module.</p>
  */
 
-
-/**
- * @name HTMLElement
- * @class Extension of the standard HTMLElement class.
- */
-
-/**
- * Sets a style attribute.
- * @function
- * @param {string} name The name of the style attribute.
- * @param {string} value The value of the style attribute.
- *
- */
-HTMLElement.prototype.setStyle = function(name, value) {
-
-  this.style[name] = value;
-}
-
-/**
- * Sets several style attributes at once.
- * @function
- * @param {property bag} styles A property bag containing the style attributes to set.
- *
- */
-HTMLElement.prototype.setStyles = function(styles) {
-
-  var style = this.style;
-  for (var s in styles) {
-
-    if (s[0] != '_') {
-
-      style[s] = styles[s];
-    }
-  }
-}
-
-/**
- * Resets a style attribute.
- * @function
- * @param {string} name The name of the style attribute.
- *
- */
-HTMLElement.prototype.resetStyle = function(name) {
-
-  this.style[name] = '';
-}
-
-/**
- * Resets several style attributes at once.
- * @function
- * @param {array} names The list of style attributes to reset.
- *
- */
-HTMLElement.prototype.resetStyles = function(names) {
-
-  var style = this.style;
-  names.forEach(function(e) {
-
-      style[e] = '';
-    });
-}
-
 /**
  * @namespace Exposes the grid layout API.
  * Expects finding in the DOM tree an element with the gGridLayoutRoot id.
@@ -3138,3 +3076,5 @@ var GridLayout = (function() {
     }
   }
 } ());
+
+export default GridLayout;

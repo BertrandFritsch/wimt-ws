@@ -176,10 +176,8 @@ temp/
 TestResults.xml
 
 ## Personal
-Sources/WIMT/SNCFData
-Sources/WIMT/kendo-ui-core
-Sources/WIMT/react-infinite
-Sources/WIMT/dist
+Sources/src/SNCFData
+Sources/src/dist
 
 ## Node
 node_modules

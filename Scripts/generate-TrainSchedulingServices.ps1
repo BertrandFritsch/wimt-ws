@@ -50,5 +50,5 @@ $calendar |% {
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\services.json"
-generate-services | Out-File $RootDir\Sources\WIMT\SNCFData\services.json -Encoding utf8
+Write-Host "Generate $RootDir\Sources\src\SNCFData\services.json"
+generate-services | Out-File $RootDir\Sources\src\SNCFData\services.json -Encoding utf8

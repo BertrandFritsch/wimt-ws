@@ -1,4 +1,7 @@
-﻿
+/**
+ * Created by Bertrand on 19/09/2015.
+ */
+
 if (!Array.prototype.last) {
 
   Array.prototype.last = function (arg1) {
@@ -67,60 +70,5 @@ Array.prototype.erase = function (item) {
   if (i > -1) {
 
     this.splice(i, 1);
-  }
-}
-
-
-// classList workaround
-
-HTMLElement.prototype.classListAdd = function (cl) {
-
-  if (!this.classListContains(cl))
-    this.className += ' ' + cl;
-}
-
-HTMLElement.prototype.classListContains = function (cl) {
-
-  return (' ' + this.className + ' ').indexOf(' ' + cl + ' ') != -1;
-}
-
-HTMLElement.prototype.classListRemove = function (cl) {
-
-  var eltcl = ' ' + this.className + ' ';
-  var tmp = ' ' + cl + ' ';
-  var pos = eltcl.lastIndexOf(tmp);
-  if (pos != -1)
-    this.className = eltcl.substr(0, pos + 1) + eltcl.substr(pos + tmp.length);
-}
-
-HTMLElement.prototype.classListToggle = function (cl) {
-
-  if (this.classListContains(cl)) {
-
-    this.classListRemove(cl);
-
-    return false;
-  } else {
-
-    this.classListAdd(cl);
-
-    return true;
-  }
-}
-
-HTMLElement.prototype.classListSet = function (cl, state) {
-
-  if (state) {
-
-    if (!this.classListContains(cl)) {
-
-      this.classListAdd(cl);
-    }
-  } else {
-
-    if (this.classListContains(cl)) {
-
-      this.classListRemove(cl);
-    }
   }
 }

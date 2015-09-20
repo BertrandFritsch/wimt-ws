@@ -68,6 +68,6 @@ function generate-stops($paths) {
 "
 }
 
-Write-Host "Generate $RootDir\Sources\WIMT\SNCFData\stops.json"
-generate-stops $paths | Out-File $RootDir\Sources\WIMT\SNCFData\stops.json -Encoding utf8
+Write-Host "Generate $RootDir\Sources\src\SNCFData\stops.json"
+generate-stops $paths | Out-File $RootDir\Sources\src\SNCFData\stops.json -Encoding utf8
 $paths | Remove-Item
