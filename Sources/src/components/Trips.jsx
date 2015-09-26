@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import AutoCompleteSelector from './AutoCompleteSelector/AutoCompleteSelector';
 import SelectedTrips from './SelectedTrips';
 import SNCFData from './SNCFData';
 
@@ -26,11 +27,9 @@ class Trips extends React.Component {
     if (this.props.departureStop) {
       // filter the possible arrival stops
       arrivalStops = (() => {
-        var stopsMap;
-
         // use a map to make stops being unique
-        stopsMap = this.props.departureStop.trips.reduce((res, trip) => {
-          return SNCFData.trips[trip].stopTimes.reduce((res, stopTime) => {
+        let stopsMap = this.props.departureStop.trips.reduce((res, trip) => {
+          return SNCFData.trips[trip.trip].stopTimes.reduce((res, stopTime) => {
             // !!! stop object references cannot be compared as they are two distinct objects !!!
             if (SNCFData.stops[stopTime.stop].id !== this.props.departureStop.id) {
               res[SNCFData.stops[stopTime.stop].id] = SNCFData.stops[stopTime.stop];
@@ -46,7 +45,7 @@ class Trips extends React.Component {
         });
       })();
 
-      startStopTimes = this.props.departureStop.stopTimes;
+      startStopTimes = this.props.departureStop.trips;
     }
     else {
       arrivalStops = departureStops;
@@ -55,6 +54,11 @@ class Trips extends React.Component {
     return (
         <div data-g-layout-container='' className="trips-frame">
           <div data-g-layout-item='"row": 0'>
+            <AutoCompleteSelector ref="from"
+                                  placeholder="De..."
+                                  data={departureStops}
+                                  value={this.props.departureStop}
+                                  onStopChange={onDepartureStopChange} />
           </div>
           <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
             <SelectedTrips departureStop={this.props.departureStop}
@@ -63,6 +67,11 @@ class Trips extends React.Component {
                            onStopTimeSelected={this.props.onStopTimeSelected} />
           </div>
           <div data-g-layout-item='"row": 2'>
+            <AutoCompleteSelector ref="to"
+                                  placeholder="Vers..."
+                                  data={arrivalStops}
+                                  value={this.props.arrivalStop}
+                                  onStopChange={onArrivalStopChange} />
           </div>
         </div>
       )

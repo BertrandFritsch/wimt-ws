@@ -14,7 +14,7 @@ var filesToMove = [
   './src/SNCFData/*'
 ];
 
-function buildJs (options, callback) {
+function buildJs(options, callback) {
   var plugins = options.minify ? [
     new webpack.optimize.UglifyJsPlugin({
       compress: {
@@ -55,13 +55,16 @@ function buildJs (options, callback) {
           compact: false,
           stage: 0
         },
-      }],
+      },
+        {test: /\.css$/, loader: "style-loader!css-loader"},
+        {test: /\.png$/, loader: "url-loader?limit=100000"},
+        {test: /\.jpg$/, loader: "file-loader"}]
     },
   }, function (error, stats) {
-    if ( error ) {
+    if (error) {
       var pluginError = new gutil.PluginError("webpack", error);
 
-      if ( callback ) {
+      if (callback) {
         callback(pluginError);
       } else {
         gutil.log("[webpack]", pluginError);
@@ -71,24 +74,26 @@ function buildJs (options, callback) {
     }
 
     gutil.log("[webpack]", stats.toString());
-    if (callback) { callback(); }
+    if (callback) {
+      callback();
+    }
   });
 }
 
 gulp.task("build", ["move"], function (callback) {
-  buildJs({ watch: false, minify: false, sourceMaps: true }, callback);
+  buildJs({watch: false, minify: false, sourceMaps: true}, callback);
 });
 
-gulp.task("production", ['clean'], function() {
+gulp.task("production", ['clean'], function () {
   gulp.start('build:minify');
 });
 
 gulp.task("build:minify", ["move"], function (callback) {
-  buildJs({ watch: false, minify: true, sourceMaps: false }, callback);
+  buildJs({watch: false, minify: true, sourceMaps: false}, callback);
 });
 
 gulp.task("watch", function () {
-  buildJs({ watch: true, minify: false });
+  buildJs({watch: true, minify: false});
 });
 
 gulp.task('move', function () {

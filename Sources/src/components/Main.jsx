@@ -62,9 +62,9 @@ class Main extends React.Component {
             }
 
             return stops.sort((stop1, stop2) => stop1.name < stop2.name ? -1 : 1);
-          })(),
+          })()
 
-          departureStop: SNCFData.stops['8738288']
+          //departureStop: SNCFData.stops['8738288']
         });
       }
     }
