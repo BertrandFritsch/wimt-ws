@@ -127,10 +127,10 @@ class SelectedTrips extends React.Component {
     }
 
     // generate the first stop times, then return a function to get the next ones
-    if (startStopTimes) {
+    if (startStopTimes && startStopTimes.length > 0) {
       // progress to the stop time 0
       for (currentStopTime = 0; currentStopTime < startStopTimes.length; ++currentStopTime) {
-        let time = startStopTimes[currentStopTime].time
+        let time = startStopTimes[currentStopTime].time;
         if (time > minutesPerDay) {
           time -= minutesPerDay;
         }

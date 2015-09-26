@@ -46,6 +46,14 @@ class Trips extends React.Component {
       })();
 
       startStopTimes = this.props.departureStop.trips;
+
+      if (this.props.arrivalStop) {
+        startStopTimes = startStopTimes.filter(stopTime => {
+          return SNCFData.trips[stopTime.trip].stopTimes.firstOrDefault(stopTime => {
+            return stopTime.stop === this.props.arrivalStop.id;
+          }) !== undefined;
+        });
+      }
     }
     else {
       arrivalStops = departureStops;
