@@ -182,3 +182,6 @@ Sources/dist
 ## Node
 node_modules
 .ntvs_analysis.dat
+
+## WebStorm
+Sources/.idea/workspace.xml
