@@ -125,16 +125,7 @@ function generate-stops() {
      `"id`": `"$stop_id`",
      `"UICCode`": `"$stop_UIC`",
      `"name`": `"$stop_name`",
-     `"trips`": [
-"
-       $isFirst = $true
-       $_.Value | %{ 
-"       $(if (-not ($isFirst)) {","})`"$($_.trip_id)`"" 
-        $isFirst = $false
-       }
-"
-     ],
-     `"stopTimes`": [ 
+     `"trips`": [ 
 "
        $isFirst = $true
        $_.Value | %{ 
