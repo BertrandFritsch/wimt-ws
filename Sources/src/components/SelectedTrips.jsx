@@ -4,6 +4,7 @@ import StopTimeRow from './StopTimeRow';
 import Infinite from 'react-infinite';
 import SNCFData from './SNCFData';
 import GridLayout from '../gridlayout/gridlayout';
+import $ from 'jquery';
 
 class SelectedTrips extends React.Component {
   constructor(props) {
@@ -188,6 +189,8 @@ class SelectedTrips extends React.Component {
         generator: generator,
         rows: rows
       });
+
+      this.checkRealTimes(nextProps);
     }
   }
 
@@ -200,6 +203,61 @@ class SelectedTrips extends React.Component {
         {this.state.rows}
       </Infinite>
     )
+  }
+
+  checkRealTimes = (props) => {
+    var me = this;
+
+    if (props.departureStop) {
+      let url = String.format('http://localhost:82/gare/{0}/', props.departureStop.UICCode);
+      if (props.arrivalStop) {
+        url = String.format('{0}depart/{1}/', url, props.arrivalStop.UICCode);
+      }
+      $.ajax({
+        url: url,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader ("Authorization", "Basic dG5odG4xNzk6alNIMjV2Yjg=");
+            xhr.setRequestHeader ("Accept", "application/vnd.sncf.transilien.od.depart+xml;vers=1");
+            xhr.setRequestHeader ("Cache-Control", "no-cache, no-store, must-revalidate");
+          },
+        complete: function(xhr, status) {
+          let trains = xhr.responseXML.getElementsByTagName('train');
+          for (let i = 0, iTrain = 0, iLength = me.state.generator.stopTimes.length, iTrainsLength = trains.length; i < iLength; ++i) {
+            let stop = me.state.generator.stopTimes[i];
+            if (iTrain < iTrainsLength) {
+              let train = trains[iTrain];
+              let trip = SNCFData.trips[stop.stopTime.trip];
+              if (trip.number === train.getElementsByTagName('num')[0].textContent) {
+                stop.realTime = {
+                  time: SelectedTrips.parseRealTime(train.getElementsByTagName('date')[0].textContent),
+                  mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
+                  state: train.getElementsByTagName('state').length ? train.getElementsByTagName('state')[0].textContent : ''
+                };
+
+                ++iTrain;
+              }
+              else {
+                // no more real times available for this stop time, ensure that no real time is still attached on this train
+                delete stop.realTime;
+              }
+            }
+            else {
+              // no more real times available, ensure that no real time is still attached on this train
+              delete stop.realTime;
+            }
+          }
+
+          me.setState({
+            rows: me.transformToElements(me.state.generator.stopTimes, me.state.generator.stopTimes[me.state.generator.stopTimes.length - 1].date)
+          });
+        }
+      });
+    }
+  }
+
+  static parseRealTime(time) {
+    let matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
+    return new Date(Number(matches[3]), Number(matches[2]) - 1, Number(matches[1]), Number(matches[4]), Number(matches[5]));
   }
 }
 
