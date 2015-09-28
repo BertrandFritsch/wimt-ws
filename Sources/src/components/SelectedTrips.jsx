@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import DayHeaderRow from './DayHeaderRow';
-import StopTimeRow from './StopTimeRow';
+import StopTimeRow from './StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
 import SNCFData from './SNCFData';
 import GridLayout from '../gridlayout/gridlayout';
@@ -161,7 +161,19 @@ class SelectedTrips extends React.Component {
         rows.push(<DayHeaderRow key={date} date={date} />);
       }
 
-      rows.push(<StopTimeRow key={stopTimes[i].stopTime.trip + stopTimes[i].stopTime.time} stopTime={stopTimes[i].stopTime} onStopTimeSelected={this.props.onStopTimeSelected} />)
+      let realTime;
+      if (stopTimes[i].realTime) {
+        realTime = {
+          time: stopTimes[i].realTime,
+          mode: stopTimes[i].realTime.mode,
+          state: stopTimes[i].realTime.state
+        }
+      }
+
+      rows.push(<StopTimeRow key={stopTimes[i].stopTime.trip + stopTimes[i].stopTime.time}
+                             stopTime={stopTimes[i].stopTime}
+                             realTime={realTime}
+                             onStopTimeSelected={this.props.onStopTimeSelected} />)
     }
 
     return rows;

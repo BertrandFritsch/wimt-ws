@@ -3,7 +3,7 @@
 }
 
 .root-container {
-  background-color: rgba(237, 237, 241, 1);
+  /*background-color: rgba(237, 237, 241, 1);*/
 }
 
 .trips-frame {
@@ -20,16 +20,8 @@
   overflow-y: auto;
 }
 
-.stop-time-row {
-  height: 50px;
-}
-
 .trip-stop-row {
   height: 50px;
-}
-
-.stop-time-row:hover {
-  background-color: silver;
 }
 
 .trip-stop-row:hover {

@@ -1,0 +1,36 @@
+﻿
+.stop-time-row {
+  display: table;
+  width: 100%;
+  height: 50px;
+}
+
+.stop-time-row > * {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.stop-time-row:hover {
+  background-color: silver;
+}
+
+.stop-time-row-real-time {
+  background-color: cadetblue;
+}
+
+.stop-time-row-time {
+  font-size: 9pt;
+}
+
+.stop-time-row-time-separator {
+  display: inline-block;
+  width: 21px;
+  height: 100%;
+  background-image: url('../../assets/mark.png');
+  background-position:50% 0%;
+  background-repeat: no-repeat;
+}
+
+.stop-time-row-container {
+  width: 100%;
+}

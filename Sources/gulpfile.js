@@ -11,7 +11,8 @@ var filesToMove = [
   './src/index.html',
   './src/app.css',
   './src/gridlayout/gridlayout.css',
-  './src/SNCFData/*'
+  './src/SNCFData/*',
+  './src/assets/*'
 ];
 
 function buildJs(options, callback) {
