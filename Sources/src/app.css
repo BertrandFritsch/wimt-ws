@@ -27,13 +27,3 @@
 .trip-stop-row:hover {
   background-color: silver;
 }
-
-.day-header-row {
-  height: 50px;
-  line-height: 50px;
-  text-align: center;
-
-  background-color: black;
-  color: white;
-  font-weight: bold;
-}

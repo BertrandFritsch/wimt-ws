@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import DayHeaderRow from './DayHeaderRow';
+import DayHeaderRow from './DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
 import SNCFData from './SNCFData';
@@ -22,14 +22,41 @@ class SelectedTrips extends React.Component {
     };
   }
 
+  componentWillUnmount = () => {
+    GridLayout.resizeListeners.remove(this.onResize);
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    var generator, rows;
+
+    if (nextProps.departureStop !== this.props.departureStop || nextProps.arrivalStop !== this.props.arrivalStop) {
+      generator = SelectedTrips.firstStopTimes(nextProps, 40) || null;
+      rows = generator ? this.transformToElements(generator.stopTimes) : [];
+
+      this.setState({
+        generator: generator,
+        rows: rows
+      });
+
+      this.checkRealTimes(nextProps);
+    }
+  }
+
+  render = () => {
+    return (
+      <Infinite elementHeight={50}
+                containerHeight={this.state.containerHeight}
+                infiniteLoadBeginBottomOffset={200}
+                onInfiniteLoad={this.handleInfiniteLoad}>
+        {this.state.rows}
+      </Infinite>
+    )
+  }
+
   onResize = () => {
     this.setState({
       containerHeight: React.findDOMNode(this).parentNode.getBoundingClientRect().height
     });
-  }
-
-  componentWillUnmount = () => {
-    GridLayout.resizeListeners.remove(this.onResize);
   }
 
   static firstStopTimes(props, expectedStopCount) {
@@ -84,23 +111,23 @@ class SelectedTrips extends React.Component {
 
       if (doesRunAt === true
         || (doesRunAt === undefined && (function () {
-        var endDate;
+          var endDate;
 
-        if (SNCFData.services[SNCFData.trips[stopTime.trip].service] !== undefined) {
-          if (new Date(SNCFData.services[SNCFData.trips[stopTime.trip].service].startDate).getTime() <= d.getTime()) {
-            endDate = SNCFData.services[SNCFData.trips[stopTime.trip].service].endDate;
-            endDate = new Date(endDate);
-            endDate = new Date(endDate.getTime());
-            endDate.setDate(endDate.getDate() + 1);
+          if (SNCFData.services[SNCFData.trips[stopTime.trip].service] !== undefined) {
+            if (new Date(SNCFData.services[SNCFData.trips[stopTime.trip].service].startDate).getTime() <= d.getTime()) {
+              endDate = SNCFData.services[SNCFData.trips[stopTime.trip].service].endDate;
+              endDate = new Date(endDate);
+              endDate = new Date(endDate.getTime());
+              endDate.setDate(endDate.getDate() + 1);
 
-            if (d.getTime() < endDate.getTime()) {
-              if (SNCFData.services[SNCFData.trips[stopTime.trip].service].days[d.getDay()]) {
-                return true;
+              if (d.getTime() < endDate.getTime()) {
+                if (SNCFData.services[SNCFData.trips[stopTime.trip].service].days[d.getDay()]) {
+                  return true;
+                }
               }
             }
           }
-        }
-      })())) {
+        })())) {
         result.push({ date: date, stopTime: stopTime });
       }
     }
@@ -190,33 +217,6 @@ class SelectedTrips extends React.Component {
     });
   }
 
-  componentWillReceiveProps = (nextProps) => {
-    var generator, rows;
-
-    if (nextProps.departureStop !== this.props.departureStop || nextProps.arrivalStop !== this.props.arrivalStop) {
-      generator = SelectedTrips.firstStopTimes(nextProps, 40) || null;
-      rows = generator ? this.transformToElements(generator.stopTimes) : [];
-
-      this.setState({
-        generator: generator,
-        rows: rows
-      });
-
-      this.checkRealTimes(nextProps);
-    }
-  }
-
-  render = () => {
-    return (
-      <Infinite elementHeight={50}
-                containerHeight={this.state.containerHeight}
-                infiniteLoadBeginBottomOffset={200}
-                onInfiniteLoad={this.handleInfiniteLoad}>
-        {this.state.rows}
-      </Infinite>
-    )
-  }
-
   checkRealTimes = (props) => {
     var me = this;
 
@@ -260,7 +260,7 @@ class SelectedTrips extends React.Component {
           }
 
           me.setState({
-            rows: me.transformToElements(me.state.generator.stopTimes, me.state.generator.stopTimes[me.state.generator.stopTimes.length - 1].date)
+            rows: me.transformToElements(me.state.generator.stopTimes)
           });
         }
       });
