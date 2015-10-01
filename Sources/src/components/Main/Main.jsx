@@ -1,8 +1,9 @@
 ﻿import React from 'react';
 import $ from 'jquery';
-import SNCFData from './SNCFData';
-import Trips from './Trips';
-import Trip from './Trip';
+import SNCFData from './../SNCFData';
+import Trips from './../Trips/Trips';
+import Trip from './../Trip/Trip';
+import theme from './Main.css';
 
 class Main extends React.Component {
   constructor(props) {
@@ -36,7 +37,7 @@ class Main extends React.Component {
                    onStopTimeSelected={this.onStopTimeSelected} />
             {(() => {
               if (this.state.selectedStopTime) {
-                return <Trip trip={SNCFData.trips[this.state.selectedStopTime.trip]} selectedStopTime={this.state.selectedStopTime} />;
+                return <Trip trip={SNCFData.trips[this.state.selectedStopTime.trip]} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />;
               }
             })()}
           </div>
@@ -62,9 +63,10 @@ class Main extends React.Component {
             }
 
             return stops.sort((stop1, stop2) => stop1.name < stop2.name ? -1 : 1);
-          })()
+          })(),
 
-          //departureStop: SNCFData.stops['8738288']
+          //departureStop: SNCFData.stops['8738288'],
+          //arrivalStop: SNCFData.stops['8738221']
         });
       }
     }

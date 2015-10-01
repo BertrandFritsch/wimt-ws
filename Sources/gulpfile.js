@@ -9,7 +9,6 @@ var vinylPaths = require('vinyl-paths');
 
 var filesToMove = [
   './src/index.html',
-  './src/app.css',
   './src/gridlayout/gridlayout.css',
   './src/SNCFData/*',
   './src/assets/*'

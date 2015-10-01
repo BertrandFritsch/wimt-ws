@@ -1,7 +1,8 @@
 ﻿import React from 'react';
-import AutoCompleteSelector from './AutoCompleteSelector/AutoCompleteSelector';
-import SelectedTrips from './SelectedTrips';
-import SNCFData from './SNCFData';
+import AutoCompleteSelector from './../AutoCompleteSelector/AutoCompleteSelector';
+import SelectedTrips from './../SelectedTrips/SelectedTrips';
+import SNCFData from './../SNCFData';
+import theme from './Trips.css';
 
 class Trips extends React.Component {
   render = () => {

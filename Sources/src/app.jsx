@@ -2,7 +2,7 @@
 import ExtendedArray from './extendedArray';
 import ExtendedElement from './extendedElement';
 import ExtendedString from './extendedString';
-import Main from './components/Main';
+import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
 
 React.render(<Main />, document.body);

@@ -1,10 +1,11 @@
 ﻿import React from 'react';
-import DayHeaderRow from './DayHeaderRow/DayHeaderRow';
-import StopTimeRow from './StopTimeRow/StopTimeRow';
+import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
+import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
-import SNCFData from './SNCFData';
-import GridLayout from '../gridlayout/gridlayout';
+import SNCFData from './../SNCFData';
+import GridLayout from '../../gridlayout/gridlayout';
 import $ from 'jquery';
+import theme from './SelectedTrips.css';
 
 class SelectedTrips extends React.Component {
   constructor(props) {
