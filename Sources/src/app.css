@@ -11,19 +11,3 @@
 
 .trips-container {
 }
-
-.trip-frame {
-  height: 100%;
-  width: 100%;
-
-  background-color:  rgba(238, 238, 238, 1);
-  overflow-y: auto;
-}
-
-.trip-stop-row {
-  height: 50px;
-}
-
-.trip-stop-row:hover {
-  background-color: silver;
-}

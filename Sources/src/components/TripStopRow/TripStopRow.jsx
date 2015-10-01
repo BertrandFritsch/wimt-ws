@@ -1,5 +1,6 @@
 ﻿import React from 'react';
-import SNCFData from './SNCFData';
+import SNCFData from './../SNCFData';
+import theme from './TripStopRow.css';
 
 class TripStopRow extends React.Component {
   render = () => {
@@ -23,7 +24,9 @@ class TripStopRow extends React.Component {
       minutes = '0' + minutes;
     }
 
-    return <div className="trip-stop-row">{hours}:{minutes} - {SNCFData.stops[this.props.stopTime.stop].name}</div>
+    return <div className={'trip-time-row'} theme={theme}>
+      <span className="trip-time-row-time">{hours}:{minutes}</span><span className="trip-time-row-time-separator" /><span className="trip-time-row-container">{SNCFData.stops[this.props.stopTime.stop].name}</span>
+    </div>
   }
 }
 

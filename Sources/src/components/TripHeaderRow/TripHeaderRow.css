@@ -1,0 +1,15 @@
+
+.trip-header-row {
+  position: relative;
+  height: 50px;
+
+  border-top: 1px solid black;
+  border-bottom: 5px solid black;
+}
+
+.trip-header-row-text {
+  font-weight: bold;
+  margin-left: 10px;
+  line-height: 50px;
+  display: block;
+}

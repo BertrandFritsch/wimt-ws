@@ -1,0 +1,36 @@
+﻿
+.trip-time-row {
+  display: table;
+  width: 100%;
+  height: 50px;
+}
+
+.trip-time-row > * {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.trip-time-row:hover {
+  background-color: silver;
+}
+
+.trip-time-row-real-time {
+  background-color: cadetblue;
+}
+
+.trip-time-row-time {
+  font-size: 9pt;
+}
+
+.trip-time-row-time-separator {
+  display: inline-block;
+  width: 21px;
+  height: 100%;
+  background-image: url('../../assets/mark.png');
+  background-position:50% 0%;
+  background-repeat: no-repeat;
+}
+
+.trip-time-row-container {
+  width: 100%;
+}

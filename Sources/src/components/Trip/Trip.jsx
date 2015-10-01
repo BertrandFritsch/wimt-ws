@@ -1,6 +1,8 @@
 ﻿import React from 'react';
-import TripStopRow from './TripStopRow';
-import GridLayout from '../gridlayout/gridlayout';
+import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
+import TripStopRow from './../TripStopRow/TripStopRow';
+import GridLayout from '../../gridlayout/gridlayout';
+import theme from './Trip.css'
 
 class Trip extends React.Component {
   constructor(props) {
@@ -18,6 +20,7 @@ class Trip extends React.Component {
   render = () => {
     return (
         <div className="trip-frame">
+          <TripHeaderRow trip={this.props.trip} />
           {(() => {
             return this.props.trip.stopTimes.map((stopTime, index) => <TripStopRow key={index} stopTime={stopTime} />);
           })()}
