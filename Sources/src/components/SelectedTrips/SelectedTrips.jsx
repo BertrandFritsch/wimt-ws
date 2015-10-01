@@ -222,9 +222,9 @@ class SelectedTrips extends React.Component {
     var me = this;
 
     if (props.departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/', props.departureStop.UICCode);
+      let url = String.format('http://localhost:82/gare/{0}/depart/', props.departureStop.UICCode);
       if (props.arrivalStop) {
-        url = String.format('{0}depart/{1}/', url, props.arrivalStop.UICCode);
+        url = String.format('{0}{1}/', url, props.arrivalStop.UICCode);
       }
       $.ajax({
         url: url,
