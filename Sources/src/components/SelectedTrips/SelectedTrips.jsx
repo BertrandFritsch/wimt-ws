@@ -2,9 +2,8 @@
 import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
-import SNCFData from './../SNCFData';
+import SNCFData, { RealTimeRequester } from './../SNCFData';
 import GridLayout from '../../gridlayout/gridlayout';
-import $ from 'jquery';
 import theme from './SelectedTrips.css';
 
 class SelectedTrips extends React.Component {
@@ -221,56 +220,36 @@ class SelectedTrips extends React.Component {
   checkRealTimes = (props) => {
     var me = this;
 
-    if (props.departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/depart/', props.departureStop.UICCode);
-      if (props.arrivalStop) {
-        url = String.format('{0}{1}/', url, props.arrivalStop.UICCode);
-      }
-      $.ajax({
-        url: url,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader ("Authorization", "Basic dG5odG4xNzk6alNIMjV2Yjg=");
-            xhr.setRequestHeader ("Accept", "application/vnd.sncf.transilien.od.depart+xml;vers=1");
-            xhr.setRequestHeader ("Cache-Control", "no-cache, no-store, must-revalidate");
-          },
-        complete: function(xhr, status) {
-          let trains = xhr.responseXML.getElementsByTagName('train');
-          for (let i = 0, iTrain = 0, iLength = me.state.generator.stopTimes.length, iTrainsLength = trains.length; i < iLength; ++i) {
-            let stop = me.state.generator.stopTimes[i];
-            if (iTrain < iTrainsLength) {
-              let train = trains[iTrain];
-              let trip = SNCFData.trips[stop.stopTime.trip];
-              if (trip.number === train.getElementsByTagName('num')[0].textContent) {
-                stop.realTime = {
-                  time: SelectedTrips.parseRealTime(train.getElementsByTagName('date')[0].textContent),
-                  mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
-                  state: train.getElementsByTagName('state').length ? train.getElementsByTagName('state')[0].textContent : ''
-                };
+    RealTimeRequester.get(props.departureStop, props.arrivalStop, trains => {
+      for (let i = 0, iTrain = 0, iLength = me.state.generator.stopTimes.length, iTrainsLength = trains.length; i < iLength; ++i) {
+        let stop = me.state.generator.stopTimes[i];
+        if (iTrain < iTrainsLength) {
+          let train = trains[iTrain];
+          let trip = SNCFData.trips[stop.stopTime.trip];
+          if (trip.number === train.number) {
+            stop.realTime = {
+              time: train.time,
+              mode: train.mode,
+              state: train.state
+            };
 
-                ++iTrain;
-              }
-              else {
-                // no more real times available for this stop time, ensure that no real time is still attached on this train
-                delete stop.realTime;
-              }
-            }
-            else {
-              // no more real times available, ensure that no real time is still attached on this train
-              delete stop.realTime;
-            }
+            ++iTrain;
           }
-
-          me.setState({
-            rows: me.transformToElements(me.state.generator.stopTimes)
-          });
+          else {
+            // no more real times available for this stop time, ensure that no real time is still attached on this train
+            delete stop.realTime;
+          }
         }
-      });
-    }
-  }
+        else {
+          // no more real times available, ensure that no real time is still attached on this train
+          delete stop.realTime;
+        }
+      }
 
-  static parseRealTime(time) {
-    let matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
-    return new Date(Number(matches[3]), Number(matches[2]) - 1, Number(matches[1]), Number(matches[4]), Number(matches[5]));
+      me.setState({
+        rows: me.transformToElements(me.state.generator.stopTimes)
+      });
+    });
   }
 }
 
