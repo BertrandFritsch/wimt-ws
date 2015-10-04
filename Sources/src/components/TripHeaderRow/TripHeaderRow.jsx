@@ -6,6 +6,8 @@ class TripHeaderRow extends React.Component {
     return (
       <div className="trip-header-row">
         <span className="trip-header-row-text">{this.props.trip.mission}</span>
+        <span className="trip-header-row-state">{this.props.state}</span>
+        <span className="trip-header-row-arrow" />
       </div>
     )
   }

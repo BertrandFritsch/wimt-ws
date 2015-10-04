@@ -30,10 +30,10 @@ class Trips extends React.Component {
       arrivalStops = (() => {
         // use a map to make stops being unique
         let stopsMap = this.props.departureStop.trips.reduce((res, trip) => {
-          return SNCFData.trips[trip.trip].stopTimes.reduce((res, stopTime) => {
+          return SNCFData.getTrip(trip.trip).stopTimes.reduce((res, stopTime) => {
             // !!! stop object references cannot be compared as they are two distinct objects !!!
-            if (SNCFData.stops[stopTime.stop].id !== this.props.departureStop.id) {
-              res[SNCFData.stops[stopTime.stop].id] = SNCFData.stops[stopTime.stop];
+            if (SNCFData.getStop(stopTime.stop).id !== this.props.departureStop.id) {
+              res[SNCFData.getStop(stopTime.stop).id] = SNCFData.getStop(stopTime.stop);
             }
 
             return res;
@@ -50,7 +50,7 @@ class Trips extends React.Component {
 
       if (this.props.arrivalStop) {
         startStopTimes = startStopTimes.filter(stopTime => {
-          return SNCFData.trips[stopTime.trip].stopTimes.firstOrDefault(stopTime => {
+          return SNCFData.getTrip(stopTime.trip).stopTimes.find(stopTime => {
             return stopTime.stop === this.props.arrivalStop.id;
           }) !== undefined;
         });

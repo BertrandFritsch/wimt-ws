@@ -9,7 +9,36 @@ class Main extends React.Component {
   constructor(props) {
     super(props);
 
-    this.loadData();
+    SNCFData.loadData(() => {
+      let departureStop = null,
+        arrivalStop = null,
+        trip = null;
+
+      if (document.location.hash && document.location.hash.match(/(#|&)trip=/)) {
+        let matches = /(#|&)trip=(.*?)(&|$)/.exec(document.location.hash);
+        if (matches[2]) {
+          trip = SNCFData.getTrip(matches[2]);
+          //TODO: report bad trip id
+          if (trip) {
+            departureStop = SNCFData.getStop(trip.stopTimes[0].stop);
+            arrivalStop = SNCFData.getStop(trip.stopTimes[trip.stopTimes.length - 1].stop);
+          }
+        }
+      }
+      else {
+        //departureStop = SNCFData.stops['8738288'];
+        //arrivalStop = SNCFData.stops['8738221'];
+      }
+
+      this.setState({
+        stops: SNCFData.getStopsArray(),
+
+        trip: trip,
+        departureStop: departureStop,
+        arrivalStop: arrivalStop
+      });
+    });
+
     this.setUpHistoryNavigation();
   }
 
@@ -36,8 +65,8 @@ class Main extends React.Component {
                    onArrivalStopChange={this.onArrivalStopChange}
                    onStopTimeSelected={this.onStopTimeSelected} />
             {(() => {
-              if (this.state.selectedStopTime) {
-                return <Trip trip={SNCFData.trips[this.state.selectedStopTime.trip]} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />;
+              if (this.state.trip) {
+                return <Trip trip={this.state.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />;
               }
             })()}
           </div>
@@ -47,67 +76,12 @@ class Main extends React.Component {
     )
   }
 
-  loadData = () => {
-    var dataToLoad = 4;
-
-    let complete = (prop, responseText) => {
-      SNCFData[prop] = JSON.parse(responseText);
-
-      if (--dataToLoad === 0) {
-        this.setState({
-          stops: (() => {
-            var stops = [], stop;
-
-            for (stop in SNCFData.stops) {
-              stops.push(SNCFData.stops[stop]);
-            }
-
-            return stops.sort((stop1, stop2) => stop1.name < stop2.name ? -1 : 1);
-          })(),
-
-          //departureStop: SNCFData.stops['8738288'],
-          //arrivalStop: SNCFData.stops['8738221']
-        });
-      }
-    }
-
-    // TODO: handle errors
-    // TODO: get the data from the script tags
-    $.ajax({
-      url: 'SNCFData/routes.json',
-      complete: function (xhr, status) {
-        complete('routes', xhr.responseText);
-      }
-    });
-
-    $.ajax({
-      url: 'SNCFData/services.json',
-      complete: function (xhr, status) {
-        complete('services', xhr.responseText);
-      }
-    });
-
-    $.ajax({
-      url: 'SNCFData/stops.json',
-      complete: function (xhr, status) {
-        complete('stops', xhr.responseText);
-      }
-    });
-
-    $.ajax({
-      url: 'SNCFData/trips.json',
-      complete: function (xhr, status) {
-        complete('trips', xhr.responseText);
-      }
-    });
-  }
-
   setUpHistoryNavigation = () => {
     window.addEventListener('popstate', (event) => {
       event.preventDefault();
       
       this.setState({
-        selectedStopTime: event.state && event.state.selectedStopTime
+        trip: event.state && event.state.trip
       });
     });
   }
@@ -126,12 +100,12 @@ class Main extends React.Component {
 
   onStopTimeSelected = (stopTime) => {
     this.setState({
-      selectedStopTime: stopTime
+      trip: SNCFData.getTrip(stopTime.trip)
     });
 
     window.history.pushState({
-      selectedStopTime: stopTime
-    }, 'Voyage d\'un train', '#selectedTrip');
+      trip: SNCFData.getTrip(stopTime.trip)
+    }, "Voyage d'un train", String.format("#trip={0}", stopTime.trip));
   }
 }
 

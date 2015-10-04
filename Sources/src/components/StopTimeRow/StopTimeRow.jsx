@@ -23,11 +23,11 @@ class StopTimeRow extends React.Component {
       minutes = '0' + minutes;
     }
 
-    let lastStop = SNCFData.stops[SNCFData.trips[this.props.stopTime.trip].stopTimes[SNCFData.trips[this.props.stopTime.trip].stopTimes.length - 1].stop].name;
+    let lastStop = SNCFData.getStop(SNCFData.getTrip(this.props.stopTime.trip).stopTimes[SNCFData.getTrip(this.props.stopTime.trip).stopTimes.length - 1].stop).name;
     let realTimeClass = this.props.realTime ? 'stop-time-row-real-time' : '';
 
     return <div className={'stop-time-row' + ' ' + realTimeClass} theme={theme} onClick={onStopTimeSelected}>
-      <span className="stop-time-row-time">{hours}:{minutes}</span><span className="stop-time-row-time-separator" /><span className="stop-time-row-container">{SNCFData.trips[this.props.stopTime.trip].mission} - {lastStop}</span>
+      <span className="stop-time-row-time">{hours}:{minutes}</span><span className="stop-time-row-time-separator" /><span className="stop-time-row-container">{SNCFData.getTrip(this.props.stopTime.trip).mission} - {lastStop}</span>
     </div>
   }
 }

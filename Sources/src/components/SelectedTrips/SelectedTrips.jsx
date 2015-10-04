@@ -66,68 +66,24 @@ class SelectedTrips extends React.Component {
       date = new Date(),
       result = [];
 
-    function getDateAsString(date) {
-      var year = date.getFullYear(),
-        month = date.getMonth() + 1,
-        day = date.getDate();
-
-      if (month < 10) {
-        month = '0' + month;
-      }
-
-      if (day < 10) {
-        day = '0' + day;
-      }
-
-      return day + '/' + month + '/' + year;
-    }
-
     // add the currentStopTime if it is a valid one
     function nextStopTime(date, currentStopTime, result) {
-      var stopTime = startStopTimes[currentStopTime],
-        endStopTime, endSeq, d, doesRunAt;
+      let stopTime = startStopTimes[currentStopTime];
 
       if (props.departureStop && props.arrivalStop) {
         // filter end stops trips
-        endStopTime = SNCFData.trips[stopTime.trip].stopTimes.firstOrDefault(function (stopTime) {
-          return SNCFData.stops[stopTime.stop].id === props.arrivalStop.id;
+        let endStopTime = SNCFData.getTrip(stopTime.trip).stopTimes.find(stopTime => {
+          return SNCFData.getStop(stopTime.stop).id === props.arrivalStop.id;
         });
 
-        endSeq = endStopTime ? endStopTime.sequence : 0;
+        let endSeq = endStopTime ? endStopTime.sequence : 0;
 
         if (stopTime.sequence >= endSeq) {
           return;
         }
       }
 
-      d = date;
-      // be aware of trips that starts the day before
-      if (stopTime.time > minutesPerDay) {
-        d = new Date(d.getTime());
-        d.setDate(d.getDate() - 1);
-      }
-
-      doesRunAt = SNCFData.trips[stopTime.trip].serviceExceptions[getDateAsString(d)];
-
-      if (doesRunAt === true
-        || (doesRunAt === undefined && (function () {
-          var endDate;
-
-          if (SNCFData.services[SNCFData.trips[stopTime.trip].service] !== undefined) {
-            if (new Date(SNCFData.services[SNCFData.trips[stopTime.trip].service].startDate).getTime() <= d.getTime()) {
-              endDate = SNCFData.services[SNCFData.trips[stopTime.trip].service].endDate;
-              endDate = new Date(endDate);
-              endDate = new Date(endDate.getTime());
-              endDate.setDate(endDate.getDate() + 1);
-
-              if (d.getTime() < endDate.getTime()) {
-                if (SNCFData.services[SNCFData.trips[stopTime.trip].service].days[d.getDay()]) {
-                  return true;
-                }
-              }
-            }
-          }
-        })())) {
+      if (SNCFData.doesRunAt(SNCFData.getTrip(stopTime.trip), date)) {
         result.push({ date: date, stopTime: stopTime });
       }
     }
@@ -159,7 +115,7 @@ class SelectedTrips extends React.Component {
       // progress to the stop time 0
       for (currentStopTime = 0; currentStopTime < startStopTimes.length; ++currentStopTime) {
         let time = startStopTimes[currentStopTime].time;
-        if (time > minutesPerDay) {
+        if (time >= minutesPerDay) {
           time -= minutesPerDay;
         }
 
@@ -225,7 +181,7 @@ class SelectedTrips extends React.Component {
         let stop = me.state.generator.stopTimes[i];
         if (iTrain < iTrainsLength) {
           let train = trains[iTrain];
-          let trip = SNCFData.trips[stop.stopTime.trip];
+          let trip = SNCFData.getTrip(stop.stopTime.trip);
           if (trip.number === train.number) {
             stop.realTime = {
               time: train.time,

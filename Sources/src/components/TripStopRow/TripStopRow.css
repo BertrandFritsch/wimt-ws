@@ -10,10 +10,6 @@
   vertical-align: middle;
 }
 
-.trip-time-row:hover {
-  background-color: silver;
-}
-
 .trip-time-row-real-time {
   background-color: cadetblue;
 }
