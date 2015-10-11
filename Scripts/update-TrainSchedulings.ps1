@@ -18,7 +18,7 @@ $tmpFile = [IO.Path]::GetTempFileName()
 $outputDir = $( if ($Check ) { "$tmpFile.dir" } else { "$rootDir\Assets\export-TN-GTFS-LAST" } )
 
 Write-Host "Get the remote assets"
-Invoke-RestMethod 'https://ressources.data.sncf.com/api/datasets/1.0/sncf-transilien-gtfs/attachments/export_tn_gtfs_last_zip/' -OutFile "$tmpFile.zip"
+Invoke-RestMethod 'http://medias.sncf.com/sncfcom/open-data/gtfs/gtfs-lines-last.zip' -OutFile "$tmpFile.zip"
 
 Remove-Item $tmpFile
 
