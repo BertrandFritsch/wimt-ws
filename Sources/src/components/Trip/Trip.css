@@ -6,3 +6,53 @@
   background-color:  white;
   overflow-y: auto;
 }
+
+.trip-frame-top-space, .trip-frame-bottom-space {
+  height: 20px;
+}
+
+.trip-frame-center {
+  padding: 15px 0;
+  position: relative;
+}
+
+.trip-container {
+  position: relative;
+  /*background-color: beige;*/
+  transition: height 1s ease-out;
+}
+
+.trip-timeline {
+  position: absolute;
+  left: 40px;
+  top: 0px;
+  bottom: 0px;
+  width: 0px;
+  border-left: 1px solid rgba(136, 136, 136, 1);
+}
+
+.trip-train-frame {
+  position: absolute;
+}
+
+.trip-train-position {
+  position: absolute;
+  bottom: -3px;
+
+  left: 38px;
+  width: 5px;
+  height: 5px;
+  background-color: red;
+}
+
+.trip-train-frame {
+  height: 0px;
+}
+
+.trip-train-position-initial-animation {
+  transition: height 2s ease-out;
+}
+
+.trip-train-position-progression-animation {
+  transition: height 60s linear;
+}
