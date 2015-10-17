@@ -41,7 +41,7 @@ export class RealTimeRequester {
 // SNCF Data
 let SNCFData = {};
 function loadData(onLoaded) {
-  let nbScriptToLoad = 0;
+  var nbScriptToLoad = 0;
   Array.prototype.forEach.call(document.getElementsByTagName('script'), script => {
     if (/^application\/json(;|$)/.test(script.type)) {
       ++nbScriptToLoad;

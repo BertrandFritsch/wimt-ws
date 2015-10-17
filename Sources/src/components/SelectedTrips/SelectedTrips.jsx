@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import ReactDOM from 'react-dom';
 import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
@@ -55,7 +56,7 @@ class SelectedTrips extends React.Component {
 
   onResize = () => {
     this.setState({
-      containerHeight: React.findDOMNode(this).parentNode.getBoundingClientRect().height
+      containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
     });
   }
 

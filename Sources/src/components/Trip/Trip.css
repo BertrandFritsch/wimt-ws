@@ -4,7 +4,6 @@
   width: 100%;
 
   background-color:  white;
-  overflow-y: auto;
 }
 
 .trip-frame-top-space, .trip-frame-bottom-space {
@@ -12,8 +11,8 @@
 }
 
 .trip-frame-center {
-  padding: 15px 0;
   position: relative;
+  padding: 15px 0;
 }
 
 .trip-container {

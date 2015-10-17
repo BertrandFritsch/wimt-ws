@@ -33,17 +33,11 @@ class AutoCompleteSelector extends React.Component {
   //}
 
   render() {
-    let me = this,
-      inputAttributes = {
-        placeholder: this.props.placeholder,
-        value: this.props.value && this.props.value.name || ''
-      };
-
     let getSuggestions = (input, callback) => {
       setTimeout(() => {
         input = input.toUpperCase();
 
-        callback(null, me.props.data.filter(t => t.name.indexOf(input) > -1))
+        callback(null, this.props.data.filter(t => t.name.indexOf(input) > -1))
       }, 1);
     };
 
@@ -57,21 +51,26 @@ class AutoCompleteSelector extends React.Component {
 
     let onSuggestionSelected = (suggestion, event) => {
       event.preventDefault();
-      me.props.onStopChange(suggestion);
+      this.props.onStopChange(suggestion);
     };
 
-    let id = ++this.id;
+    let onInputChange = (value) => {
+      if (value === '') {
+        this.props.onStopChange(null);
+      }
+    };
 
     return <Autosuggest id={this.props.placeholder}
-                        theme={theme}
-                        inputAttributes={inputAttributes}
+                        value={this.props.value && this.props.value.name || ''}
+                        inputAttributes={{
+                          placeholder: this.props.placeholder,
+                          onChange: onInputChange
+                        }}
                         suggestions={getSuggestions}
                         suggestionRenderer={suggestionRenderer}
                         suggestionValue={suggestionValue}
                         onSuggestionSelected={onSuggestionSelected} />;
   }
-
-  static id = 0
 }
 
 export default AutoCompleteSelector;

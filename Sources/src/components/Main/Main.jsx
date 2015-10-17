@@ -3,6 +3,7 @@ import $ from 'jquery';
 import SNCFData from './../SNCFData';
 import Trips from './../Trips/Trips';
 import Trip from './../Trip/Trip';
+import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import theme from './Main.css';
 
 class Main extends React.Component {
@@ -26,8 +27,8 @@ class Main extends React.Component {
         }
       }
       else {
-        //departureStop = SNCFData.stops['8738288'];
-        //arrivalStop = SNCFData.stops['8738221'];
+        departureStop = SNCFData.getStop('8738288');
+        arrivalStop = SNCFData.getStop('8738221');
       }
 
       this.setState({
@@ -50,28 +51,39 @@ class Main extends React.Component {
 
   render = () => {
     return (
-      <div id="gGridLayoutRoot"
-           className="gLayoutMeasuring"
-           data-g-layout-container="">
-        <div data-g-layout-item='"row": 0, "column": 0, "isXSpacer": true' />
-        <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true'
-             data-g-layout-policy='"widthPolicy": "Container", "widthHint": "600px"'
-             className="root-container">
+      <div id="gGridLayoutRoot" className="gLayoutMeasuring" data-g-layout-container="">
+        <div data-g-layout-item='"row": 0, "column": 0, "isXSpacer": true'/>
+        <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true' data-g-layout-policy='"widthPolicy": "Container", "widthHint": "600px"' className="root-container">
           <div data-g-layout-container='"horizontalBubbling": false, "verticalBubbling": false'>
-            <Trips stops={this.state.stops}
-                   departureStop={this.state.departureStop}
-                   arrivalStop={this.state.arrivalStop}
-                   onDepartureStopChange={this.onDepartureStopChange}
-                   onArrivalStopChange={this.onArrivalStopChange}
-                   onStopTimeSelected={this.onStopTimeSelected} />
+            {(() => { if (this.state.stops.length > 0) {
+              return (
+                  <LayoutContainer>
+                    <Trips stops={this.state.stops}
+                           departureStop={this.state.departureStop}
+                           arrivalStop={this.state.arrivalStop}
+                           onDepartureStopChange={this.onDepartureStopChange}
+                           onArrivalStopChange={this.onArrivalStopChange}
+                           onStopTimeSelected={this.onStopTimeSelected} />
+                  </LayoutContainer>
+                )
+            } })()}
             {(() => {
-              if (this.state.trip) {
-                return <Trip trip={this.state.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />;
+              if (this.state.stops.length > 0 && this.state.trip) {
+                return (
+                  <LayoutContainer>
+                    <Trip trip={this.state.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />
+                  </LayoutContainer>
+                )
+              }
+            })()}
+            {(() => {
+              if (this.state.stops.length === 0) {
+                return <p>The data are loading...</p>
               }
             })()}
           </div>
         </div>
-        <div data-g-layout-item='"row": 0, "column": 2, "isXSpacer": true' />
+        <div data-g-layout-item='"row": 0, "column": 2, "isXSpacer": true'/>
       </div>
     )
   }
@@ -79,7 +91,7 @@ class Main extends React.Component {
   setUpHistoryNavigation = () => {
     window.addEventListener('popstate', (event) => {
       event.preventDefault();
-      
+
       this.setState({
         trip: event.state && event.state.trip
       });

@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import ReactDOM from 'react-dom';
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
@@ -17,6 +18,7 @@ class Trip extends React.Component {
   }
 
   componentWillUnmount = () => {
+    GridLayout.resizeListeners.remove(this.onResize);
     this.automate.transition(RealTimeTrainState.Events.COMPONENT_WILL_UNMOUNT);
   }
 
@@ -40,46 +42,52 @@ class Trip extends React.Component {
     }
 
     return (
-      <div className="trip-frame">
-        <TripHeaderRow trip={this.props.trip}
+      <div data-g-layout-container='' className="trip-frame">
+        <div data-g-layout-item='"row": 0'>
+          <TripHeaderRow trip={this.props.trip}
                        state={this.state.notScheduled ? 'Non planifié' : this.state.cancelled ? 'Supprimé' : this.state.delayed ? 'Retardé' : this.state.delayedMinutes ? String.format("{0} mn", this.state.delayedMinutes) : "A l'heure"} />
-        <div className="trip-frame-top-space"/>
-        <div className="trip-frame-center">
-          <div className="trip-timeline"/>
-          <div className="trip-container" style={tripContainerStyles}>
-            {
-              this.props.trip.stopTimes.map((stopTime, index) => {
-                let gap = stopTime.time + rows[index].delayedMinutes - time;
-                return <TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={stopTime}
-                                    delayedMinutes={rows[index].delayedMinutes}
-                                    delayed={rows[index].delayed || false}
-                                    trainHasPassedBy={rows[index].trainHasPassedBy} />
-                })
-              }
-            {(() => {
-                if (!this.state.notScheduled) {
-                  let tripTrainStyles = {
-                    height: (this.state.trainPosition || 0) * PIXELS_PER_MINUTE + 'px'
-                  }
-
-                  let tripClasses = ['trip-train-frame', this.state.isInitialComputing ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation'].join(' ');
-
-                  return <div className={tripClasses} style={tripTrainStyles}>
-                    <div className="trip-train-position"/>
-                  </div>
+          <div className="trip-frame-top-space"/>
+        </div>
+        <div style={{overflowY: 'auto'}} data-g-layout-item='"row": 1, "isXSpacer": true' data-g-layout-policy='"heightHint": "*", "heightPolicy": "Fixed"'>
+          <div className="trip-frame-center">
+            <div className="trip-timeline"/>
+            <div className="trip-container" style={tripContainerStyles}>
+              {
+                this.props.trip.stopTimes.map((stopTime, index) => {
+                  let gap = stopTime.time + rows[index].delayedMinutes - time;
+                  return <TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={stopTime}
+                                      delayedMinutes={rows[index].delayedMinutes}
+                                      delayed={rows[index].delayed || false}
+                                      trainHasPassedBy={rows[index].trainHasPassedBy} />
+                  })
                 }
-              })()
-            }
+              {(() => {
+                  if (!this.state.notScheduled) {
+                    let tripTrainStyles = {
+                      height: (this.state.trainPosition || 0) * PIXELS_PER_MINUTE + 'px'
+                    }
+
+                    let tripClasses = ['trip-train-frame', this.state.isInitialComputing ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation'].join(' ');
+
+                    return <div className={tripClasses} style={tripTrainStyles}>
+                      <div className="trip-train-position"/>
+                    </div>
+                  }
+                })()
+              }
+            </div>
           </div>
         </div>
-        <div className="trip-frame-bottom-space"/>
+        <div data-g-layout-item='"row": 2'>
+          <div className="trip-frame-bottom-space"/>
+        </div>
       </div>
     )
   }
 
   onResize = () => {
     this.setState({
-      containerHeight: React.findDOMNode(this).parentNode.getBoundingClientRect().height
+      containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
     });
   }
 

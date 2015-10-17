@@ -1,33 +1,20 @@
 
-.trip-header-row {
+.day-header-row {
   position: relative;
-  display: table;
-  width: 100%;
   height: 50px;
 
   border-top: 1px solid black;
   border-bottom: 5px solid black;
-  white-space: nowrap;
 }
 
-.trip-header-row > * {
-  display: table-cell;
-}
-
-.trip-header-row-text {
+.day-header-row-text {
   font-weight: bold;
   margin-left: 10px;
   line-height: 50px;
+  display: block;
 }
 
-.trip-header-row-state {
-  font-weight: bold;
-  margin-left: 10px;
-  line-height: 50px;
-  text-align: right;
-}
-
-.trip-header-row-arrow {
+.day-header-row-arrow {
   position: absolute;
 
   bottom: -15px;
