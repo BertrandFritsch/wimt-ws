@@ -24,7 +24,7 @@ var GridLayout = (function() {
 
         if (expectedProperties.indexOf(prop) == -1) {
 
-          gDEV && log('layout: unexpected property: \'' + prop + '\' - element: \'' + elementId + '\' - attribute: \'' + attributeName + '\'');
+          gDEV && console.log('layout: unexpected property: \'' + prop + '\' - element: \'' + elementId + '\' - attribute: \'' + attributeName + '\'');
         }
       }
     }
@@ -831,8 +831,8 @@ var GridLayout = (function() {
   			}
   		}
 
-  		//gDEV && log('layout - item DS, id: ' + itemData.item.id + ', w:' + size.width + ', h:' + size.height);
-  		//gDEV && policyElementSize && log('layout - policy DS, id: ' + itemData.policyElement.id + ', w:' + policyElementSize.width + ', h:' + policyElementSize.height);
+  		//gDEV && console.log('layout - item DS, id: ' + itemData.item.id + ', w:' + size.width + ', h:' + size.height);
+  		//gDEV && policyElementSize && console.log('layout - policy DS, id: ' + itemData.policyElement.id + ', w:' + policyElementSize.width + ', h:' + policyElementSize.height);
 
   		if ((itemData.data.widthPolicy.isAll() || itemData.data.widthPolicy.isCanGrow()) && itemData.data.widthPolicy.value.hasSpecifiedMinLength && !itemData.data.deferSizing && itemData.policyElement) {
 
@@ -1210,7 +1210,7 @@ var GridLayout = (function() {
 
     var setUpRCData = function() {
 
-    	//gDEV && log( 'layout: setUpRCData container - ' + container.id);
+    	//gDEV && console.log( 'layout: setUpRCData container - ' + container.id);
     	var columnUpperBound = _items.reduce(function(max, itemData) { return Math.max(max, itemData.data.column + itemData.data.columnSpan) }, 0);
     	var storedColumnLengths = storedSettings && storedSettings.getColumnLengths();
     	if (storedColumnLengths && storedColumnLengths.length != columnUpperBound) {
@@ -1421,7 +1421,7 @@ var GridLayout = (function() {
       _stretchableRows = stretchableRows;
       _stretchableRows.forEach(function(r) { r.desiredLength = GridLength.createStar(0) });
       updateItemContainerData();
-    	//gDEV && log( 'layout: setUpRCData container end - ' + container.id);
+    	//gDEV && console.log( 'layout: setUpRCData container end - ' + container.id);
     }
 
     var updateItemContainerData = function() {
@@ -1485,7 +1485,7 @@ var GridLayout = (function() {
 
     var moveItem = function(itemData, delta) {
 
-    	//gDEV && log('layout: move item - ' + container.id);
+    	//gDEV && console.log('layout: move item - ' + container.id);
 
     	var moving = {
     		shrunkIndex: 0,
@@ -2536,7 +2536,7 @@ var GridLayout = (function() {
 
     this.resize = function(availableSize) {
 
-			//gDEV && log( 'layout: resize container - ' + container.id);
+			//gDEV && console.log( 'layout: resize container - ' + container.id);
 
     	if (!_autoLayout) {
 
@@ -2590,7 +2590,7 @@ var GridLayout = (function() {
 
     	_showDebugGrid && !_gridChildrenInParent && showDebugGrid();
 
-      //gDEV && log( 'layout: resize container end - ' + container.id);
+      //gDEV && console.log( 'layout: resize container end - ' + container.id);
     }
 
     this.invalidLayout = function() {
@@ -2775,11 +2775,11 @@ var GridLayout = (function() {
 
       if (!_rootContainer) {
 
-        log("layout: the root layout container, an element identified by 'gGridLayoutRoot', has not been found!");
+        console.log("layout: the root layout container, an element identified by 'gGridLayoutRoot', has not been found!");
         return;
       }
 
-      //gDEV && log( 'layout: initial call');
+      //gDEV && console.log( 'layout: initial call');
       GridLayout.updateLayoutOnInsertedElement(document.documentElement);
       GridLayout.updateLayoutOnDocumentUpdated(false);
 
@@ -2812,7 +2812,7 @@ var GridLayout = (function() {
 		 */
     updateLayoutOnInsertedElement: function(element) {
 
-      //gDEV && log( 'layout: insert element - ' + element.id);
+      //gDEV && console.log( 'layout: insert element - ' + element.id);
       if (_rootContainer) {
 
         var layoutItem = getAncestorGridLayoutChild(element);
@@ -2863,7 +2863,7 @@ var GridLayout = (function() {
           });
         }
       }
-      //gDEV && log( 'layout: insert element end - ' + element.id);
+      //gDEV && console.log( 'layout: insert element end - ' + element.id);
     },
 
   	/**
@@ -2873,7 +2873,7 @@ var GridLayout = (function() {
 		 */
     updateLayoutOnUpdatedAttribute: function(element, name) {
 
-      //gDEV && log( 'layout: updated attribute - ' + element.id + ' - ' + name);
+      //gDEV && console.log( 'layout: updated attribute - ' + element.id + ' - ' + name);
       if (_rootContainer) {
 
         if (name == "data-g-layout-item") {
@@ -2897,7 +2897,7 @@ var GridLayout = (function() {
           GridLayout.invalidLayout(element);
         }
       }
-      //gDEV && log( 'layout: updated attribute end - ' + element.id + ' - ' + name);
+      //gDEV && console.log( 'layout: updated attribute end - ' + element.id + ' - ' + name);
     },
 
   	/**
@@ -2917,7 +2917,7 @@ var GridLayout = (function() {
        *  All 3 cases mark the layout structure as beeing dirty
        */
 
-      //gDEV && log( 'layout: remove element - ' + element.id);
+      //gDEV && console.log( 'layout: remove element - ' + element.id);
       if (_rootContainer) {
 
         var layoutItem = getAncestorGridLayoutChild(element);
@@ -2927,7 +2927,7 @@ var GridLayout = (function() {
           layoutItem.parentNode.layoutData.removeChild(layoutItem, element);
         }
       }
-      //gDEV && log( 'layout: remove element end - ' + element.id);
+      //gDEV && console.log( 'layout: remove element end - ' + element.id);
     },
 
   	/**
@@ -2939,7 +2939,7 @@ var GridLayout = (function() {
     updateLayoutOnDocumentUpdated: function(incrementalUpdate, avoidSizing, defer) {
 
       if (_rootContainer) {
-        //gDEV && log( 'layout: update document');
+        //gDEV && console.log( 'layout: update document');
 
         if (defer) {
 
@@ -2962,7 +2962,7 @@ var GridLayout = (function() {
         _rootContainer.classListRemove('gLayoutMeasuring');
 
         !avoidSizing && resizeHelper(_rootContainer);
-        //gDEV && log( 'layout: update document end');
+        //gDEV && console.log( 'layout: update document end');
       }
     },
 
