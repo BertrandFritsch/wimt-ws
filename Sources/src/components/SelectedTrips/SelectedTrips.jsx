@@ -21,6 +21,10 @@ class SelectedTrips extends React.Component {
       rows: rows,
       containerHeight: 250
     };
+
+    if (this.props.departureStop !== null) {
+      this.checkRealTimes(this.props);
+    }
   }
 
   componentWillUnmount = () => {
@@ -85,7 +89,7 @@ class SelectedTrips extends React.Component {
       }
 
       if (SNCFData.doesRunAt(SNCFData.getTrip(stopTime.trip), date)) {
-        result.push({ date: date, stopTime: stopTime });
+        result.push({date: date, stopTime: stopTime});
       }
     }
 
@@ -142,7 +146,7 @@ class SelectedTrips extends React.Component {
     for (i = 0; i < length; ++i) {
       if (date !== stopTimes[i].date) {
         date = stopTimes[i].date;
-        rows.push(<DayHeaderRow key={date} date={date} />);
+        rows.push(<DayHeaderRow key={date} date={date}/>);
       }
 
       let realTime;
@@ -157,7 +161,7 @@ class SelectedTrips extends React.Component {
       rows.push(<StopTimeRow key={stopTimes[i].stopTime.trip + stopTimes[i].stopTime.time}
                              stopTime={stopTimes[i].stopTime}
                              realTime={realTime}
-                             onStopTimeSelected={this.props.onStopTimeSelected} />)
+                             onStopTimeSelected={this.props.onStopTimeSelected}/>)
     }
 
     return rows;
@@ -178,28 +182,21 @@ class SelectedTrips extends React.Component {
     var me = this;
 
     RealTimeRequester.get(props.departureStop, props.arrivalStop, trains => {
-      for (let i = 0, iTrain = 0, iLength = me.state.generator.stopTimes.length, iTrainsLength = trains.length; i < iLength; ++i) {
-        let stop = me.state.generator.stopTimes[i];
-        if (iTrain < iTrainsLength) {
-          let train = trains[iTrain];
-          let trip = SNCFData.getTrip(stop.stopTime.trip);
-          if (trip.number === train.number) {
-            stop.realTime = {
-              time: train.time,
-              mode: train.mode,
-              state: train.state
-            };
+      for (let i = 0, iLength = me.state.generator.stopTimes.length; i < iLength; ++i) {
+        let stopTime = me.state.generator.stopTimes[i];
+        let trip = SNCFData.getTrip(stopTime.stopTime.trip);
+        let train = trains.find(t => t.number === trip.number);
 
-            ++iTrain;
-          }
-          else {
-            // no more real times available for this stop time, ensure that no real time is still attached on this train
-            delete stop.realTime;
-          }
+        if (train) {
+          stopTime.realTime = {
+            time: train.time,
+            mode: train.mode,
+            state: train.state
+          };
         }
         else {
-          // no more real times available, ensure that no real time is still attached on this train
-          delete stop.realTime;
+          // no real time available, ensure that no real time is still attached on this train
+          delete stopTime.realTime;
         }
       }
 
