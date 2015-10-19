@@ -64,8 +64,11 @@ $calendar_dates |% {
 }
 $servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
 
-$trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1"  |
-    ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }
+$tripIdGenerator = 0
+$trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" | %{ ++$tripIdGenerator; $_ } |
+    ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] } |
+    % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue $tripIdGenerator -PassThru }
+
 $tripsColl = Create-IndexedCollectoin $trips trip_id
 
 $stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' | Select-Object -Index @(($Partition.startIndex - 1)..($Partition.endIndex - 1))
@@ -83,7 +86,7 @@ $sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$Ro
             [PSCustomObject] @{ 
               time=(parse-Hours $_.departure_time $true)
               stop_id=$_.stop_id -replace '^StopPoint:DUA(\d{7})$','$1'
-              trip_id=$_.trip_id.Replace('-', '_')
+              trip_id=$tripsColl[$_.trip_id].idSeq
               agency_id=$routesColl[$tripsColl[$_.trip_id].route_id].agency_id
               stop_time=$_ 
             } 
@@ -120,23 +123,24 @@ function generate-stops() {
             $stop_name = $stopsColl["StopPoint:DUA$stop_id"].stop_name
         }
     }
+    if ($stop_UIC) {
 "   
   $(if (-not ($isFirstStop)) {","})`"$($stop_id)`": { 
-     `"id`": `"$stop_id`",
-     `"UICCode`": `"$stop_UIC`",
-     `"name`": `"$stop_name`",
-     `"trips`": [ 
+     U: $stop_UIC,
+     n: `"$stop_name`",
+     t: [ 
 "
        $isFirst = $true
        $_.Value | %{ 
-"       $(if (-not ($isFirst)) {","}){ `"time`": $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), `"sequence`": $($_.stop_time.stop_sequence), `"trip`": `"$($_.trip_id)`" }"
+"       $(if (-not ($isFirst)) {","}){ d: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), s: $($_.stop_time.stop_sequence), t: $($_.trip_id -replace 'DUASN(\d+).+','$1') }"
         $isFirst = $false
        }
 "
      ]
   }
 "
-    $isFirstStop = $false
+      $isFirstStop = $false
+    }
   }
 }
 

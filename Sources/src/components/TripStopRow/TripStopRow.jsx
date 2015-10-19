@@ -4,7 +4,7 @@ import theme from './TripStopRow.css';
 
 class TripStopRow extends React.Component {
   render = () => {
-    let adjustedMinutes = this.props.stopTime.time + (this.props.delayedMinutes || 0),
+    let adjustedMinutes = SNCFData.getStopTimeTime(this.props.stopTime) + (this.props.delayedMinutes || 0),
       hours = Math.floor(adjustedMinutes / 60),
       minutes = adjustedMinutes - (hours * 60);
 
@@ -27,7 +27,7 @@ class TripStopRow extends React.Component {
         <div className={rowClasses} style={top}>
           <span className={classes}>{hours}:{minutes}</span>
           <span className="trip-time-row-time-separator"/>
-          <span className="trip-time-row-container">{SNCFData.getStop(this.props.stopTime.stop).name}</span>
+          <span className="trip-time-row-container">{SNCFData.getStopName(SNCFData.getStopTimeStop(this.props.stopTime))}</span>
         </div>
     );
   }

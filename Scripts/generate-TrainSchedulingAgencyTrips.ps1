@@ -63,9 +63,11 @@ $calendar_dates |% {
 }
 $servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
 $routesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\routes.txt | & $rootDir\Scripts\load-GTFS2.ps1) route_id
-$agencyTrips = $trips |
+$tripIdGenerator = 0
+$agencyTrips = $trips | %{ ++$tripIdGenerator; $_ } |
   ? { $routesColl[$_.route_id].agency_id -eq $AgencyId } |
-    ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }
+    ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] } |
+    % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue $tripIdGenerator -PassThru }
 $agencyTripsColl = Create-IndexedCollectoin $agencyTrips trip_id
 $agencyTripsStopTimes = $stop_times |
     ? { $agencyTripsColl[$_.trip_id] } |
@@ -88,7 +90,7 @@ $agencyTripsStopTimes |% {
     $agencyTripsStopTimesColl[$_.trip_id] += $_
 }
 
-$TrueOrFalse = @{ '0' = 'false'; '1' = 'true'; '2' = 'false' }
+$TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
 
 function generate-trips() {
 $isFirstTrip = $true
@@ -97,9 +99,9 @@ $agencyTrips |? {
   $agencyTripsStopTimesColl[$trip_id]
   } |% {
 "
-  $(if (-not ($isFirstTrip)) {","})`"$($trip_id)`": {
-    `"id`": `"$trip_id`", `"number`": `"$($trip_id -replace 'DUASN(\d+).+','$1')`", `"route`": `"$($_.route_id)`", `"service`": `"$($_.service_id)`", `"mission`": `"$($_.trip_headsign)`", `"forward`": $($TrueOrFalse[$_.direction_id]),
-    `"serviceExceptions`": {
+  $(if (-not ($isFirstTrip)) {","})`"$($_.idSeq)`": {
+    i: `"$trip_id`", n: `"$($trip_id -replace 'DUASN(\d+).+','$1')`", s: $($_.service_id), m: `"$($_.trip_headsign)`", f: $($TrueOrFalse[$_.direction_id]),
+    e: {
 "  
       $isFirst = $true
       $calendarDatesColl[$_.service_id] |? { $_ -ne $null } |% { $_.GetEnumerator() } |% {
@@ -108,11 +110,11 @@ $agencyTrips |? {
       }
 "
     },
-    `"stopTimes`": [
+    t: [
 "
       $isFirst = $true
       $agencyTripsStopTimesColl[$trip_id] |% { 
-"      $(if (-not ($isFirst)) {","}){ `"stop`": `"$($_.stop_id)`", `"time`": $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), `"sequence`": $($_.stop_time.stop_sequence) }" 
+"      $(if (-not ($isFirst)) {","}){ s: $($_.stop_id), d: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes) }" 
        $isFirst = $false
       }
 "

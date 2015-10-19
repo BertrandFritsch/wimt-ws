@@ -29,11 +29,10 @@ class Trips extends React.Component {
       // filter the possible arrival stops
       arrivalStops = (() => {
         // use a map to make stops being unique
-        let stopsMap = this.props.departureStop.trips.reduce((res, trip) => {
-          return SNCFData.getTrip(trip.trip).stopTimes.reduce((res, stopTime) => {
-            // !!! stop object references cannot be compared as they are two distinct objects !!!
-            if (SNCFData.getStop(stopTime.stop).id !== this.props.departureStop.id) {
-              res[SNCFData.getStop(stopTime.stop).id] = SNCFData.getStop(stopTime.stop);
+        let stopsMap = SNCFData.getStopTrips(this.props.departureStop).reduce((res, trip) => {
+          return SNCFData.getTripStopTimes(trip).reduce((res, stopTime) => {
+            if (SNCFData.getStopTimeStop(stopTime) !== this.props.departureStop) {
+              res[SNCFData.getStopUICCode(SNCFData.getStopTimeStop(stopTime))] = SNCFData.getStopTimeStop(stopTime);
             }
 
             return res;
@@ -42,16 +41,16 @@ class Trips extends React.Component {
 
         // use the initial stops list to keep the arrival stop list sorted
         return departureStops.filter(function (stop) {
-          return stopsMap[stop.id] !== undefined;
+          return stopsMap[SNCFData.getStopUICCode(stop)] !== undefined;
         });
       })();
 
-      startStopTimes = this.props.departureStop.trips;
+      startStopTimes = SNCFData.getStopTrips(this.props.departureStop);
 
       if (this.props.arrivalStop) {
         startStopTimes = startStopTimes.filter(stopTime => {
-          return SNCFData.getTrip(stopTime.trip).stopTimes.find(stopTime => {
-            return stopTime.stop === this.props.arrivalStop.id;
+          return SNCFData.getTripStopTimes(SNCFData.getStopTimeTrip(stopTime)).find(stopTime => {
+            return SNCFData.getStopTimeStop(stopTime) === this.props.arrivalStop;
           }) !== undefined;
         });
       }
@@ -63,6 +62,7 @@ class Trips extends React.Component {
     return (
         <div data-g-layout-container='' className="trips-frame">
           <div data-g-layout-item='"row": 0'>
+            <div className="trips-debug-info">UICCode : {this.props.departureStop ? this.props.departureStop.U : ''}</div>
             <AutoCompleteSelector ref="from"
                                   placeholder="De..."
                                   data={departureStops}

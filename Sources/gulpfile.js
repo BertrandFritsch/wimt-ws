@@ -10,7 +10,7 @@ var vinylPaths = require('vinyl-paths');
 var filesToMove = [
   './src/index.html',
   './src/gridlayout/gridlayout.css',
-  './src/SNCFData/*',
+  //'./src/SNCFData/*',
   './src/assets/*'
 ];
 

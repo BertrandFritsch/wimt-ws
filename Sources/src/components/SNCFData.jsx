@@ -1,11 +1,15 @@
 import $ from 'jquery';
+//import Routes from '../SNCFData/routes.js'
+//import Services from '../SNCFData/routes.js'
+//import Stops from '../SNCFData/stops.js'
+//import Trips from '../SNCFData/trips.js'
 
 export class RealTimeRequester {
   static get(departureStop, arrivalStop, result) {
     if (departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop.UICCode);
+      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop.U);
       if (arrivalStop) {
-        url = String.format('{0}{1}/', url, arrivalStop.UICCode);
+        url = String.format('{0}{1}/', url, arrivalStop.U);
       }
       $.ajax({
         url: url,
@@ -38,118 +42,146 @@ export class RealTimeRequester {
 
 }
 
-// SNCF Data
-let SNCFData = {};
-function loadData(onLoaded) {
-  var nbScriptToLoad = 0;
-  Array.prototype.forEach.call(document.getElementsByTagName('script'), script => {
-    if (/^application\/json(;|$)/.test(script.type)) {
-      ++nbScriptToLoad;
-
-      $.ajax({
-        url: script.src,
-        complete: (xhr, status) => {
-          // TODO: check the status code
-          SNCFData[script.dataset.rel] = JSON.parse(xhr.responseText);
-
-          if (--nbScriptToLoad === 0) {
-            onLoaded();
-          }
-        }
-      });
-    }
-  });
-}
-
 // SNCFData interface
 function getTrip(id) {
-  return SNCFData.trips[id];
+  return Trips[id];
 }
 
-function getLastStopTime(trip) {
-  return trip.stopTimes[trip.stopTimes.length - 1];
+function getStopTimeTrip(stopTime) {
+  return Trips[stopTime.t];
 }
 
-function getLastStop(trip) {
-  return getStop(getLastStopTime(trip).stop);
+function getStopTimeTime(stopTime) {
+  return stopTime.d;
 }
 
-function getNextStopTime(trip, stopTime) {
-  let i = trip.stopTimes.indexOf(stopTime);
+function getStopTimeStop(stopTime) {
+  return Stops[stopTime.s];
+}
+
+function getStopTimeSequence(stopTime) {
+  return stopTime.s;
+}
+
+function getTripStopTimes(trip) {
+  if ($.isPlainObject(trip) && $.isArray(trip.t)) {
+    return trip.t;
+  }
+  else if ($.isPlainObject(trip)) {
+    return Trips[trip.t].t;
+  }
+  else {
+    return Trips[trip].t;
+  }
+}
+
+function getTripFirstStopTime(trip) {
+  return trip.t[0];
+}
+
+function isTripFirstStopTime(trip, stopTime) {
+  return trip.t[0] === stopTime;
+}
+
+function getTripLastStopTime(trip) {
+  return trip.t[trip.t.length - 1];
+}
+
+function getTripMission(trip) {
+  return trip.m;
+}
+
+function getTripLastStopTime(trip) {
+  return trip.t[trip.t.length - 1];
+}
+
+function getTripLastStop(trip) {
+  return getStop(getTripLastStopTime(trip).s);
+}
+
+function getTripNumber(trip) {
+  return trip.n;
+}
+
+function getTripNextStopTime(trip, stopTime) {
+  let i = trip.t.indexOf(stopTime);
 
   if (i === -1) {
     throw new Error("Invalid trip stop time");
   }
 
-  return i < trip.stopTimes.length ? trip.stopTimes[i + 1] : null;
+  return i < trip.t.length ? trip.t[i + 1] : null;
 }
 
-function getPrevStopTime(trip, stopTime) {
-  let i = trip.stopTimes.indexOf(stopTime);
+function getTripPrevStopTime(trip, stopTime) {
+  let i = trip.t.indexOf(stopTime);
 
   if (i === -1) {
     throw new Error("Invalid trip stop time");
   }
 
-  return i > 0 ? trip.stopTimes[i - 1] : null;
+  return i > 0 ? trip.t[i - 1] : null;
+}
+
+function isTripByNumber(trip, number) {
+  return trip.n === number;
 }
 
 function getStop(id) {
-  return SNCFData.stops[id];
+  return Stops[id];
+}
+
+function getStopName(stop) {
+  return stop.n;
+}
+
+function getStopUICCode(stop) {
+  return stop.U;
+}
+
+function getStopTrips(stop) {
+  return stop.t;
 }
 
 function getStopsArray() {
   let stops = [];
 
-  for (let stop in SNCFData.stops) {
-    stops.push(SNCFData.stops[stop]);
+  for (let stop in Stops) {
+    stops.push(Stops[stop]);
   }
 
-  return stops.sort((stop1, stop2) => stop1.name < stop2.name ? -1 : 1);
+  return stops.sort((stop1, stop2) => stop1.n < stop2.n ? -1 : 1);
 }
 
 function getService(id) {
-  return SNCFData.services[id];
-}
-
-function getDateByMinutes(time) {
-  const minutesPerDay = 24 * 60;
-
-  let date = new Date();
-
-  // be aware of trips that starts the day before
-  if (time >= minutesPerDay) {
-    date.setDate(date.getDate() - 1);
-  }
-
-  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
+  return Services[id];
 }
 
 function doesRunAt(trip, date) {
   const minutesPerDay = 24 * 60,
-    stopTime = trip.stopTimes[0];
+    stopTime = trip.t[0];
 
   // be aware of trips that starts the day before
-  if (stopTime.time >= minutesPerDay) {
+  if (stopTime.t >= minutesPerDay) {
     date = new Date(date.getTime());
     date.setDate(date.getDate() - 1);
   }
 
-  let doesRunAt = trip.serviceExceptions[getDateAsString(date)];
+  let doesRunAt = trip.e[getDateAsString(date)];
 
-  return doesRunAt === true
+  return doesRunAt
     || (doesRunAt === undefined && (function () {
 
       let service;
-      if ((service = SNCFData.services[trip.service]) !== undefined) {
-        if (new Date(service.startDate).getTime() <= date.getTime()) {
-          let endDate = service.endDate;
+      if ((service = Services[trip.s]) !== undefined) {
+        if (new Date(service.s).getTime() <= date.getTime()) {
+          let endDate = service.e;
           endDate = new Date(endDate);
           endDate = new Date(endDate.getTime());
           endDate.setDate(endDate.getDate() + 1);
 
           if (date.getTime() < endDate.getTime()) {
-            if (service.days[date.getDay()]) {
+            if (service.d[date.getDay()]) {
               return true;
             }
           }
@@ -161,13 +193,26 @@ function doesRunAt(trip, date) {
 }
 
 export default {
-  loadData: loadData,
   getStopsArray: getStopsArray,
   getStop: getStop,
-  getLastStopTime: getLastStopTime,
-  getNextStopTime: getNextStopTime,
-  getPrevStopTime: getPrevStopTime,
-  getLastStop: getLastStop,
+  getStopName: getStopName,
+  getStopUICCode: getStopUICCode,
+  getStopTrips: getStopTrips,
+  getTripLastStopTime: getTripLastStopTime,
+  getTripNextStopTime: getTripNextStopTime,
+  getTripPrevStopTime: getTripPrevStopTime,
+  getTripLastStop: getTripLastStop,
+  isTripByNumber: isTripByNumber,
+  getStopTimeStop: getStopTimeStop,
+  getStopTimeSequence: getStopTimeSequence,
+  getStopTimeTrip: getStopTimeTrip,
+  getStopTimeTime: getStopTimeTime,
+  getTripStopTimes: getTripStopTimes,
+  getTripFirstStopTime: getTripFirstStopTime,
+  isTripFirstStopTime: isTripFirstStopTime,
+  getTripLastStopTime: getTripLastStopTime,
+  getTripNumber: getTripNumber,
+  getTripMission: getTripMission,
   getTrip: getTrip,
   getService: getService,
   doesRunAt: doesRunAt,
@@ -189,4 +234,17 @@ function getDateAsString(date) {
   }
 
   return day + '/' + month + '/' + year;
+}
+
+function getDateByMinutes(time) {
+  const minutesPerDay = 24 * 60;
+
+  let date = new Date();
+
+  // be aware of trips that starts the day before
+  if (time >= minutesPerDay) {
+    date.setDate(date.getDate() - 1);
+  }
+
+  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
 }

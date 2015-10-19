@@ -55,7 +55,7 @@ $paths = $jobs | Receive-Job -Wait
 
 function generate-stops($paths) {
 "
-{
+Stops = {
 "
   $isFirstPath = $true
   $paths |% {
@@ -67,7 +67,7 @@ function generate-stops($paths) {
 }
 "
 }
-
-Write-Host "Generate $RootDir\Sources\src\SNCFData\stops.json"
-generate-stops $paths | Out-File $RootDir\Sources\src\SNCFData\stops.json -Encoding utf8
+$outputFilename = "$RootDir\Sources\src\SNCFData\stops.js"
+Write-Host "Generate $outputFilename"
+generate-stops $paths | Out-File $outputFilename -Encoding utf8
 $paths | Remove-Item

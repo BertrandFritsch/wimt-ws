@@ -4,8 +4,8 @@ import theme from './StopTimeRow.css';
 
 class StopTimeRow extends React.Component {
   render = () => {
-    var hours = Math.floor(this.props.stopTime.time / 60),
-      minutes = this.props.stopTime.time - (hours * 60);
+    var hours = Math.floor(SNCFData.getStopTimeTime(this.props.stopTime) / 60),
+      minutes = SNCFData.getStopTimeTime(this.props.stopTime) - (hours * 60);
 
     let onStopTimeSelected = () => {
       this.props.onStopTimeSelected(this.props.stopTime);
@@ -23,11 +23,11 @@ class StopTimeRow extends React.Component {
       minutes = '0' + minutes;
     }
 
-    let lastStop = SNCFData.getStop(SNCFData.getTrip(this.props.stopTime.trip).stopTimes[SNCFData.getTrip(this.props.stopTime.trip).stopTimes.length - 1].stop).name;
+    let lastStop = SNCFData.getStopName(SNCFData.getStopTimeStop(SNCFData.getTripLastStopTime(SNCFData.getStopTimeTrip(this.props.stopTime))));
     let realTimeClass = this.props.realTime ? 'stop-time-row-real-time' : '';
 
     return <div className={'stop-time-row' + ' ' + realTimeClass} theme={theme} onClick={onStopTimeSelected}>
-      <span className="stop-time-row-time">{hours}:{minutes}</span><span className="stop-time-row-time-separator" /><span className="stop-time-row-container">{SNCFData.getTrip(this.props.stopTime.trip).mission} - {lastStop}</span>
+      <span className="stop-time-row-time">{hours}:{minutes}</span><span className="stop-time-row-time-separator" /><span className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getStopTimeTrip(this.props.stopTime))} - {SNCFData.getTripNumber(SNCFData.getStopTimeTrip(this.props.stopTime))} - {lastStop}</span>
     </div>
   }
 }

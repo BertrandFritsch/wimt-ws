@@ -77,18 +77,19 @@ class SelectedTrips extends React.Component {
 
       if (props.departureStop && props.arrivalStop) {
         // filter end stops trips
-        let endStopTime = SNCFData.getTrip(stopTime.trip).stopTimes.find(stopTime => {
-          return SNCFData.getStop(stopTime.stop).id === props.arrivalStop.id;
+        let stopTimes = SNCFData.getTripStopTimes(SNCFData.getStopTimeTrip(stopTime));
+        let endStopTime = stopTimes.find(stopTime => {
+          return SNCFData.getStopTimeStop(stopTime) === props.arrivalStop;
         });
 
-        let endSeq = endStopTime ? endStopTime.sequence : 0;
+        let endSeq = endStopTime ? stopTimes.indexOf(endStopTime) : 0;
 
-        if (stopTime.sequence >= endSeq) {
+        if (SNCFData.getStopTimeSequence(stopTime) >= endSeq) {
           return;
         }
       }
 
-      if (SNCFData.doesRunAt(SNCFData.getTrip(stopTime.trip), date)) {
+      if (SNCFData.doesRunAt(SNCFData.getStopTimeTrip(stopTime), date)) {
         result.push({date: date, stopTime: stopTime});
       }
     }
@@ -119,7 +120,7 @@ class SelectedTrips extends React.Component {
     if (startStopTimes && startStopTimes.length > 0) {
       // progress to the stop time 0
       for (currentStopTime = 0; currentStopTime < startStopTimes.length; ++currentStopTime) {
-        let time = startStopTimes[currentStopTime].time;
+        let time = SNCFData.getStopTimeTime(startStopTimes[currentStopTime]);
         if (time >= minutesPerDay) {
           time -= minutesPerDay;
         }
@@ -136,6 +137,8 @@ class SelectedTrips extends React.Component {
       return nextStopTimes(result);
     }
   }
+
+  static rowKeyGenerator = 0;
 
   transformToElements = (stopTimes, date) => {
     var length, i,
@@ -158,7 +161,7 @@ class SelectedTrips extends React.Component {
         }
       }
 
-      rows.push(<StopTimeRow key={stopTimes[i].stopTime.trip + stopTimes[i].stopTime.time}
+      rows.push(<StopTimeRow key={++SelectedTrips.rowKeyGenerator}
                              stopTime={stopTimes[i].stopTime}
                              realTime={realTime}
                              onStopTimeSelected={this.props.onStopTimeSelected}/>)
@@ -184,8 +187,8 @@ class SelectedTrips extends React.Component {
     RealTimeRequester.get(props.departureStop, props.arrivalStop, trains => {
       for (let i = 0, iLength = me.state.generator.stopTimes.length; i < iLength; ++i) {
         let stopTime = me.state.generator.stopTimes[i];
-        let trip = SNCFData.getTrip(stopTime.stopTime.trip);
-        let train = trains.find(t => t.number === trip.number);
+        let trip = SNCFData.getStopTimeTrip(stopTime.stopTime);
+        let train = trains.find(t => SNCFData.isTripByNumber(trip, t.number));
 
         if (train) {
           stopTime.realTime = {

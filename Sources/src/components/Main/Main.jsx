@@ -10,7 +10,7 @@ class Main extends React.Component {
   constructor(props) {
     super(props);
 
-    SNCFData.loadData(() => {
+    setTimeout(() => {
       let departureStop = null,
         arrivalStop = null,
         trip = null;
@@ -21,8 +21,8 @@ class Main extends React.Component {
           trip = SNCFData.getTrip(matches[2]);
           //TODO: report bad trip id
           if (trip) {
-            departureStop = SNCFData.getStop(trip.stopTimes[0].stop);
-            arrivalStop = SNCFData.getStop(trip.stopTimes[trip.stopTimes.length - 1].stop);
+            departureStop = SNCFData.getStopTimeStop(SNCFData.getTripFirstStopTime(trip));
+            arrivalStop = SNCFData.getStopTimeStop(SNCFData.getTripLastStopTime(trip));
           }
         }
       }
@@ -38,7 +38,7 @@ class Main extends React.Component {
         departureStop: departureStop,
         arrivalStop: arrivalStop
       });
-    });
+    }, 1);
 
     this.setUpHistoryNavigation();
   }
@@ -112,12 +112,12 @@ class Main extends React.Component {
 
   onStopTimeSelected = (stopTime) => {
     this.setState({
-      trip: SNCFData.getTrip(stopTime.trip)
+      trip: SNCFData.getStopTimeTrip(stopTime)
     });
 
     window.history.pushState({
-      trip: SNCFData.getTrip(stopTime.trip)
-    }, "Voyage d'un train", String.format("#trip={0}", stopTime.trip));
+      trip: SNCFData.getStopTimeTrip(stopTime)
+    }, "Voyage d'un train", String.format("#trip={0}", stopTime.t));
   }
 }
 

@@ -31,24 +31,24 @@ if (-not $RootDir) {
   )
 }
 
-$TrueOrFalse = @{ '0' = 'false'; '1' = 'true'; '2' = 'false' }
+$TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
 $calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
 $calendar = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
   ? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }
 
 function generate-services() {
 "
-{
+Services = {
 "
 $isFirst = $true
 $calendar |% {
-"  $(if (-not ($isFirst)) {","})`"$($_.service_id)`": { `"id`": `"$($_.service_id)`", `"startDate`": `"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", `"endDate`": `"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", `"days`": [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] }"
+"  $(if (-not ($isFirst)) {","})`"$($_.service_id)`": { s: `"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", e: `"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", d: [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] }"
    $isFirst = $false
 }
 "
 }
 "
 }
-
-Write-Host "Generate $RootDir\Sources\src\SNCFData\services.json"
-generate-services | Out-File $RootDir\Sources\src\SNCFData\services.json -Encoding utf8
+$outputFilename = "$RootDir\Sources\src\SNCFData\services.js"
+Write-Host "Generate $outputFilename"
+generate-services | Out-File $outputFilename -Encoding utf8

@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import Autosuggest from 'react-autosuggest';
+import SNCFData from '../SNCFData.jsx';
 import theme from './AutoCompleteSelector.css';
 
 class AutoCompleteSelector extends React.Component {
@@ -37,16 +38,16 @@ class AutoCompleteSelector extends React.Component {
       setTimeout(() => {
         input = input.toUpperCase();
 
-        callback(null, this.props.data.filter(t => t.name.indexOf(input) > -1))
+        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).indexOf(input) > -1))
       }, 1);
     };
 
     let suggestionRenderer = (suggestion, input) => {
-      return suggestion.name;
+      return SNCFData.getStopName(suggestion);
     };
 
     let suggestionValue = (suggestion) => {
-      return suggestion.name;
+      return SNCFData.getStopName(suggestion);
     };
 
     let onSuggestionSelected = (suggestion, event) => {
@@ -61,7 +62,7 @@ class AutoCompleteSelector extends React.Component {
     };
 
     return <Autosuggest id={this.props.placeholder}
-                        value={this.props.value && this.props.value.name || ''}
+                        value={this.props.value && SNCFData.getStopName(this.props.value) || ''}
                         inputAttributes={{
                           placeholder: this.props.placeholder,
                           onChange: onInputChange

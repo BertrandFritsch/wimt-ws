@@ -24,7 +24,7 @@ class Trip extends React.Component {
 
   render = () => {
     let stopTimeReached = false;
-    let rows = this.props.trip.stopTimes.map(stopTime => {
+    let rows = SNCFData.getTripStopTimes(this.props.trip).map(stopTime => {
       if (stopTimeReached || stopTime === this.state.stopTime) {
         stopTimeReached = true;
       }
@@ -36,9 +36,9 @@ class Trip extends React.Component {
       }
     })
 
-    let time = this.props.trip.stopTimes[0].time;
+    let time = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.trip));
     let tripContainerStyles = {
-      height: (SNCFData.getLastStopTime(this.props.trip).time + (this.state.delayedMinutes || 0) - time) * PIXELS_PER_MINUTE
+      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.trip)) + (this.state.delayedMinutes || 0) - time) * PIXELS_PER_MINUTE
     }
 
     return (
@@ -53,8 +53,8 @@ class Trip extends React.Component {
             <div className="trip-timeline"/>
             <div className="trip-container" style={tripContainerStyles}>
               {
-                this.props.trip.stopTimes.map((stopTime, index) => {
-                  let gap = stopTime.time + rows[index].delayedMinutes - time;
+                SNCFData.getTripStopTimes(this.props.trip).map((stopTime, index) => {
+                  let gap = SNCFData.getStopTimeTime(stopTime) + rows[index].delayedMinutes - time;
                   return <TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={stopTime}
                                       delayedMinutes={rows[index].delayedMinutes}
                                       delayed={rows[index].delayed || false}
@@ -120,12 +120,12 @@ class RealTimeTrainState {
       // localization of the train
 
       // look for the nearest stop that the train has still to pass by
-      let stopTime = this.trip.stopTimes.find(stop => date.getTime() <= SNCFData.getDateByMinutes(stop.time).getTime());
+      let stopTime = SNCFData.getTripStopTimes(this.trip).find(stopTime => date.getTime() <= SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime());
       if (stopTime === undefined) {
         // the train has already passed today
         this.transition(RealTimeTrainState.Events.TRAIN_NOT_SCHEDULED);
       }
-      else if (stopTime === this.trip.stopTimes[0]) {
+      else if (SNCFData.isTripFirstStopTime(this.trip, stopTime)) {
         // the train has not yet started
         this.transition(RealTimeTrainState.Events.TRAIN_SCHEDULED);
       }
@@ -152,8 +152,8 @@ class RealTimeTrainState {
   }
 
   checkRealTimeAt(context) {
-    let stop = SNCFData.getStop(context.stopTime.stop),
-      lastStop = SNCFData.getLastStop(this.trip);
+    let stop = SNCFData.getStopTimeStop(context.stopTime),
+      lastStop = SNCFData.getTripLastStop(this.trip);
 
     if (stop === lastStop) {
       // specific case for the last stop as it is never announced by the real time API
@@ -164,10 +164,10 @@ class RealTimeTrainState {
     RealTimeRequester.get(stop, lastStop, trains => {
       //TODO: handle the case where the request has failed
 
-      let train = trains.find(train => train.number === this.trip.number);
+      let train = trains.find(train => train.number === SNCFData.getTripNumber(this.trip));
       if (!train) {
         // the train is not part of the real time announced trains
-        let nextStopTime = SNCFData.getNextStopTime(this.trip, context.stopTime);
+        let nextStopTime = SNCFData.getTripNextStopTime(this.trip, context.stopTime);
         if (!nextStopTime) {
           // it's the last stop of the train, the trip has probably ended
           this.transition(RealTimeTrainState.Events.TRAIN_NOT_SCHEDULED);
@@ -184,7 +184,7 @@ class RealTimeTrainState {
           this.transition(RealTimeTrainState.Events.TRAIN_CANCELED);
         }
         else if (train.mode === 'R') {
-          let prevStopTime = SNCFData.getPrevStopTime(this.trip, context.stopTime);
+          let prevStopTime = SNCFData.getTripPrevStopTime(this.trip, context.stopTime);
           if (prevStopTime) {
             if (train.state === 'Retardé') {
               // the train has been delayed; looking for the first station where the train is announced
@@ -195,8 +195,8 @@ class RealTimeTrainState {
               }));
             }
             else {
-              let theoricalTime = SNCFData.getDateByMinutes(context.stopTime.time);
-              let prevTheoricalTime = SNCFData.getDateByMinutes(prevStopTime.time);
+              let theoricalTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(context.stopTime));
+              let prevTheoricalTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(prevStopTime));
               let deltaTime = train.time.getTime() - theoricalTime.getTime();
               let realPositionTime = train.time.getTime() - deltaTime;
               if (realPositionTime < prevTheoricalTime.getTime()) {
@@ -238,10 +238,7 @@ class RealTimeTrainState {
   }
 
   computeTrainPosition(context) {
-    // if isInitialComputing, compute the exact position now, otherwise compute its position 1mn ahead
-    //let minutesUntilStop = (SNCFData.getDateByMinutes(context.stopTime.time + context.delayedMinutes).getTime() - new Date().getTime()) / (1000 * 60);
-    //context.trainPosition = Math.max(context.trainPosition || 0, context.stopTime.time + context.delayedMinutes - minutesUntilStop - this.trip.stopTimes[0].time);
-    context.trainPosition = (new Date().getTime() - SNCFData.getDateByMinutes(this.trip.stopTimes[0].time).getTime()) / (60 * 1000) + (context.isInitialComputing ? 0 : 1);
+    context.trainPosition = (new Date().getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip))).getTime()) / (60 * 1000) + (context.isInitialComputing ? 0 : 1);
     return context;
   }
 
@@ -263,10 +260,10 @@ class RealTimeTrainState {
             break;
 
           case RealTimeTrainState.Events.TRAIN_SCHEDULED:
-            let context = { stopTime: this.trip.stopTimes[0] };
+            let context = { stopTime: SNCFData.getTripFirstStopTime(this.trip) };
             this.tripComp.updateState(context);
             // check the real time of the train at least 1mn before
-            this.waitFotNextCheck(context, Math.max(1000, SNCFData.getDateByMinutes(this.trip.stopTimes[0].time).getTime() - new Date().getTime() - 60000));
+            this.waitFotNextCheck(context, Math.max(1000, SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip))).getTime() - new Date().getTime() - 60000));
             this.state = RealTimeTrainState.States.WAITING_FOR_NEXT_CHECK;
             break;
 
