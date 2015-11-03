@@ -3,14 +3,14 @@ import theme from './LayoutContainer.css';
 import GridLayout from '../../gridlayout/gridlayout';
 
 class LayoutContainer extends React.Component {
-  componentDidMount = () => {
-    GridLayout.updateLayoutOnInsertedElement(this.refs.container);
-    GridLayout.updateLayoutOnDocumentUpdated(true, false, true);
-  }
-
   render = () => {
     return (
-      <div ref="container">{this.props.children}</div>
+      <div ref={c => {
+        if (c !== null) {
+          GridLayout.updateLayoutOnInsertedElement(c);
+          GridLayout.updateLayoutOnDocumentUpdated(true, false, true);
+        }
+      }}>{this.props.children}</div>
     )
   }
 }

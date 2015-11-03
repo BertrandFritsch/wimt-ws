@@ -117,7 +117,7 @@ class Main extends React.Component {
 
     window.history.pushState({
       trip: SNCFData.getStopTimeTrip(stopTime)
-    }, "Voyage d'un train", String.format("#trip={0}", stopTime.t));
+    }, "Voyage d'un train", String.format("#trip={0}", SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime))));
   }
 }
 

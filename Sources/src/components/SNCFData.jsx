@@ -44,7 +44,15 @@ export class RealTimeRequester {
 
 // SNCFData interface
 function getTrip(id) {
-  return Trips[id];
+  for (let key in Trips) {
+    if (Trips[key].i === id) {
+      return Trips[key];
+    }
+  }
+}
+
+function getTripId(trip) {
+  return trip.i;
 }
 
 function getStopTimeTrip(stopTime) {
@@ -214,6 +222,7 @@ export default {
   getTripNumber: getTripNumber,
   getTripMission: getTripMission,
   getTrip: getTrip,
+  getTripId: getTripId,
   getService: getService,
   doesRunAt: doesRunAt,
   getDateByMinutes: getDateByMinutes

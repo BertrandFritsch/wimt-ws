@@ -42,24 +42,25 @@ function buildJs(options, callback) {
     },
     output: {
       path: path.join(__dirname, "dist"),
-      filename: "index.js",
+      filename: "index.js"
     },
     module: {
-      loaders: [{
-        loader: "babel-loader",
-        test: /\.jsx?$/,
-        include: [
-          path.join(__dirname, "src"),
-        ],
-        query: {
-          compact: false,
-          stage: 0
+      loaders: [
+        {
+          test: /\.jsx?$/,
+          exclude: /(node_modules)/,
+          loader: 'babel',
+          query: {
+//            "presets": ["es2015", "react", "stage-0"]
+            compact: false,
+            stage: 0
+          }
         },
-      },
         {test: /\.css$/, loader: "style-loader!css-loader"},
         {test: /\.png$/, loader: "url-loader?limit=100000"},
-        {test: /\.jpg$/, loader: "file-loader"}]
-    },
+        {test: /\.jpg$/, loader: "file-loader"}
+      ]
+    }
   }, function (error, stats) {
     if (error) {
       var pluginError = new gutil.PluginError("webpack", error);

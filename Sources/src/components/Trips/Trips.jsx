@@ -63,8 +63,7 @@ class Trips extends React.Component {
         <div data-g-layout-container='' className="trips-frame">
           <div data-g-layout-item='"row": 0'>
             <div className="trips-debug-info">UICCode : {this.props.departureStop ? this.props.departureStop.U : ''}</div>
-            <AutoCompleteSelector ref="from"
-                                  placeholder="De..."
+            <AutoCompleteSelector placeholder="De..."
                                   data={departureStops}
                                   value={this.props.departureStop}
                                   onStopChange={onDepartureStopChange} />
@@ -76,8 +75,7 @@ class Trips extends React.Component {
                            onStopTimeSelected={this.props.onStopTimeSelected} />
           </div>
           <div data-g-layout-item='"row": 2'>
-            <AutoCompleteSelector ref="to"
-                                  placeholder="Vers..."
+            <AutoCompleteSelector placeholder="Vers..."
                                   data={arrivalStops}
                                   value={this.props.arrivalStop}
                                   onStopChange={onArrivalStopChange} />

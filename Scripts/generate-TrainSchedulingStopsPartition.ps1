@@ -49,7 +49,7 @@ if (-not $RootDir) {
     )
 }
 
-$stations = Get-Content $RootDir\Assets\sncf-gares-et-arrets-transilien-ile-de-france.csv | ConvertFrom-Csv -Delimiter ';'
+$stations = Get-Content $RootDir\Assets\sncf-gares-et-arrets-transilien-ile-de-france.csv -Encoding UTF8 | ConvertFrom-Csv -Delimiter ';'
 $stationsColl = @{}
 $stations | %{ $stationsColl[$_.'Code UIC' -replace '.$'] = $_ }
 
@@ -76,6 +76,8 @@ $stopsColl = Create-IndexedCollectoin $stops stop_id
 
 $routes = gi $RootDir\Assets\export-TN-GTFS-LAST\routes.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
 $routesColl = Create-IndexedCollectoin $routes route_id
+
+
 
 $sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
   ? { $stopsColl[$_.stop_id] } |
@@ -110,23 +112,23 @@ function generate-stops() {
     $stop_id = $_.Name
     if ($stationsColl[$stop_id]) {
         $stop_UIC = $stationsColl[$stop_id].'Code UIC'
-        $stop_name = $stationsColl[$stop_id]."Libelle STIF (info voyageurs)"
+        $stop_name = $stationsColl[$stop_id]."Nom Gare"
     }
     else {
         $parent_station = $stopsColl["StopPoint:DUA$stop_id"].parent_station -replace '^StopArea:DUA(\d{7})$','$1'
         if ($stationsColl[$parent_station]) {
             $stop_UIC = $stationsColl[$parent_station].'Code UIC'
-            $stop_name = $stationsColl[$parent_station]."Libelle STIF (info voyageurs)"
+            $stop_name = $stationsColl[$parent_station]."Nom Gare"
         }
         else {
             $stop_UIC = $null
             $stop_name = $stopsColl["StopPoint:DUA$stop_id"].stop_name
         }
     }
-    if ($stop_UIC) {
+#    if ($stop_UIC) {
 "   
-  $(if (-not ($isFirstStop)) {","})`"$($stop_id)`": { 
-     U: $stop_UIC,
+  $(if (-not ($isFirstStop)) {","})$($stop_id): { 
+     U: $(if ($stop_UIC) { $stop_UIC } else { 'null' }),
      n: `"$stop_name`",
      t: [ 
 "
@@ -140,7 +142,7 @@ function generate-stops() {
   }
 "
       $isFirstStop = $false
-    }
+#    }
   }
 }
 

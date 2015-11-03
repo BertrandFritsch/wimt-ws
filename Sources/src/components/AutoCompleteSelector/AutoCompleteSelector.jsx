@@ -38,7 +38,7 @@ class AutoCompleteSelector extends React.Component {
       setTimeout(() => {
         input = input.toUpperCase();
 
-        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).indexOf(input) > -1))
+        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).toUpperCase().indexOf(input) > -1))
       }, 1);
     };
 

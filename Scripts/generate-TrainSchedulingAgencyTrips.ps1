@@ -99,7 +99,7 @@ $agencyTrips |? {
   $agencyTripsStopTimesColl[$trip_id]
   } |% {
 "
-  $(if (-not ($isFirstTrip)) {","})`"$($_.idSeq)`": {
+  $(if (-not ($isFirstTrip)) {","})$($_.idSeq): {
     i: `"$trip_id`", n: `"$($trip_id -replace 'DUASN(\d+).+','$1')`", s: $($_.service_id), m: `"$($_.trip_headsign)`", f: $($TrueOrFalse[$_.direction_id]),
     e: {
 "  
