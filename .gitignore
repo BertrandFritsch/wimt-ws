@@ -4,6 +4,7 @@
 # Tmp directories
 tmp
 Assets/*
+tools
 
 # User-specific files
 .vs
