@@ -175,7 +175,7 @@ function doesRunAt(trip, date) {
     date.setDate(date.getDate() - 1);
   }
 
-  let doesRunAt = trip.e[getDateAsString(date)];
+  let doesRunAt = trip.e && trip.e[getDateAsString(date)];
 
   return doesRunAt
     || (doesRunAt === undefined && (function () {
