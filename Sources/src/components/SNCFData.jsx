@@ -56,27 +56,27 @@ function getTripId(trip) {
 }
 
 function getStopTimeTrip(stopTime) {
-  return Trips[stopTime.t];
+  return Trips[stopTime[2]];
 }
 
 function getStopTimeTime(stopTime) {
-  return stopTime.d;
+  return stopTime[0];
 }
 
 function getStopTimeStop(stopTime) {
-  return Stops[stopTime.s];
+  return Stops[stopTime[1]];
 }
 
 function getStopTimeSequence(stopTime) {
-  return stopTime.s;
+  return stopTime[1];
 }
 
 function getTripStopTimes(trip) {
   if ($.isPlainObject(trip) && $.isArray(trip.t)) {
     return trip.t;
   }
-  else if ($.isPlainObject(trip)) {
-    return Trips[trip.t].t;
+  else if ($.isArray(trip)) {
+    return Trips[trip[2]].t;
   }
   else {
     return Trips[trip].t;
@@ -100,7 +100,7 @@ function getTripMission(trip) {
 }
 
 function getTripLastStop(trip) {
-  return getStop(getTripLastStopTime(trip).s);
+  return getStop(getTripLastStopTime(trip)[0]);
 }
 
 function getTripNumber(trip) {
@@ -166,7 +166,7 @@ function doesRunAt(trip, date) {
     stopTime = trip.t[0];
 
   // be aware of trips that starts the day before
-  if (stopTime.t >= minutesPerDay) {
+  if (stopTime[0] >= minutesPerDay) {
     date = new Date(date.getTime());
     date.setDate(date.getDate() - 1);
   }

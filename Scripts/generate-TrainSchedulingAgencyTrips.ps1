@@ -121,7 +121,7 @@ $agencyTrips |? {
 "
       $isFirst = $true
       $agencyTripsStopTimesColl[$trip_id] |% { 
-"      $(if (-not ($isFirst)) {","}){ s: $($_.stop_id), d: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes) }" 
+"      $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($_.stop_id) ]" 
        $isFirst = $false
       }
 "

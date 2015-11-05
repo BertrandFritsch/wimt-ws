@@ -134,7 +134,7 @@ function generate-stops() {
 "
        $isFirst = $true
        $_.Value | %{ 
-"       $(if (-not ($isFirst)) {","}){ d: $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), s: $($_.stop_time.stop_sequence), t: $($_.trip_id -replace 'DUASN(\d+).+','$1') }"
+"       $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($_.stop_time.stop_sequence), $($_.trip_id -replace 'DUASN(\d+).+','$1') ]"
         $isFirst = $false
        }
 "
