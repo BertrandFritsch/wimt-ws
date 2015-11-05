@@ -127,10 +127,10 @@ function generate-stops() {
     }
 #    if ($stop_UIC) {
 "   
-  $(if (-not ($isFirstStop)) {","})$($stop_id): { 
-     U: $(if ($stop_UIC) { $stop_UIC } else { 'null' }),
-     n: `"$stop_name`",
-     t: [ 
+  $(if (-not ($isFirstStop)) {","})$($stop_id): [ 
+     $(if ($stop_UIC) { $stop_UIC } else { 'null' }),
+     `"$stop_name`",
+     [ 
 "
        $isFirst = $true
        $_.Value | %{ 
@@ -139,7 +139,7 @@ function generate-stops() {
        }
 "
      ]
-  }
+  ]
 "
       $isFirstStop = $false
 #    }

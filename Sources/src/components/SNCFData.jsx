@@ -7,9 +7,9 @@ import $ from 'jquery';
 export class RealTimeRequester {
   static get(departureStop, arrivalStop, result) {
     if (departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop.U);
+      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop[0]);
       if (arrivalStop) {
-        url = String.format('{0}{1}/', url, arrivalStop.U);
+        url = String.format('{0}{1}/', url, arrivalStop[0]);
       }
       $.ajax({
         url: url,
@@ -136,15 +136,15 @@ function getStop(id) {
 }
 
 function getStopName(stop) {
-  return stop.n;
+  return stop[1];
 }
 
 function getStopUICCode(stop) {
-  return stop.U;
+  return stop[0];
 }
 
 function getStopTrips(stop) {
-  return stop.t;
+  return stop[2];
 }
 
 function getStopsArray() {
@@ -154,7 +154,7 @@ function getStopsArray() {
     stops.push(Stops[stop]);
   }
 
-  return stops.sort((stop1, stop2) => stop1.n < stop2.n ? -1 : 1);
+  return stops.sort((stop1, stop2) => stop1[1] < stop2[1] ? -1 : 1);
 }
 
 function getService(id) {
