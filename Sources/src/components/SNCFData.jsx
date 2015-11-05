@@ -171,7 +171,7 @@ function doesRunAt(trip, date) {
     date.setDate(date.getDate() - 1);
   }
 
-  let doesRunAt = trip.e && trip.e[getDateAsString(date)];
+  let doesRunAt = trip.e && trip.e[getDateAsDays(date)];
 
   return doesRunAt
     || (doesRunAt === undefined && (function () {
@@ -238,6 +238,11 @@ function getDateAsString(date) {
   }
 
   return day + '/' + month + '/' + year;
+}
+
+// gets the number of days since 01/01/1970
+function getDateAsDays(date) {
+  return Math.floor(date.getTime() / 1000 / 60 / 60 / 24);
 }
 
 function getDateByMinutes(time) {
