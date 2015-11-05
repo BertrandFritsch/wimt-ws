@@ -99,10 +99,6 @@ function getTripMission(trip) {
   return trip.m;
 }
 
-function getTripLastStopTime(trip) {
-  return trip.t[trip.t.length - 1];
-}
-
 function getTripLastStop(trip) {
   return getStop(getTripLastStopTime(trip).s);
 }
@@ -218,7 +214,6 @@ export default {
   getTripStopTimes: getTripStopTimes,
   getTripFirstStopTime: getTripFirstStopTime,
   isTripFirstStopTime: isTripFirstStopTime,
-  getTripLastStopTime: getTripLastStopTime,
   getTripNumber: getTripNumber,
   getTripMission: getTripMission,
   getTrip: getTrip,
