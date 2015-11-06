@@ -20,6 +20,11 @@ import $ from 'jquery';
  *       1: name
  *       2: [stopTime, sequence, trip]
  *
+ *   - Service:
+ *       0: start date
+ *       1: end date
+ *       2: days
+ *
  */
 
 
@@ -189,14 +194,14 @@ function doesRunAt(trip, date) {
 
       let service;
       if ((service = Services[trip[2]]) !== undefined) {
-        if (new Date(service.s).getTime() <= date.getTime()) {
-          let endDate = service.e;
+        if (new Date(service[0]).getTime() <= date.getTime()) {
+          let endDate = service[1];
           endDate = new Date(endDate);
           endDate = new Date(endDate.getTime());
           endDate.setDate(endDate.getDate() + 1);
 
           if (date.getTime() < endDate.getTime()) {
-            if (service.d[date.getDay()]) {
+            if (service[2][date.getDay()]) {
               return true;
             }
           }
