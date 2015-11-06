@@ -42,7 +42,7 @@ Services = {
 "
 $isFirst = $true
 $calendar |% {
-"  $(if (-not ($isFirst)) {","})`"$($_.service_id)`": { s: `"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", e: `"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", d: [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] }"
+"  $(if (-not ($isFirst)) {","})$($_.service_id): [`"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", `"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] ]"
    $isFirst = $false
 }
 "

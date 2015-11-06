@@ -100,13 +100,13 @@ $agencyTrips |? {
   $agencyTripsStopTimesColl[$trip_id]
   } |% {
 "
-  $(if (-not ($isFirstTrip)) {","})$($_.idSeq): {
-    i: `"$trip_id`", n: `"$($trip_id -replace 'DUASN(\d+).+','$1')`", s: $($_.service_id), m: `"$($_.trip_headsign)`", f: $($TrueOrFalse[$_.direction_id]),
+  $(if (-not ($isFirstTrip)) {","})$($_.idSeq): [
+    `"$trip_id`", `"$($trip_id -replace 'DUASN(\d+).+','$1')`", $($_.service_id), `"$($_.trip_headsign)`", $($TrueOrFalse[$_.direction_id]),
 "
     $serviceExceptions = $calendarDatesColl[$_.service_id] |? { $_ -ne $null }
     if ($serviceExceptions.Length -gt 0) {
 "
-    e: {
+    {
 "  
       $isFirst = $true
       $serviceExceptions |% { $_.GetEnumerator() } |% {
@@ -117,8 +117,11 @@ $agencyTrips |? {
     },
 "
     }
+    else {
+"    null,"
+    }
 "
-    t: [
+    [
 "
       $isFirst = $true
       $agencyTripsStopTimesColl[$trip_id] |% { 
@@ -127,7 +130,7 @@ $agencyTrips |? {
       }
 "
     ]
-  }
+  ]
 "
   $isFirstTrip = $false
 }
