@@ -179,27 +179,26 @@ function getService(id) {
 
 function doesRunAt(trip, date) {
   const minutesPerDay = 24 * 60,
-    stopTime = trip[6][0];
+        stopTime = trip[6][0];
+
+  let day = getDateAsDays(date);
 
   // be aware of trips that starts the day before
   if (stopTime[0] >= minutesPerDay) {
-    date = new Date(date.getTime());
-    date.setDate(date.getDate() - 1);
+    --day;
   }
 
-  let doesRunAt = trip[5] && trip[5][getDateAsDays(date)];
+  let doesRunAt = trip[5] && trip[5][day];
 
   return doesRunAt
     || ((doesRunAt === null || doesRunAt === undefined) && (function () {
 
       let service;
       if ((service = Services[trip[2]]) !== undefined) {
-        if (getDateByDays(service[0]).getTime() <= date.getTime()) {
-          let endDate = getDateByDays(service[1]);
-          endDate.setDate(endDate.getDate() + 1);
-
-          if (date.getTime() < endDate.getTime()) {
-            if (service[2][date.getDay()]) {
+        if (service[0] <= day) {
+          let endDay = service[1] + 1;
+          if (day < endDay) {
+            if (service[2][(day - 3) % 7]) {
               return true;
             }
           }
