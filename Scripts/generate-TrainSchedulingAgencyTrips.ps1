@@ -36,6 +36,10 @@ function parse-Hours($stopTime, $base24) {
   }
 }
 
+function convert-dateToDays($date) {
+  ((Get-Date ($date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')) - (Get-Date "1970-01-01")).Days
+}
+
 if (-not $RootDir) {
     $rootDir = $(
         $dir = Convert-Path .
@@ -93,7 +97,6 @@ $agencyTripsStopTimes |% {
 $TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
 
 function generate-trips() {
-$date0 = (Get-Date "1970-01-01")
 $isFirstTrip = $true
 $agencyTrips |? {
   $trip_id = $_.trip_id.Replace('-', '_')
@@ -110,7 +113,7 @@ $agencyTrips |? {
 "  
       $isFirst = $true
       $serviceExceptions |% { $_.GetEnumerator() } |% {
-"      $(if (-not ($isFirst)) {","})$(((Get-Date ($_.Name -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')) - $date0).Days): $($TrueOrFalse[$_.Value.exception_type])"
+"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])"
        $isFirst = $false
       }
 "

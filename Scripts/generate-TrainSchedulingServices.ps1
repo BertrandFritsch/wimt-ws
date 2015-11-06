@@ -15,6 +15,10 @@ function Create-IndexedCollectoin($coll, $props) {
   return $collIndexed
 }
 
+function convert-dateToDays($date) {
+  ((Get-Date ($date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')) - (Get-Date "1970-01-01")).Days
+}
+
 # filter no longer running trips
 $Date = "{0:yyyyMMdd}" -f (Get-Date)
 
@@ -42,7 +46,7 @@ Services = {
 "
 $isFirst = $true
 $calendar |% {
-"  $(if (-not ($isFirst)) {","})$($_.service_id): [ `"$($_.start_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", `"$($_.end_date -replace '(\d{4})(\d{2})(\d{2})','$1-$2-$3')`", [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] ]"
+"  $(if (-not ($isFirst)) {","})$($_.service_id): [ $(convert-dateToDays $_.start_date), $(convert-dateToDays $_.end_date), [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] ]"
    $isFirst = $false
 }
 "

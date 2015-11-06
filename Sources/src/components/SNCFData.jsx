@@ -190,14 +190,12 @@ function doesRunAt(trip, date) {
   let doesRunAt = trip[5] && trip[5][getDateAsDays(date)];
 
   return doesRunAt
-    || (doesRunAt === undefined && (function () {
+    || ((doesRunAt === null || doesRunAt === undefined) && (function () {
 
       let service;
       if ((service = Services[trip[2]]) !== undefined) {
-        if (new Date(service[0]).getTime() <= date.getTime()) {
-          let endDate = service[1];
-          endDate = new Date(endDate);
-          endDate = new Date(endDate.getTime());
+        if (getDateByDays(service[0]).getTime() <= date.getTime()) {
+          let endDate = getDateByDays(service[1]);
           endDate.setDate(endDate.getDate() + 1);
 
           if (date.getTime() < endDate.getTime()) {
@@ -259,6 +257,11 @@ function getDateAsString(date) {
 // gets the number of days since 01/01/1970
 function getDateAsDays(date) {
   return Math.floor(date.getTime() / 1000 / 60 / 60 / 24);
+}
+
+// gets the date according the number of days since 01/01/1970
+function getDateByDays(days) {
+  return new Date(days * 24 * 60 * 60 * 1000);
 }
 
 function getDateByMinutes(time) {
