@@ -110,11 +110,12 @@ $trips |% {
 "
     {
 "  
-      $isFirst = $true
-      $serviceExceptions |% { $_.GetEnumerator() } | %{
-"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])"
+     $isFirst = $true
+     $serviceExceptions |% { $_.GetEnumerator() } | %{ 
+"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])
+"
        $isFirst = $false
-      }
+     }
 "
     },
 "
@@ -125,11 +126,12 @@ $trips |% {
 "
     [
 "
-      $isFirst = $true
-      $tripsStopTimesColl[$trip_id] | %{ 
-"      $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($stopsColl[$_.stop_id].idSeq) ]" 
+     $isFirst = $true
+     $tripsStopTimesColl[$trip_id] | %{ 
+"      $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($stopsColl[$_.stop_id].idSeq) ]
+" 
        $isFirst = $false
-      }
+     }
 "
     ]
   ]
