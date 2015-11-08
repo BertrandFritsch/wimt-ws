@@ -1,5 +1,4 @@
 ﻿import React from 'react';
-import babelPolyfill from 'babel-polyfill';
 import AutoCompleteSelector from './../AutoCompleteSelector/AutoCompleteSelector';
 import SelectedTrips from './../SelectedTrips/SelectedTrips';
 import SNCFData from './../SNCFData';
