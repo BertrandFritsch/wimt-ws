@@ -31,17 +31,7 @@ function Create-IndexedCollectoin($coll, $props) {
   return $collIndexed
 }
 
-# get filtered stops by valid trips
-function getStopTimesColl() {
-
-  $calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
-  $servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
-  $tripsColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }) trip_id
-  Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $tripsColl[$_.trip_id] }) stop_id
-}
-
 $stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$'
-$stopTimesColl = getStopTimesColl
 
 $partitionLen = 5
 $partition = [Math]::Ceiling($stops.Length / $partitionLen)
@@ -49,9 +39,10 @@ $partition = [Math]::Ceiling($stops.Length / $partitionLen)
 
 $len = $stops.Length
 $jobs = $(for ($i = 0; $i -lt $partitionLen; ++$i) {
-    Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingStopsPartition.ps1 -ArgumentList $RootDir,@{ startIndex=$i * $partition + 1; endIndex = [Math]::Min(($i + 1) * $partition, $stops.Length) }
+    Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingStopsPartition.ps1 -ArgumentList $RootDir,@{ startIndex=$i * $partition; endIndex = [Math]::Min(($i + 1) * $partition - 1, $stops.Length - 1) }
 })
-$paths = $jobs | Receive-Job -Wait
+# get the jobs result in the same order they have been created
+$paths = $jobs | %{ Receive-Job -Id $_.Id -Wait }
 
 function generate-stops($paths) {
 "

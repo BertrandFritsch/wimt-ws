@@ -53,31 +53,18 @@ $stations = Get-Content $RootDir\Assets\sncf-gares-et-arrets-transilien-ile-de-f
 $stationsColl = @{}
 $stations | %{ $stationsColl[$_.'Code UIC' -replace '.$'] = $_ }
 
-$calendar_dates = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
-$calendarDatesColl = @{}
-$calendar_dates |% {
-    if (-not $calendarDatesColl[$_.service_id]) {
-        $calendarDatesColl[$_.service_id] = @{}
-    }
+$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
+$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
 
-    $calendarDatesColl[$_.service_id][$_.date] = $_
-}
-$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }) service_id
-
-$tripIdGenerator = 0
+$tripIdGenerator = -1
 $trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" | %{ ++$tripIdGenerator; $_ } |
     ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] } |
     % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue $tripIdGenerator -PassThru }
 
 $tripsColl = Create-IndexedCollectoin $trips trip_id
 
-$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' | Select-Object -Index @(($Partition.startIndex - 1)..($Partition.endIndex - 1))
+$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
 $stopsColl = Create-IndexedCollectoin $stops stop_id
-
-$routes = gi $RootDir\Assets\export-TN-GTFS-LAST\routes.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
-$routesColl = Create-IndexedCollectoin $routes route_id
-
-
 
 $sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
   ? { $stopsColl[$_.stop_id] } |
@@ -89,26 +76,23 @@ $sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$Ro
               time=(parse-Hours $_.departure_time $true)
               stop_id=$_.stop_id -replace '^StopPoint:DUA(\d{7})$','$1'
               trip_id=$tripsColl[$_.trip_id].idSeq
-              agency_id=$routesColl[$tripsColl[$_.trip_id].route_id].agency_id
               stop_time=$_ 
             } 
           } | sort time
 
 
-$sortedStopTimesColl = @{}
+$sortedStopColl = @{}
 $sortedStopTimes |% {
-    if (-not $sortedStopTimesColl[$_.stop_id]) {
-        $sortedStopTimesColl[$_.stop_id] = @()
+    if (-not $sortedStopColl[$_.stop_id]) {
+        $sortedStopColl[$_.stop_id] = @()
     }
 
-    $sortedStopTimesColl[$_.stop_id] += $_
+    $sortedStopColl[$_.stop_id] += $_
 }
-  
-$TrueOrFalse = @{ '0' = 'false'; '1' = 'true'; '2' = 'false' }
 
 function generate-stops() {
   $isFirstStop = $true
-  $sortedStopTimesColl.GetEnumerator() |% {
+  $sortedStopColl.GetEnumerator() |% {
     $stop_id = $_.Name
     if ($stationsColl[$stop_id]) {
         $stop_UIC = $stationsColl[$stop_id].'Code UIC'

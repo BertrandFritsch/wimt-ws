@@ -16,16 +16,21 @@ if (-not $RootDir) {
   )
 }
 
-$agencies = gi $RootDir\Assets\export-TN-GTFS-LAST\agency.txt | & $RootDir\Scripts\load-GTFS2.ps1
+$trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
 
-$paths = $agencies | foreach -Begin { $i = 0 } -Process { ++$i; [PSCustomObject] @{ Index=$i; Item=$_} } | group { [Math]::Floor(($_.Index - 1) / 6) } |% {
-  $jobs = $_.Group |% { Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingAgencyTrips.ps1 -ArgumentList $RootDir,$_.Item.agency_id }
-  $jobs | Receive-Job -Wait
-}
+$partitionLen = 5
+$partition = [Math]::Ceiling($trips.Length / $partitionLen)
+
+$len = $trips.Length
+$jobs = $(for ($i = 0; $i -lt $partitionLen; ++$i) {
+    Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingTripsPartition.ps1 -ArgumentList $RootDir,@{ startIndex=$i * $partition; endIndex = [Math]::Min(($i + 1) * $partition - 1, $trips.Length - 1) }
+})
+# get the jobs result in the same order they have been created
+$paths = $jobs | %{ Receive-Job -Id $_.Id -Wait }
 
 function generate-trips($paths) {
 "
-Trips = {
+Trips = [
 "
   $isFirstPath = $true
   $paths |% {
@@ -34,7 +39,7 @@ Trips = {
     $isFirstPath = $false 
   }
 "
-}
+]
 "
 }
 $outputFilename = "$RootDir\Sources\src\SNCFData\trips.js"
