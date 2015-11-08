@@ -76,7 +76,7 @@ $tripsStopTimes = $stop_times |
           %{ 
             [PSCustomObject] @{ 
               time=(parse-Hours $_.departure_time $true)
-              stop_id=$_.stop_id -replace '^StopPoint:DUA(\d{7})$','$1'
+              stop_id=$_.stop_id
               trip_id=$_.trip_id
               stop_time=$_ 
             } 
@@ -89,6 +89,11 @@ $tripsStopTimes |% {
 
     $tripsStopTimesColl[$_.trip_id] += $_
 }
+
+$stopIdGenerator = -1
+$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' |
+           % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue (++$stopIdGenerator) -PassThru }
+$stopsColl = Create-IndexedCollectoin $stops stop_id
 
 $TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
 
@@ -122,7 +127,7 @@ $trips |% {
 "
       $isFirst = $true
       $tripsStopTimesColl[$trip_id] | %{ 
-"      $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($_.stop_id) ]" 
+"      $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($stopsColl[$_.stop_id].idSeq) ]" 
        $isFirst = $false
       }
 "

@@ -46,7 +46,7 @@ $paths = $jobs | %{ Receive-Job -Id $_.Id -Wait }
 
 function generate-stops($paths) {
 "
-Stops = {
+Stops = [
 "
   $isFirstPath = $true
   $paths |% {
@@ -55,7 +55,7 @@ Stops = {
     $isFirstPath = $false 
   }
 "
-}
+]
 "
 }
 $outputFilename = "$RootDir\Sources\src\SNCFData\stops.js"

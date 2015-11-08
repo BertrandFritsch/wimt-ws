@@ -27,8 +27,8 @@ class Main extends React.Component {
         }
       }
       else {
-        departureStop = SNCFData.getStop('8738288');
-        arrivalStop = SNCFData.getStop('8738221');
+        departureStop = SNCFData.getStopById(87382887);
+        arrivalStop = SNCFData.getStopById(87382218);
       }
 
       this.setState({

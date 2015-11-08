@@ -147,8 +147,12 @@ function isTripByNumber(trip, number) {
   return trip[1] === number;
 }
 
-function getStop(id) {
-  return Stops[id];
+function getStop(index) {
+  return Stops[index];
+}
+
+function getStopById(id) {
+  return Stops.find(s => s[0] === id);
 }
 
 function getStopName(stop) {
@@ -164,13 +168,7 @@ function getStopTrips(stop) {
 }
 
 function getStopsArray() {
-  let stops = [];
-
-  for (let stop in Stops) {
-    stops.push(Stops[stop]);
-  }
-
-  return stops.sort((stop1, stop2) => stop1[1] < stop2[1] ? -1 : 1);
+  return Stops.slice(0).sort((stop1, stop2) => stop1[1] < stop2[1] ? -1 : 1);
 }
 
 function getService(id) {
@@ -212,6 +210,7 @@ function doesRunAt(trip, date) {
 export default {
   getStopsArray: getStopsArray,
   getStop: getStop,
+  getStopById: getStopById,
   getStopName: getStopName,
   getStopUICCode: getStopUICCode,
   getStopTrips: getStopTrips,

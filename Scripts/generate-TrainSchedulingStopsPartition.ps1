@@ -92,8 +92,8 @@ $sortedStopTimes |% {
 
 function generate-stops() {
   $isFirstStop = $true
-  $sortedStopColl.GetEnumerator() |% {
-    $stop_id = $_.Name
+  $stops |% {
+    $stop_id = $_.stop_id -replace '^StopPoint:DUA(\d{7})$','$1'
     if ($stationsColl[$stop_id]) {
         $stop_UIC = $stationsColl[$stop_id].'Code UIC'
         $stop_name = $stationsColl[$stop_id]."Nom Gare"
@@ -111,18 +111,27 @@ function generate-stops() {
     }
 #    if ($stop_UIC) {
 "   
-  $(if (-not ($isFirstStop)) {","})$($stop_id): [ 
+  $(if (-not ($isFirstStop)) {","})[ 
      $(if ($stop_UIC) { $stop_UIC } else { 'null' }),
      `"$stop_name`",
+"
+     if ($sortedStopColl[$stop_id]) {
+"
      [ 
 "
        $isFirst = $true
-       $_.Value | %{ 
-"       $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($_.stop_time.stop_sequence), $($_.trip_id) ]"
-        $isFirst = $false
-       }
+         $sortedStopColl[$stop_id] | %{ 
+"         $(if (-not ($isFirst)) {","})[ $((parse-Hours $_.stop_time.departure_time $false).TotalMinutes), $($_.stop_time.stop_sequence), $($_.trip_id) ]"
+          $isFirst = $false
+         }
 "
      ]
+"
+     }
+     else {
+"     null"
+     }
+"
   ]
 "
       $isFirstStop = $false
