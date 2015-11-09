@@ -62,7 +62,7 @@ class Trips extends React.Component {
     return (
         <div data-g-layout-container='' className="trips-frame">
           <div data-g-layout-item='"row": 0'>
-            <div className="trips-debug-info">UICCode : {this.props.departureStop ? this.props.departureStop.U : ''}</div>
+            <div className="trips-debug-info">UICCode : {this.props.departureStop ? SNCFData.getStopUICCode(this.props.departureStop) : ''}</div>
             <AutoCompleteSelector placeholder="De..."
                                   data={departureStops}
                                   value={this.props.departureStop}
