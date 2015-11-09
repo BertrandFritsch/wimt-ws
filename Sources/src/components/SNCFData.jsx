@@ -68,11 +68,7 @@ export class RealTimeRequester {
 
 // SNCFData interface
 function getTrip(id) {
-  for (let key in Trips) {
-    if (Trips[key][0] === id) {
-      return Trips[key];
-    }
-  }
+  return Trips.find(t => t !== null && t.id === id);
 }
 
 function getTripId(trip) {

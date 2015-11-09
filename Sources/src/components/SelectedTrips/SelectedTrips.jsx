@@ -171,14 +171,16 @@ class SelectedTrips extends React.Component {
   }
 
   handleInfiniteLoad = () => {
-    var lastDate = this.state.generator.stopTimes[this.state.generator.stopTimes.length - 1].date,
-      generator = this.state.generator.nextStopTimes(),
-      rows = this.state.rows.concat(this.transformToElements(generator.stopTimes, lastDate));
+    if (this.state.generator !== null) {
+      let lastDate  = this.state.generator.stopTimes[this.state.generator.stopTimes.length - 1].date,
+          generator = this.state.generator.nextStopTimes(),
+          rows      = this.state.rows.concat(this.transformToElements(generator.stopTimes, lastDate));
 
-    return this.setState({
-      generator: generator,
-      rows: rows
-    });
+      return this.setState({
+        generator: generator,
+        rows: rows
+      });
+    }
   }
 
   checkRealTimes = (props) => {
