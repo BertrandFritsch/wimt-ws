@@ -5,6 +5,7 @@ import Trips from './../Trips/Trips';
 import Trip from './../Trip/Trip';
 import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import theme from './Main.css';
+import { connect } from 'react-redux'
 
 class Main extends React.Component {
   constructor(props) {
@@ -121,4 +122,9 @@ class Main extends React.Component {
   }
 }
 
-export default Main;
+function select(state) {
+  debugger;
+  return state;
+}
+
+export default connect(select)(Main);

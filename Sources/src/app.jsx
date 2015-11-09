@@ -6,6 +6,9 @@ import ExtendedString from './extendedString';
 import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
 import BabelPolyfill from 'babel-polyfill';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import reducers from './reducers/reducers.js'
 
-ReactDOM.render(<Main />, document.getElementById('main-container'));
+ReactDOM.render(<Provider store={createStore(reducers, {})}><Main /></Provider>, document.getElementById('main-container'));
 GridLayout.initialize();

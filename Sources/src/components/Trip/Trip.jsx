@@ -235,6 +235,9 @@ class RealTimeTrainState {
       delete this.timer;
       this.transition(RealTimeTrainState.Events.GET_REAL_TIME, context);
     }, delay);
+
+    debugger;
+    //DebuggingInfo.update(DebuggingConstants.UPDATE_INFO, "timeout restarted");
   }
 
   computeTrainPosition(context) {
