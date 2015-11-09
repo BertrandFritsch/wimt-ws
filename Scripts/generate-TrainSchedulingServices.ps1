@@ -80,15 +80,18 @@ $calendarDatesColl |% { $_.GetEnumerator() } |% {
     $serviceExceptions = $value.Exceptions |? { $_ -ne $null }
     if ($serviceExceptions.Length -gt 0) {
 "
-     {
+     [
 "  
      $isFirst = $true
-     $serviceExceptions |% { $_.GetEnumerator() } | %{ 
-"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])"
+     $serviceExceptions |% { $_.GetEnumerator() } |
+       % { [PSCustomObject] @{ Day=(convert-dateToDays $_.Name); Run=($TrueOrFalse[$_.Value.exception_type])  } } | 
+         Sort-Object Day |
+           %{ 
+"      $(if (-not ($isFirst)) {","})[$($_.Day), $($_.Run)]"
        $isFirst = $false
      }
 "
-     }
+     ]
 "
     }
     else {

@@ -23,7 +23,7 @@ import $ from 'jquery';
  *       0: start date
  *       1: end date
  *       2: days,
- *       3: {service exceptions}
+ *       3: [day, type]
  *
  */
 
@@ -187,7 +187,8 @@ function doesRunAt(trip, date) {
   }
 
   let service = Services[trip[2]];
-  let doesRunAt = service[3] && service[3][day];
+  let exception = service[3] && service[3].find(e => e[0] === day);
+  let doesRunAt = exception && exception[1];
 
   return doesRunAt
     || ((doesRunAt === null || doesRunAt === undefined) && (function () {
