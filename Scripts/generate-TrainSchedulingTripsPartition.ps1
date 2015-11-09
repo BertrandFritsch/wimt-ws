@@ -56,15 +56,7 @@ if (-not $RootDir) {
 $trips = gi $rootDir\Assets\export-TN-GTFS-LAST\trips.txt | & $rootDir\Scripts\load-GTFS2.ps1 | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
 
 $stop_times = gi $rootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | & $rootDir\Scripts\load-GTFS2.ps1
-$calendar_dates = gi $rootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
-$calendarDatesColl = @{}
-$calendar_dates |% {
-    if (-not $calendarDatesColl[$_.service_id]) {
-        $calendarDatesColl[$_.service_id] = @{}
-    }
-
-    $calendarDatesColl[$_.service_id][$_.date] = $_
-}
+$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
 $servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
 $routesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\routes.txt | & $rootDir\Scripts\load-GTFS2.ps1) route_id
 $tripIdGenerator = 0
@@ -104,26 +96,6 @@ $trips |% {
 "
   $(if (-not ($isFirstTrip)) {","})$(if ($tripsStopTimesColl[$trip_id]) { "[ 
     '$trip_id', '$($trip_id -replace 'DUASN(\d+).+','$1')', $($_.service_id), '$($_.trip_headsign)', $($TrueOrFalse[$_.direction_id]),
-"
-    $serviceExceptions = $calendarDatesColl[$_.service_id] |? { $_ -ne $null }
-    if ($serviceExceptions.Length -gt 0) {
-"
-    {
-"  
-     $isFirst = $true
-     $serviceExceptions |% { $_.GetEnumerator() } | %{ 
-"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])
-"
-       $isFirst = $false
-     }
-"
-    },
-"
-    }
-    else {
-"    null,"
-    }
-"
     [
 "
      $isFirst = $true

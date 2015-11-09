@@ -35,18 +35,68 @@ if (-not $RootDir) {
   )
 }
 
+# be aware that services may exist without exceptions -- but also services may not exist but still have exceptions
+
 $TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
-$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
-$calendar = gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
-  ? { $Date -le $_.end_date -or $calendarDatesColl[$_.service_id] }
+$calendar_dates = gi $rootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
+$calendarDatesColl = @{}
+$calendar_dates |% {
+    if (-not $calendarDatesColl[$_.service_id]) {
+        $calendarDatesColl[$_.service_id] = [PSCustomObject] @{ Service = $null; Exceptions = @{} }
+    }
+
+    $calendarDatesColl[$_.service_id].Exceptions[$_.date] = $_
+}
+
+gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? { $Date -le $_.end_date } |% {
+    if (-not $calendarDatesColl[$_.service_id]) {
+        $calendarDatesColl[$_.service_id] = [PSCustomObject] @{ Service = $null; Exceptions = $null }
+    }
+
+    $calendarDatesColl[$_.service_id].Service = $_
+}
+
 
 function generate-services() {
 "
 Services = {
 "
 $isFirst = $true
-$calendar |% {
-"  $(if (-not ($isFirst)) {","})$($_.service_id): [ $(convert-dateToDays $_.start_date), $(convert-dateToDays $_.end_date), [ $($TrueOrFalse[$_.sunday]), $($TrueOrFalse[$_.monday]), $($TrueOrFalse[$_.tuesday]), $($TrueOrFalse[$_.wednesday]), $($TrueOrFalse[$_.thursday]), $($TrueOrFalse[$_.friday]), $($TrueOrFalse[$_.saturday]) ] ]"
+$calendarDatesColl |% { $_.GetEnumerator() } |% {
+  $service_id = $_.Name
+  $value = $_.Value
+"  $(if (-not ($isFirst)) {","})$($service_id): [
+"
+     if ($value.Service) {
+"      
+     $(convert-dateToDays $value.Service.start_date), $(convert-dateToDays $value.Service.end_date), [ $($TrueOrFalse[$value.Service.sunday]), $($TrueOrFalse[$value.Service.monday]), $($TrueOrFalse[$value.Service.tuesday]), $($TrueOrFalse[$value.Service.wednesday]), $($TrueOrFalse[$value.Service.thursday]), $($TrueOrFalse[$value.Service.friday]), $($TrueOrFalse[$value.Service.saturday]) ],
+"
+     }
+     else {
+"      
+     null, null, null,
+"
+     }
+    $serviceExceptions = $value.Exceptions |? { $_ -ne $null }
+    if ($serviceExceptions.Length -gt 0) {
+"
+     {
+"  
+     $isFirst = $true
+     $serviceExceptions |% { $_.GetEnumerator() } | %{ 
+"      $(if (-not ($isFirst)) {","})$(convert-dateToDays $_.Name): $($TrueOrFalse[$_.Value.exception_type])"
+       $isFirst = $false
+     }
+"
+     }
+"
+    }
+    else {
+"     null"
+    }
+"
+   ]
+"
    $isFirst = $false
 }
 "

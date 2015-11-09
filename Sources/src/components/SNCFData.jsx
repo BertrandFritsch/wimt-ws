@@ -12,8 +12,7 @@ import $ from 'jquery';
  *       2: service
  *       3: mission
  *       4: direction, 0 - forward, 1 - backward
- *       5: {service exceptions}
- *       6: [stopTime, stop]
+ *       5: [stopTime, stop]
  *
  *   - Stop:
  *       0: id
@@ -23,7 +22,8 @@ import $ from 'jquery';
  *   - Service:
  *       0: start date
  *       1: end date
- *       2: days
+ *       2: days,
+ *       3: {service exceptions}
  *
  */
 
@@ -96,19 +96,19 @@ function getStopTimeSequence(stopTime) {
 }
 
 function getTripStopTimes(trip) {
-  return trip[6];
+  return trip[5];
 }
 
 function getTripFirstStopTime(trip) {
-  return trip[6][0];
+  return trip[5][0];
 }
 
 function isTripFirstStopTime(trip, stopTime) {
-  return trip[6][0] === stopTime;
+  return trip[5][0] === stopTime;
 }
 
 function getTripLastStopTime(trip) {
-  return trip[6][trip[6].length - 1];
+  return trip[5][trip[5].length - 1];
 }
 
 function getTripMission(trip) {
@@ -124,23 +124,23 @@ function getTripNumber(trip) {
 }
 
 function getTripNextStopTime(trip, stopTime) {
-  let i = trip[6].indexOf(stopTime);
+  let i = trip[5].indexOf(stopTime);
 
   if (i === -1) {
     throw new Error("Invalid trip stop time");
   }
 
-  return i < trip[6].length ? trip[6][i + 1] : null;
+  return i < trip[5].length ? trip[5][i + 1] : null;
 }
 
 function getTripPrevStopTime(trip, stopTime) {
-  let i = trip[6].indexOf(stopTime);
+  let i = trip[5].indexOf(stopTime);
 
   if (i === -1) {
     throw new Error("Invalid trip stop time");
   }
 
-  return i > 0 ? trip[6][i - 1] : null;
+  return i > 0 ? trip[5][i - 1] : null;
 }
 
 function isTripByNumber(trip, number) {
@@ -177,7 +177,7 @@ function getService(id) {
 
 function doesRunAt(trip, date) {
   const minutesPerDay = 24 * 60,
-        stopTime = trip[6][0];
+        stopTime = trip[5][0];
 
   let day = getDateAsDays(date);
 
@@ -186,19 +186,16 @@ function doesRunAt(trip, date) {
     --day;
   }
 
-  let doesRunAt = trip[5] && trip[5][day];
+  let service = Services[trip[2]];
+  let doesRunAt = service[3] && service[3][day];
 
   return doesRunAt
     || ((doesRunAt === null || doesRunAt === undefined) && (function () {
-
-      let service;
-      if ((service = Services[trip[2]]) !== undefined) {
-        if (service[0] <= day) {
-          let endDay = service[1] + 1;
-          if (day < endDay) {
-            if (service[2][(day - 3) % 7]) {
-              return true;
-            }
+      if (service[0] && service[0] <= day) {
+        let endDay = service[1] + 1;
+        if (day < endDay) {
+          if (service[2][(day - 3) % 7]) {
+            return true;
           }
         }
       }
