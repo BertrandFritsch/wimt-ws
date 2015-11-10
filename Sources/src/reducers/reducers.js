@@ -1,10 +1,10 @@
 ﻿import { combineReducers } from 'redux'
 import { UPDATE_DEBUGGING_INFO } from '../actions/actions.js'
 
-function updateDebuggingInfo(state = {}, action) {
+function debuggingInfo(state = {}, action) {
   switch (action.type) {
     case UPDATE_DEBUGGING_INFO:
-      return Object.assign({ [action.data.type]: action.data.text }, state);
+      return Object.assign({}, state, { [action.data.type]: action.data.text });
 
     default:
       return state;
@@ -12,7 +12,7 @@ function updateDebuggingInfo(state = {}, action) {
 }
 
 const app = combineReducers({
-  updateDebuggingInfo
+  debuggingInfo
 });
 
 export default app;

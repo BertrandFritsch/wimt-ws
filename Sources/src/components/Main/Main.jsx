@@ -4,6 +4,7 @@ import SNCFData from './../SNCFData';
 import Trips from './../Trips/Trips';
 import Trip from './../Trip/Trip';
 import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
+import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx'
 import theme from './Main.css';
 import { connect } from 'react-redux'
 
@@ -72,7 +73,7 @@ class Main extends React.Component {
               if (this.state.stops.length > 0 && this.state.trip) {
                 return (
                   <LayoutContainer>
-                    <Trip trip={this.state.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />
+                    <Trip actionDispatcher={this.props.dispatch} trip={this.state.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />
                   </LayoutContainer>
                 )
               }
@@ -85,6 +86,15 @@ class Main extends React.Component {
           </div>
         </div>
         <div data-g-layout-item='"row": 0, "column": 2, "isXSpacer": true'/>
+        <div data-g-layout-item='"row": 1, "column": 0, "columnSpan": 3'>{(() => {
+          if (this.props.debuggingInfo) {
+            return (
+              <LayoutContainer>
+                <DebuggingRow debuggingInfo={this.props.debuggingInfo} />
+              </LayoutContainer>
+            )
+          }
+        })()}</div>
       </div>
     )
   }
@@ -123,7 +133,6 @@ class Main extends React.Component {
 }
 
 function select(state) {
-  debugger;
   return state;
 }
 

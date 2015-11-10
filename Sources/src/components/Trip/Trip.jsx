@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
-import SNCFData, { RealTimeRequester } from './../SNCFData';
+import SNCFData, { RealTimeRequester } from '../SNCFData';
+import { updateDebuggingInfo } from '../../actions/actions.js';
 import theme from './Trip.css'
 
 const PIXELS_PER_MINUTE = 15;
@@ -147,8 +148,18 @@ class RealTimeTrainState {
   }
 
   abortWaitings() {
+    var me = this;
+
     clearTimeout(this.timer);
     delete this.timer;
+
+    if (process.env.NODE_ENV !== 'production' && this.debugTimer !== undefined) {
+      clearTimeout(this.debugTimer);
+      delete this.debugTimer;
+      setTimeout(() => {
+        me.tripComp.props.actionDispatcher(updateDebuggingInfo('Prochaine vérification', null));
+      }, 1);
+    }
   }
 
   checkRealTimeAt(context) {
@@ -231,13 +242,49 @@ class RealTimeTrainState {
   }
 
   waitFotNextCheck(context, delay) {
+    var me = this;
+
     this.timer = setTimeout(() => {
       delete this.timer;
       this.transition(RealTimeTrainState.Events.GET_REAL_TIME, context);
     }, delay);
 
-    debugger;
-    //DebuggingInfo.update(DebuggingConstants.UPDATE_INFO, "timeout restarted");
+    if (process.env.NODE_ENV !== 'production') {
+      if (me.debugTimer) {
+        clearTimeout(this.debugTimer);
+      }
+      
+      (function _setTimeout(delay) {
+        me.debugTimer = setTimeout(() => {
+          me.tripComp.props.actionDispatcher(updateDebuggingInfo('Prochaine vérification', RealTimeTrainState.formatDelay(delay)));
+          delete me.debugTimer;
+          if (delay > 1) {
+            _setTimeout(delay - 1);
+          }
+        }, 1000);
+      })(Math.floor(delay / 1000));
+    }
+  }
+
+  static formatDelay(delay) {
+    let seconds = delay % 60;
+    delay = Math.floor(delay / 60);
+
+    let minutes = delay % 60;
+    delay = Math.floor(delay / 60);
+
+    let hours = delay % 24;
+    let days = Math.floor(delay / 24);
+
+    seconds < 10 ? seconds = '0' + seconds : seconds;
+    minutes > 0 && minutes < 10 ? minutes = '0' + minutes : minutes;
+    hours > 0 && hours < 10 ? hours = '0' + hours : hours;
+
+    return String.format("{0}{1}{2}{3}",
+      days != 0 ? String.format("{0} jours ", days) : '',
+      hours != 0 ? String.format("{0}:", hours) : '',
+      minutes != 0 ? String.format("{0}:", minutes) : '',
+      String.format("{0}", seconds));
   }
 
   computeTrainPosition(context) {
