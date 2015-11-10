@@ -43,17 +43,22 @@ export class RealTimeRequester {
           "Cache-Control": "no-cache, no-store, must-revalidate"
         },
         complete: function (xhr, status) {
-          let trains = xhr.responseXML.getElementsByTagName('train');
-          result(Array.prototype.map.call(trains, train => {
-            return {
-              number: train.getElementsByTagName('num')[0].textContent,
-              mission: train.getElementsByTagName('miss')[0].textContent,
-              term: train.getElementsByTagName('term')[0].textContent,
-              time: RealTimeRequester.parseRealTime(train.getElementsByTagName('date')[0].textContent),
-              mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
-              state: train.getElementsByTagName('state').length ? train.getElementsByTagName('state')[0].textContent : ''
-            }
-          }));
+          if (xhr.status === 200) {
+            let trains = xhr.responseXML.getElementsByTagName('train');
+            result(Array.prototype.map.call(trains, train => {
+              return {
+                number: train.getElementsByTagName('num')[0].textContent,
+                mission: train.getElementsByTagName('miss')[0].textContent,
+                term: train.getElementsByTagName('term')[0].textContent,
+                time: RealTimeRequester.parseRealTime(train.getElementsByTagName('date')[0].textContent),
+                mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
+                state: train.getElementsByTagName('state').length ? train.getElementsByTagName('state')[0].textContent : ''
+              }
+            }));
+          }
+          else {
+            result([]);
+          }
         }
       });
     }
@@ -68,7 +73,7 @@ export class RealTimeRequester {
 
 // SNCFData interface
 function getTrip(id) {
-  return Trips.find(t => t !== null && t.id === id);
+  return Trips.find(t => t !== null && t[0] === id);
 }
 
 function getTripId(trip) {
