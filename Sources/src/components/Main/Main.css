@@ -4,4 +4,10 @@
 
 .root-container {
   /*background-color: rgba(237, 237, 241, 1);*/
+  margin: 0 20px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }

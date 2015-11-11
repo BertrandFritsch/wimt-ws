@@ -53,9 +53,10 @@ class Main extends React.Component {
 
   render = () => {
     return (
-      <div id="gGridLayoutRoot" className="gLayoutMeasuring" data-g-layout-container="">
+      <div className="root-container">
+        <div id="gGridLayoutRoot" className="gLayoutMeasuring" data-g-layout-container="">
         <div data-g-layout-item='"row": 0, "column": 0, "isXSpacer": true'/>
-        <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true' data-g-layout-policy='"widthPolicy": "Container", "widthHint": "600px"' className="root-container">
+        <div data-g-layout-item='"row": 0, "column": 1, "isYSpacer": true' data-g-layout-policy='"widthPolicy": "Fixed", "widthHint": "*"'>
           <div data-g-layout-container='"horizontalBubbling": false, "verticalBubbling": false'>
             {(() => { if (this.state.stops.length > 0) {
               return (
@@ -95,6 +96,7 @@ class Main extends React.Component {
             )
           }
         })()}</div>
+      </div>
       </div>
     )
   }

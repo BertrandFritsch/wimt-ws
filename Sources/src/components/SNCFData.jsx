@@ -31,7 +31,7 @@ import $ from 'jquery';
 export class RealTimeRequester {
   static get(departureStop, arrivalStop, result) {
     if (departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop[0]);
+      let url = String.format('{0}/gare/{1}/depart/', window.location.origin, departureStop[0]);
       if (arrivalStop) {
         url = String.format('{0}{1}/', url, arrivalStop[0]);
       }
