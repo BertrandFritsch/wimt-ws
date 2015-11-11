@@ -117,7 +117,7 @@ function getTripMission(trip) {
 }
 
 function getTripLastStop(trip) {
-  return getStop(getTripLastStopTime(trip)[0]);
+  return getStop(getTripLastStopTime(trip)[1]);
 }
 
 function getTripNumber(trip) {
