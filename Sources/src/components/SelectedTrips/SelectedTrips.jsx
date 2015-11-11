@@ -51,7 +51,7 @@ class SelectedTrips extends React.Component {
     return (
       <Infinite elementHeight={50}
                 containerHeight={this.state.containerHeight}
-                infiniteLoadBeginBottomOffset={200}
+                infiniteLoadBeginEdgeOffset={200}
                 onInfiniteLoad={this.handleInfiniteLoad}>
         {this.state.rows}
       </Infinite>
