@@ -10,7 +10,7 @@
 }
 
 .trip-time-row-passed {
-  opacity: .5;
+  color: #aaaaaa;
 }
 
 .trip-time-row-time {

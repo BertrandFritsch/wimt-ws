@@ -27,7 +27,7 @@ class TripStopRow extends React.Component {
         <div className={rowClasses} style={top}>
           <span className={classes}>{hours}:{minutes}</span>
           <span className="trip-time-row-time-separator"/>
-          <span className="trip-time-row-container">{SNCFData.getStopName(SNCFData.getStopTimeStop(this.props.stopTime))}</span>
+          <span className="trip-time-row-container">{SNCFData.getStopUICCode(SNCFData.getStopTimeStop(this.props.stopTime))} - {SNCFData.getStopName(SNCFData.getStopTimeStop(this.props.stopTime))}</span>
         </div>
     );
   }
