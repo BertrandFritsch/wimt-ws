@@ -6,6 +6,10 @@
   background-color:  white;
 }
 
+.trip-real-time {
+  /*background-color: rgb(221, 243, 221);*/
+}
+
 .trip-frame-top-space, .trip-frame-bottom-space {
   height: 20px;
 }
@@ -49,9 +53,9 @@
 }
 
 .trip-train-position-initial-animation {
-  transition: height 2s ease-out;
+  transition-timing-function: ease-out;
 }
 
 .trip-train-position-progression-animation {
-  transition: height 60s linear;
+  transition-timing-function: linear;
 }

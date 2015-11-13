@@ -6,7 +6,7 @@ class TripHeaderRow extends React.Component {
   render = () => {
     return (
       <div className="trip-header-row">
-        <span className="trip-header-row-text">{SNCFData.getTripMission(this.props.trip)}</span>
+        <span className="trip-header-row-text">{SNCFData.getTripMission(this.props.trip)} - {SNCFData.getTripNumber(this.props.trip)}</span>
         <span className="trip-header-row-state">{this.props.state}</span>
         <span className="trip-header-row-arrow" />
       </div>

@@ -22,7 +22,7 @@ class TripStopRow extends React.Component {
 
     let classes = ['trip-time-row-time', this.props.delayedMinutes && 'trip-time-row-time-late' || '', this.props.delayed && 'trip-time-row-time-delayed' || ''].join(' ');
     let rowClasses = ['trip-time-row', this.props.trainHasPassedBy ? 'trip-time-row-passed' : ''].join(' ');
-    let top = { top: this.props.top + 'px' };
+    let top = { transform: String.format("translateY({0}px)", this.props.top) };
     return (
         <div className={rowClasses} style={top}>
           <span className={classes}>{hours}:{minutes}</span>

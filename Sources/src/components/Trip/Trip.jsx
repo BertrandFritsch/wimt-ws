@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
+import $ from 'jquery';
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
@@ -24,9 +25,16 @@ class Trip extends React.Component {
   }
 
   render = () => {
+    function scrollToPosition(el, tripScrollEl) {
+      if (el !== null) {
+        console.log("Train: ", el.getBoundingClientRect().top);
+        console.log("ScrollEl: ", tripScrollEl && tripScrollEl.getBoundingClientRect().height);
+      }
+    }
+
     let stopTimeReached = false;
     let rows = SNCFData.getTripStopTimes(this.props.trip).map(stopTime => {
-      if (stopTimeReached || stopTime === this.state.stopTime) {
+      if (!stopTimeReached && stopTime === this.state.stopTime) {
         stopTimeReached = true;
       }
 
@@ -42,14 +50,16 @@ class Trip extends React.Component {
       height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.trip)) + (this.state.delayedMinutes || 0) - time) * PIXELS_PER_MINUTE
     }
 
+    let tripFrameClasses = ['trip-frame', !this.state.noRealTime ? 'trip-real-time' : 'trip-no-real-time'].join(' ');
+
     return (
-      <div data-g-layout-container='' className="trip-frame">
+      <div data-g-layout-container='' className={tripFrameClasses}>
         <div data-g-layout-item='"row": 0'>
           <TripHeaderRow trip={this.props.trip}
-                       state={this.state.notScheduled ? 'Non planifié' : this.state.cancelled ? 'Supprimé' : this.state.delayed ? 'Retardé' : this.state.delayedMinutes ? String.format("{0} mn", this.state.delayedMinutes) : "A l'heure"} />
+                       state={this.state.notScheduled ? 'Non planifié' : this.state.cancelled ? 'Supprimé' : this.state.delayed ? 'Retardé' : this.state.delayedMinutes ? String.format("{0} mn", this.state.delayedMinutes) : this.state.noRealTime ? 'Théorique' : "A l'heure"} />
           <div className="trip-frame-top-space"/>
         </div>
-        <div style={{overflowY: 'auto'}} data-g-layout-item='"row": 1, "isXSpacer": true' data-g-layout-policy='"heightHint": "*", "heightPolicy": "Fixed"'>
+        <div ref="tripScrollEl" style={{overflowY: 'auto'}} data-g-layout-item='"row": 1, "isXSpacer": true' data-g-layout-policy='"heightHint": "*", "heightPolicy": "Fixed"'>
           <div className="trip-frame-center">
             <div className="trip-timeline"/>
             <div className="trip-container" style={tripContainerStyles}>
@@ -64,8 +74,14 @@ class Trip extends React.Component {
                 }
               {(() => {
                   if (!this.state.notScheduled) {
+                    let trainPosition = (this.state.trainPosition || 0) * PIXELS_PER_MINUTE;
+                    if (trainPosition > 0 && this.state.isInitialComputing && this.refs.tripScrollEl) {
+                      $(this.refs.tripScrollEl).animate({ scrollTop: String.format("{0}px", trainPosition) }, 2000);
+                    }
+
                     let tripTrainStyles = {
-                      height: (this.state.trainPosition || 0) * PIXELS_PER_MINUTE + 'px'
+                      transitionDuration: String.format("{0}ms", this.state.isInitialComputing ? 2000 : Math.max(6000, Math.min(60000, this.state.timeUntilStop))),
+                      transform: String.format("translateY({0}px)", trainPosition)
                     }
 
                     let tripClasses = ['trip-train-frame', this.state.isInitialComputing ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation'].join(' ');
@@ -175,7 +191,7 @@ class RealTimeTrainState {
           ? {
               "time": time,
               "mode": context.delayedTime !== undefined ? "R" : '',
-              "state": context.delayed ? 'Retardé' : ''
+              "state": context.delayed ? 'Retardé' : context.cancelled ? 'Supprimé' : ''
             }
           : undefined;
 
@@ -194,14 +210,33 @@ class RealTimeTrainState {
       // the train is not part of the real time announced trains
       // assume the train is not announced if the planned time has not passed yet
 
-      let nextStopTime = SNCFData.getTripNextStopTime(this.trip, context.stopTime);
-      if (!nextStopTime) {
-        // it's the last stop of the train, the trip has probably ended
-        this.transition(RealTimeTrainState.Events.TRAIN_NOT_SCHEDULED);
+      if (!context.delayed && (context.noRealTime || context.prevStopTime !== undefined)) {
+        // the train is not announced at 2 stops, assume it is not announced by the real times
+        this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, {
+          stopTime: context.prevStopTime || context.stopTime,
+          noRealTime: true
+        });
       }
       else {
-        // look for the next station the train has to reach
-        this.transition(RealTimeTrainState.Events.GET_REAL_TIME, Object.assign(context, {stopTime: nextStopTime}));
+        if (context.delayed) {
+          // the train has been delayed
+          this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, { stopTime: context.prevStopTime || context.stopTime, delayed: true, delayedMinutes: context.delayedMinutes });
+        }
+        else {
+          let nextStopTime = SNCFData.getTripNextStopTime(this.trip, context.stopTime);
+          if (!nextStopTime) {
+            // it's the last stop of the train, the trip has probably ended
+            this.transition(RealTimeTrainState.Events.TRAIN_NOT_SCHEDULED);
+          }
+          else {
+            // look for the next station the train has to reach
+            this.transition(RealTimeTrainState.Events.GET_REAL_TIME, {
+              stopTime: nextStopTime,
+              prevStopTime: context.stopTime,
+              delayedMinutes: context.delayedMinutes
+            });
+          }
+        }
       }
     }
     else {
@@ -215,11 +250,11 @@ class RealTimeTrainState {
         if (prevStopTime) {
           if (train.state === 'Retardé') {
             // the train has been delayed; looking for the first station where the train is announced
-            this.transition(RealTimeTrainState.Events.GET_REAL_TIME, Object.assign(context, {
-              stopTime: context.stopTime,
-              prevStopTime: prevStopTime,
+            this.transition(RealTimeTrainState.Events.GET_REAL_TIME, {
+              stopTime: prevStopTime,
+              prevStopTime: context.stopTime,
               delayed: true
-            }));
+            });
           }
           else {
             let theoricalTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(context.stopTime));
@@ -228,26 +263,26 @@ class RealTimeTrainState {
             let realPositionTime = train.time.getTime() - deltaTime;
             if (realPositionTime < prevTheoricalTime.getTime()) {
               // the train has not yet reached the previous station
-              this.transition(Object.assign(context, RealTimeTrainState.Events.GET_REAL_TIME, {
+              this.transition(RealTimeTrainState.Events.GET_REAL_TIME, {
                 stopTime: context.stopTime,
                 realTime: train.time,
                 prevStopTime: prevStopTime
-              }));
+              });
             }
             else {
               // the train is between prevStopTime and stopTime
-              this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, Object.assign(context, {
+              this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, {
                 stopTime: context.stopTime,
                 delayedMinutes: deltaTime / (1000 * 60)
-              }));
+              });
             }
           }
         }
         else {
           // the train is still announced at the departure station
-          this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, Object.assign(context, {
+          this.transition(RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK, {
             stopTime: context.stopTime
-          }));
+          });
         }
       }
     }
@@ -301,8 +336,11 @@ class RealTimeTrainState {
 
   computeTrainPosition(context) {
     let now = new Date().getTime();
-    context.trainPosition = (now - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip))).getTime()) / (60 * 1000) + (context.isInitialComputing ? 0 : 1);
-    context.timeUntilStop = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(context.stopTime) + (context.delayedMinutes ||0)).getTime() - now;
+    let timeToStopTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(context.stopTime) + (context.delayedMinutes || 0)).getTime();
+    let timeToDepartureStop = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip))).getTime();
+    context.timeUntilStop = Math.max(0, timeToStopTime - now);
+    // don't go forward if the stop has already been reached but still announced, thus not passed by
+    context.trainPosition = (Math.min(now + (context.isInitialComputing ? 0 : 60000), timeToStopTime) - timeToDepartureStop) / (60 * 1000);
     return context;
   }
 
@@ -387,7 +425,7 @@ class RealTimeTrainState {
             break;
 
           case RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK:
-            let context = { stopTime: param1.stopTime, delayedMinutes: param1.delayedMinutes, isInitialComputing: false, cancelled: false, delayed: false };
+            let context = { stopTime: param1.stopTime, delayedMinutes: param1.delayedMinutes, isInitialComputing: false, cancelled: false, delayed: param1.delayed, noRealTime: param1.noRealTime };
             this.tripComp.updateState(this.computeTrainPosition(context));
             // check the time in 60s max, except if there is less than 60s until the next stop, but not if the next stop has still been reached
             this.waitFotNextCheck(context, Math.min(60000, context.timeUntilStop > 0 ? context.timeUntilStop : 60000));
@@ -420,7 +458,7 @@ class RealTimeTrainState {
             break;
 
           case RealTimeTrainState.Events.WAIT_FOR_NEXT_CHECK:
-            let context = { stopTime: param1.stopTime, delayedMinutes: param1.delayedMinutes, isInitialComputing: true, cancelled: false, delayed: false };
+            let context = { stopTime: param1.stopTime, delayedMinutes: param1.delayedMinutes, isInitialComputing: true, cancelled: false, delayed: param1.delayed, noRealTime: param1.noRealTime };
             this.tripComp.updateState(this.computeTrainPosition(context));
             this.waitFotNextCheck(context, Math.min(2000, context.timeUntilStop));
             this.state = RealTimeTrainState.States.WAITING_FOR_NEXT_CHECK;
