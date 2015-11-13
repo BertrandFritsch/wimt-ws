@@ -31,7 +31,7 @@ import $ from 'jquery';
 export class RealTimeRequester {
   static get(departureStop, arrivalStop, result) {
     if (departureStop) {
-      let url = String.format('{0}/gare/{1}/depart/', window.location.origin, departureStop[0]);
+      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop[0]);
       if (arrivalStop) {
         url = String.format('{0}{1}/', url, arrivalStop[0]);
       }
@@ -52,7 +52,7 @@ export class RealTimeRequester {
                 term: train.getElementsByTagName('term')[0].textContent,
                 time: RealTimeRequester.parseRealTime(train.getElementsByTagName('date')[0].textContent),
                 mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
-                state: train.getElementsByTagName('state').length ? train.getElementsByTagName('state')[0].textContent : ''
+                state: train.getElementsByTagName('etat').length ? train.getElementsByTagName('etat')[0].textContent : ''
               }
             }));
           }
@@ -117,7 +117,7 @@ function getTripMission(trip) {
 }
 
 function getTripLastStop(trip) {
-  return getStop(getTripLastStopTime(trip)[1]);
+  return getStop(getTripLastStopTime(trip)[0]);
 }
 
 function getTripNumber(trip) {
