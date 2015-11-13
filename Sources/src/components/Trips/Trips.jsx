@@ -5,6 +5,8 @@ import SNCFData from './../SNCFData';
 import theme from './Trips.css';
 
 class Trips extends React.Component {
+  constructor(props) { super(props); }
+
   render = () => {
     var departureStops = this.props.stops,
         arrivalStops,

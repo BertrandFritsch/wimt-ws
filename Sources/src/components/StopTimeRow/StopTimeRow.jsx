@@ -3,6 +3,8 @@ import SNCFData from './../SNCFData';
 import theme from './StopTimeRow.css';
 
 class StopTimeRow extends React.Component {
+  constructor(props) { super(props); }
+
   render = () => {
     var hours = Math.floor(SNCFData.getStopTimeTime(this.props.stopTime) / 60),
       minutes = SNCFData.getStopTimeTime(this.props.stopTime) - (hours * 60);

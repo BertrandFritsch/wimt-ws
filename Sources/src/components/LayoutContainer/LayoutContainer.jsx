@@ -3,6 +3,8 @@ import theme from './LayoutContainer.css';
 import GridLayout from '../../gridlayout/gridlayout';
 
 class LayoutContainer extends React.Component {
+  constructor(props) { super(props); }
+
   domNode = null;
 
   render = () => {

@@ -2,6 +2,8 @@
 import theme from './DayHeaderRow.css';
 
 class DayHeaderRow extends React.Component {
+  constructor(props) { super(props); }
+
   render = () => {
     return (
       <div className="day-header-row">

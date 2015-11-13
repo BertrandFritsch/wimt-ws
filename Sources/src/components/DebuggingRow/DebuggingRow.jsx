@@ -2,6 +2,8 @@
 import theme from './DebuggingRow.css';
 
 class DebuggingRow extends React.Component {
+  constructor(props) { super(props); }
+
   render = () => {
     return (
       <div className="debugging-row">{(() => {

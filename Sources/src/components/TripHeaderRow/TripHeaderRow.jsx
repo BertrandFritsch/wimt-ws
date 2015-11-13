@@ -3,6 +3,8 @@ import SNCFData from '../SNCFData.jsx';
 import theme from './TripHeaderRow.css';
 
 class TripHeaderRow extends React.Component {
+  constructor(props) { super(props); }
+
   render = () => {
     return (
       <div className="trip-header-row">

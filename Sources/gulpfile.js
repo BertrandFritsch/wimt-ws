@@ -51,9 +51,8 @@ function buildJs(options, callback) {
           exclude: /(node_modules)/,
           loader: 'babel',
           query: {
-//            "presets": ["es2015", "react", "stage-0"]
-            compact: false,
-            stage: 0
+            "presets": ["es2015", "react", "stage-0"],
+            compact: false
           }
         },
         {test: /\.css$/, loader: "style-loader!css-loader"},
