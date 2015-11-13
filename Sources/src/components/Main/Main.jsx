@@ -1,5 +1,4 @@
 ﻿import React from 'react';
-import $ from 'jquery';
 import SNCFData from './../SNCFData';
 import Trips from './../Trips/Trips';
 import Trip from './../Trip/Trip';
