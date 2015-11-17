@@ -1,5 +1,6 @@
 ﻿import { combineReducers } from 'redux'
 import { UPDATE_DEBUGGING_INFO } from '../actions/actions.js'
+import { viewTrip } from './viewTrip.js'
 
 function debuggingInfo(state = {}, action) {
   switch (action.type) {
@@ -11,8 +12,7 @@ function debuggingInfo(state = {}, action) {
   }
 }
 
-const app = combineReducers({
-  debuggingInfo
+export default combineReducers({
+  debuggingInfo,
+  viewTrip
 });
-
-export default app;

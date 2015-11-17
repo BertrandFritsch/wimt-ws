@@ -5,6 +5,7 @@ import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
 import SNCFData, { RealTimeRequester } from './../SNCFData';
 import GridLayout from '../../gridlayout/gridlayout';
+import { viewTrip } from '../../actions/actions.js';
 import theme from './SelectedTrips.css';
 
 class SelectedTrips extends React.Component {
@@ -141,8 +142,9 @@ class SelectedTrips extends React.Component {
   static rowKeyGenerator = 0;
 
   transformToElements = (stopTimes, date) => {
-    var length, i,
-      rows = [];
+    var me = this,
+        length, i,
+        rows = [];
 
     length = stopTimes.length;
 
@@ -164,7 +166,7 @@ class SelectedTrips extends React.Component {
       rows.push(<StopTimeRow key={++SelectedTrips.rowKeyGenerator}
                              stopTime={stopTimes[i].stopTime}
                              realTime={realTime}
-                             onStopTimeSelected={this.props.onStopTimeSelected}/>)
+                             onStopTimeSelected={stopTime => me.props.actionDispatcher(viewTrip(SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime))))}/>)
     }
 
     return rows;
