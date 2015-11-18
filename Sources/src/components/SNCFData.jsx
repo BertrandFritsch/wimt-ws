@@ -293,13 +293,12 @@ function getDateByDays(days) {
   return new Date(days * 24 * 60 * 60 * 1000);
 }
 
-function getDateByMinutes(time) {
+function getDateByMinutes(time, date = new Date()) {
   const minutesPerDay = 24 * 60;
-
-  let date = new Date();
 
   // be aware of trips that starts the day before
   if (time >= minutesPerDay) {
+    date = new Date(date);
     date.setDate(date.getDate() - 1);
   }
 

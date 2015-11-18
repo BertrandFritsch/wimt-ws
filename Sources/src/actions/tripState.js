@@ -25,7 +25,7 @@ class RealTimeTrainState {
 
           case RealTimeTrainState.Events.TRAIN_PLANNED: {
             // the train is not running but is planned for a further trip
-            this.progressiveCheckProcess(param1);
+            this.nextCheckAt(this.progressiveCheckProcess(param1));
             //this.dispatch(plannedTrip(this.trip, param1));
             this.state = RealTimeTrainState.States.CHECK_REAL_TIME_PLANNED;
           }
@@ -33,6 +33,20 @@ class RealTimeTrainState {
         break;
 
 
+    }
+  }
+
+  nextCheckAt(time) {
+    this.timeoutId = setTimeout(_ => {
+      this.timeoutId = 0;
+      this.transition(RealTimeTrainState.Events.TIMEOUT);
+    }, time);
+  }
+
+  cancelTimeout() {
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = 0;
     }
   }
 
@@ -55,7 +69,42 @@ class RealTimeTrainState {
   }
 
   progressiveCheckProcess(date) {
+    let time = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), date).getTime();
+    let now = Date.now();
 
+    const _2H = 2 * 60 * 60 * 1000;
+    const _1_5H = 1.5 * 60 * 60 * 1000;
+    const _1H = 1 * 60 * 60 * 1000;
+    const _30M = 30 * 60 * 1000;
+    const _15M = 15 * 60 * 1000;
+    const _10M = 10 * 60 * 1000;
+    const _5M = 5 * 60 * 1000;
+    const _1M = 1 * 60 * 1000;
+
+    if (time - now > _2H) {
+      return time - _2H;
+    }
+    else if (time - now > _1_5H) {
+      return time - _1_5H;
+    }
+    else if (time - now > _1H) {
+      return time - _1H;
+    }
+    else if (time - now > _30M) {
+      return time - _30M;
+    }
+    else if (time - now > _15M) {
+      return time - _15M;
+    }
+    else if (time - now > _10M) {
+      return time - _10M;
+    }
+    else if (time - now > _5M) {
+      return time - _5M;
+    }
+    else {
+      return Math.min(now + _1M, time);
+    }
   }
 
   static States = {
