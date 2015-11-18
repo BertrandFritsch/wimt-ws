@@ -6,6 +6,7 @@ import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx'
 import theme from './Main.css';
 import { connect } from 'react-redux'
+import { viewTrip, unviewTrip } from '../../actions/actions.js';
 
 class Main extends React.Component {
   constructor(props) {
@@ -65,7 +66,8 @@ class Main extends React.Component {
                            departureStop={this.state.departureStop}
                            arrivalStop={this.state.arrivalStop}
                            onDepartureStopChange={this.onDepartureStopChange}
-                           onArrivalStopChange={this.onArrivalStopChange} />
+                           onArrivalStopChange={this.onArrivalStopChange}
+                           onStopTimeSelected={this.onStopTimeSelected}/>
                   </LayoutContainer>
                 )
             } })()}
@@ -104,10 +106,20 @@ class Main extends React.Component {
     window.addEventListener('popstate', (event) => {
       event.preventDefault();
 
-      this.setState({
-        trip: event.state && event.state.trip
-      });
+      if (event.state === null) {
+        this.props.dispatch(unviewTrip());
+      }
+      else if (event.state.trip) {
+        this.props.dispatch(viewTrip(event.state.trip));
+      }
     });
+  }
+
+  onStopTimeSelected = (stopTime) => {
+    let trip = SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime));
+
+    this.props.dispatch(viewTrip(trip));
+    window.history.pushState({ trip }, "Voyage d'un train", String.format("#trip={0}", trip));
   }
 
   onDepartureStopChange = (stop) => {

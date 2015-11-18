@@ -71,10 +71,10 @@ class Trips extends React.Component {
                                   onStopChange={onDepartureStopChange} />
           </div>
           <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
-            <SelectedTrips actionDispatcher={this.props.actionDispatcher}
-                           departureStop={this.props.departureStop}
+            <SelectedTrips departureStop={this.props.departureStop}
                            startStopTimes={startStopTimes}
-                           arrivalStop={this.props.arrivalStop} />
+                           arrivalStop={this.props.arrivalStop}
+                           onStopTimeSelected={this.props.onStopTimeSelected}/>
           </div>
           <div data-g-layout-item='"row": 2'>
             <AutoCompleteSelector placeholder="Vers..."
