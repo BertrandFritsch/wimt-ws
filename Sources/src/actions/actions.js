@@ -26,7 +26,7 @@ function unviewTripAction() {
 
 export function viewTrip(trip) {
   return dispatch => {
-    dispatch(viewTripAction(trip, tripStateSetUp(trip)));
+    dispatch(viewTripAction(trip, tripStateSetUp(trip, dispatch)));
   }
 }
 
