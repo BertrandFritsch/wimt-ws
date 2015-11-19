@@ -24,15 +24,8 @@ class Trip extends React.Component {
   }
 
   render = () => {
-    function scrollToPosition(el, tripScrollEl) {
-      if (el !== null) {
-        console.log("Train: ", el.getBoundingClientRect().top);
-        console.log("ScrollEl: ", tripScrollEl && tripScrollEl.getBoundingClientRect().height);
-      }
-    }
-
     let stopTimeReached = false;
-    let rows = SNCFData.getTripStopTimes(this.props.trip).map(stopTime => {
+    let rows = SNCFData.getTripStopTimes(this.props.viewTrip.trip).map(stopTime => {
       if (!stopTimeReached && stopTime === this.state.stopTime) {
         stopTimeReached = true;
       }
@@ -44,9 +37,9 @@ class Trip extends React.Component {
       }
     })
 
-    let time = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.trip));
+    let time = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.viewTrip.trip));
     let tripContainerStyles = {
-      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.trip)) + (this.state.delayedMinutes || 0) - time) * PIXELS_PER_MINUTE
+      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.viewTrip.trip)) + (this.state.delayedMinutes || 0) - time) * PIXELS_PER_MINUTE
     }
 
     let tripFrameClasses = ['trip-frame', !this.state.noRealTime ? 'trip-real-time' : 'trip-no-real-time'].join(' ');
@@ -55,7 +48,7 @@ class Trip extends React.Component {
       if (this.props.viewTrip.state) {
         switch (this.props.viewTrip.state.type) {
           case PLANNED_TRIP:
-            return "A l'heure";
+            return Trip.formatDate(this.props.viewTrip.state.date);
         }
       }
     })();
@@ -63,7 +56,7 @@ class Trip extends React.Component {
     return (
       <div data-g-layout-container='' className={tripFrameClasses}>
         <div data-g-layout-item='"row": 0'>
-          <TripHeaderRow trip={this.props.trip}
+          <TripHeaderRow trip={this.props.viewTrip.trip}
                          state={state} />
           <div className="trip-frame-top-space"/>
         </div>
@@ -72,7 +65,7 @@ class Trip extends React.Component {
             <div className="trip-timeline"/>
             <div className="trip-container" style={tripContainerStyles}>
               {
-                SNCFData.getTripStopTimes(this.props.trip).map((stopTime, index) => {
+                SNCFData.getTripStopTimes(this.props.viewTrip.trip).map((stopTime, index) => {
                   let gap = SNCFData.getStopTimeTime(stopTime) + rows[index].delayedMinutes - time;
                   return <TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={stopTime}
                                       delayedMinutes={rows[index].delayedMinutes}
@@ -116,40 +109,38 @@ class Trip extends React.Component {
     });
   }
 
-  static formatDelay(date) {
-    const _24H = 24 * 60 * 60 * 1000;
+  /**
+   * Format the date
+   * @param date
+   * @returns {String}
+   */
+  static formatDate(date) {
+    const _1H = 1 * 60 * 60 * 1000;
 
     let today = new Date();
-    let midnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    midnight.setDate(midnight.getDate() + 1);
+    let midnight = (_ => {
+      let d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      d.setDate(d.getDate() + 1);
+      return d;
+    })();
 
+    let midnightTime = midnight.getTime();
     let time = date.getTime();
-    let now = Date.now();
+    let now = today.getTime();
 
-    if (now - time > _24H) {
-
+    if (time >= midnightTime) {
+      // the date is later than today, show the date
+      return date.toLocaleString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
     }
-
-    let seconds = delay % 60;
-    delay = Math.floor(delay / 60);
-
-    let minutes = delay % 60;
-    delay = Math.floor(delay / 60);
-
-    let hours = delay % 24;
-    let days = Math.floor(delay / 24);
-
-    seconds < 10 ? seconds = '0' + seconds : seconds;
-    minutes > 0 && minutes < 10 ? minutes = '0' + minutes : minutes;
-    hours > 0 && hours < 10 ? hours = '0' + hours : hours;
-
-    return String.format("{0}{1}{2}{3}",
-      days != 0 ? String.format("{0} jours ", days) : '',
-      hours != 0 ? String.format("{0}:", hours) : '',
-      minutes != 0 ? String.format("{0}:", minutes) : '',
-      String.format("{0}", seconds));
+    else { //if (time - now >= _1H) {
+      // the date is later than 1 hour from now, show the hours and minutes
+      return date.toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+    }
+    //else {
+    //  // the date is less than 1 hour, show the minutes
+    //  return String.format('{0mn}', (time - now) / (1000 * 60));
+    //}
   }
-
 }
 
 export default Trip;

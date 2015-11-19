@@ -1,4 +1,5 @@
 ﻿import SNCFData from '../components/SNCFData.jsx'
+import { plannedTrip } from './actions.js';
 
 export function tripStateSetUp(trip, dispatch) {
   let state =  new RealTimeTrainState(trip, dispatch);
@@ -25,7 +26,7 @@ class RealTimeTrainState {
 
           case RealTimeTrainState.Events.TRIP_PLANNED: {
             // the train is not running but is planned for a further trip
-            this.nextCheckAt(this.progressiveCheckProcess(param1));
+            this.nextCheckAt(this.getNextDepartureCheck(param1));
             this.dispatch(plannedTrip(this.trip, param1));
             this.state = RealTimeTrainState.States.TRIP_PLANNED;
           }
@@ -51,9 +52,8 @@ class RealTimeTrainState {
   }
 
   startupProcess() {
-    // check if the train does run today
-
     let now = new Date();
+
     if (!SNCFData.doesRunAt(this.trip, now)) {
       // if the train does not run today, determine the next run
       let nextRunDate = SNCFData.getNextRunDate(this.trip, now);
@@ -63,13 +63,18 @@ class RealTimeTrainState {
       }
       else {
         // next run is at nextRunDate
-        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, nextRunDate);
+        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), nextRunDate));
       }
     }
   }
 
-  progressiveCheckProcess(date) {
-    let time = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), date).getTime();
+  /**
+   * Determine the next time the real time has to be checked
+   * @param date {Date} the next trip date
+   * @returns {number}
+   */
+  getNextDepartureCheck(date) {
+    let time = date.getTime();
     let now = Date.now();
 
     const _2H = 2 * 60 * 60 * 1000;

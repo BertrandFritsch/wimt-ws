@@ -76,7 +76,7 @@ class Main extends React.Component {
               if (this.state.stops.length > 0 && this.props.viewTrip && this.props.viewTrip.trip) {
                 return (
                   <LayoutContainer>
-                    <Trip actionDispatcher={this.props.dispatch} trip={this.props.viewTrip.trip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />
+                    <Trip actionDispatcher={this.props.dispatch} viewTrip={this.props.viewTrip} departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop} />
                   </LayoutContainer>
                 )
               }
