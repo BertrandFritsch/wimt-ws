@@ -7,6 +7,7 @@
 export const UPDATE_DEBUGGING_INFO = 'UPDATE_DEBUGGING_INFO';
 export const VIEW_TRIP = 'VIEW_TRIP';
 export const UNVIEW_TRIP = 'UNVIEW_TRIP';
+export const PLANNED_TRIP = 'PLANNED_TRIP';
 
 /*
  * action creators
@@ -41,3 +42,8 @@ export function unviewTrip() {
     }
   }
 }
+
+export function plannedTrip(trip, date) {
+  return { type: PLANNED_TRIP, data: { trip, date } };
+}
+

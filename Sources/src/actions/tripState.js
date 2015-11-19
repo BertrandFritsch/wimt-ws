@@ -23,16 +23,16 @@ class RealTimeTrainState {
             this.startupProcess();
             break;
 
-          case RealTimeTrainState.Events.TRAIN_PLANNED: {
+          case RealTimeTrainState.Events.TRIP_PLANNED: {
             // the train is not running but is planned for a further trip
             this.nextCheckAt(this.progressiveCheckProcess(param1));
-            //this.dispatch(plannedTrip(this.trip, param1));
-            this.state = RealTimeTrainState.States.CHECK_REAL_TIME_PLANNED;
+            this.dispatch(plannedTrip(this.trip, param1));
+            this.state = RealTimeTrainState.States.TRIP_PLANNED;
           }
         }
         break;
 
-
+      
     }
   }
 
@@ -63,7 +63,7 @@ class RealTimeTrainState {
       }
       else {
         // next run is at nextRunDate
-        this.transition(RealTimeTrainState.Events.TRAIN_PLANNED, nextRunDate);
+        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, nextRunDate);
       }
     }
   }
@@ -108,7 +108,7 @@ class RealTimeTrainState {
   }
 
   static States = {
-    CHECK_REAL_TIME_PLANNED: -1,
+    TRIP_PLANNED: -1,
     INITIAL_STATE: 0,
     FINAL_STATE: 1,
     TRAIN_NOT_PLANNED: 2,         // the train is no longer planned
