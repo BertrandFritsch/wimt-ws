@@ -30,58 +30,69 @@ function buildJs(options, callback) {
   var devtool = options.sourceMaps ? "source-map" : null;
 
   webpack({
-    entry: {
-      jsx: path.join(__dirname, "src", "app.jsx")
-    },
-    bail: !options.watch,
-    watch: options.watch,
-    devtool: devtool,
-    plugins: plugins,
-    resolve: {
-      extensions: ['', '.js', '.jsx']
-    },
-    output: {
-      path: path.join(__dirname, "dist"),
-      filename: "index.js"
-    },
-    module: {
-      loaders: [
-        {
-          test: /\.jsx?$/,
-          exclude: /(node_modules)/,
-          loader: 'babel',
-          query: {
-            "presets": ["es2015", "react", "stage-0"],
-            compact: false
-          }
-        },
-        {test: /\.css$/, loader: "style-loader!css-loader"},
-        {test: /\.png$/, loader: "url-loader?limit=100000"},
-        {test: /\.jpg$/, loader: "file-loader"}
-      ]
-    }
-  }, function (error, stats) {
-    if (error) {
-      var pluginError = new gutil.PluginError("webpack", error);
-
-      if (callback) {
-        callback(pluginError);
-      } else {
-        gutil.log("[webpack]", pluginError);
+      entry: {
+        jsx: path.join(__dirname, "src", "app.jsx")
+      },
+      bail: !options.watch,
+      watch: options.watch,
+      devtool: devtool,
+      plugins: plugins,
+      resolve: {
+        extensions: ['', '.js', '.jsx']
+      },
+      output: {
+        path: path.join(__dirname, "dist"),
+        filename: "index.js"
+      },
+      module: {
+        loaders: [
+          {
+            test: /\.jsx?$/,
+            exclude: /(node_modules)/,
+            loader: 'babel',
+            query: {
+              "presets": ["es2015", "react", "stage-0"],
+              compact: false
+            }
+          },
+          {test: /\.css$/, loader: "style-loader!css-loader"},
+          {test: /\.png$/, loader: "url-loader?limit=100000"},
+          {test: /\.jpg$/, loader: "file-loader"}
+        ]
       }
+    },
+    function (error, stats) {
+      if (error) {
+        var pluginError = new gutil.PluginError("webpack", error);
 
-      return;
-    }
+        if (callback) {
+          callback(pluginError);
+        }
+        else {
+          gutil.log("[webpack]", pluginError);
+        }
+      }
+      else {
+        if (options.stats) {
+          gutil.log("[webpack]", stats.toString());
+        }
+        else {
+          gutil.log("[webpack]", "Compilation done.");
+        }
 
-    gutil.log("[webpack]", stats.toString());
-    if (callback) {
-      callback();
-    }
-  });
+        if (callback) {
+          callback();
+        }
+      }
+    });
 }
 
 gulp.task("build", ["move"], function (callback) {
   buildJs({watch: false, minify: false, sourceMaps: true}, callback);
+});
+
+gulp.task("build:stats", ["move"], function (callback) {
+  buildJs({watch: false, minify: false, sourceMaps: true, stats: true}, callback);
 });
 
 gulp.task("production", ['clean'], function () {
@@ -92,8 +103,8 @@ gulp.task("build:minify", ["move"], function (callback) {
   buildJs({watch: false, minify: true, sourceMaps: false}, callback);
 });
 
-gulp.task("watch", function () {
-  buildJs({watch: true, minify: false});
+gulp.task("watch", ["move"], function () {
+  buildJs({watch: true, minify: false, sourceMaps: true});
 });
 
 gulp.task('move', function () {
