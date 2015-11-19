@@ -24,17 +24,52 @@ class RealTimeTrainState {
             this.startupProcess();
             break;
 
-          case RealTimeTrainState.Events.TRIP_PLANNED: {
+          case RealTimeTrainState.Events.TRIP_PLANNED:
             // the train is not running but is planned for a further trip
             this.nextCheckAt(this.getNextDepartureCheck(param1));
             this.dispatch(plannedTrip(this.trip, param1));
             this.state = RealTimeTrainState.States.TRIP_PLANNED;
-          }
+            break;
+
+          case RealTimeTrainState.Events.TRIP_NOT_PLANNED:
+            // the train is no more planned
+            this.dispatch(notPlannedTrip(this.trip));
+            this.state = RealTimeTrainState.States.FINAL_STATE;
+            break;
+
+          case RealTimeTrainState.Events.TERMINATE:
+            this.cancelTimeout();
+            this.state = RealTimeTrainState.States.FINAL_STATE;
+            break;
+
+          default:
+            this.invalidTransitionEvent(event);
         }
         break;
 
-      
+      case RealTimeTrainState.States.TRIP_PLANNED:
+        switch (event) {
+          case RealTimeTrainState.Events.TERMINATE:
+            this.cancelTimeout();
+            this.state = RealTimeTrainState.States.FINAL_STATE;
+            break;
+
+          default:
+            this.invalidTransitionEvent(event);
+        }
+        break;
+
+      case RealTimeTrainState.States.FINAL_STATE:
+        // ignore all events
+        break;
+
+      default:
+        this.invalidTransitionEvent(event);
     }
+  }
+
+  invalidTransitionEvent(event) {
+    throw new Error(String.format("RealTimeTrainState: state: {0} - invalid transition event '{1}'", this.state, event));
   }
 
   nextCheckAt(time) {
@@ -59,7 +94,7 @@ class RealTimeTrainState {
       let nextRunDate = SNCFData.getNextRunDate(this.trip, now);
       if (!nextRunDate) {
         // the train does no more run
-        this.transition(RealTimeTrainState.Events.TRAIN_NOT_PLANNED);
+        this.transition(RealTimeTrainState.Events.TRIP_NOT_PLANNED);
       }
       else {
         // next run is at nextRunDate
@@ -116,7 +151,7 @@ class RealTimeTrainState {
     TRIP_PLANNED: -1,
     INITIAL_STATE: 0,
     FINAL_STATE: 1,
-    TRAIN_NOT_PLANNED: 2,         // the train is no longer planned
+    TRIP_NOT_PLANNED: 2,         // the train is no longer planned
     WAITING_FOR_NEXT_CHECK: 3,    // the train is not yet running
     GETTING_REAL_TIME: 4,         // getting the real time of a station
     GETTING_INITIAL_REAL_TIME: 5  // getting the initial real time of a station
@@ -124,7 +159,7 @@ class RealTimeTrainState {
 
   static Events = {
     INITIAL_EVENT: -1,         // initial event
-    TRAIN_NOT_PLANNED: 0,      // the train is not longer planned
+    TRIP_NOT_PLANNED: 0,      // the train is not longer planned
     WAIT_FOR_NEXT_CHECK: 1,    // time to check the real time of the train
     GET_REAL_TIME: 2,          // get the real time of the train at the stop
     TRAIN_CANCELED: 3,         // train canceled, get the next occurrence of this trip

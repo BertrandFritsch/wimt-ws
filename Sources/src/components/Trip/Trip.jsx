@@ -6,7 +6,7 @@ import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
 import SNCFData, { RealTimeRequester } from '../SNCFData';
 import { updateDebuggingInfo } from '../../actions/actions.js';
-import { PLANNED_TRIP } from '../../actions/actions.js'
+import { PLANNED_TRIP, NOT_PLANNED_TRIP } from '../../actions/actions.js'
 import theme from './Trip.css'
 
 const PIXELS_PER_MINUTE = 15;
@@ -49,6 +49,9 @@ class Trip extends React.Component {
         switch (this.props.viewTrip.state.type) {
           case PLANNED_TRIP:
             return Trip.formatDate(this.props.viewTrip.state.date);
+
+          case NOT_PLANNED_TRIP:
+            return "Non planifié !"
         }
       }
     })();

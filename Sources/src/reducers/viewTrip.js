@@ -1,4 +1,4 @@
-﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP } from '../actions/actions.js'
+﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP } from '../actions/actions.js'
 import SNCFData from '../components/SNCFData.jsx'
 
 export function viewTrip(state = {}, action) {
@@ -14,6 +14,13 @@ export function viewTrip(state = {}, action) {
         trip: action.data.trip,
         endTripNotifier: state.endTripNotifier,
         state: {type: PLANNED_TRIP, date: action.data.date}
+      };
+
+    case NOT_PLANNED_TRIP:
+      return {
+        trip: action.data.trip,
+        endTripNotifier: state.endTripNotifier,
+        state: {type: NOT_PLANNED_TRIP}
       };
 
     default:
