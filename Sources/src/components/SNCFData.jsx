@@ -116,6 +116,10 @@ function getTripMission(trip) {
   return trip[3];
 }
 
+function getTripFirstStop(trip) {
+  return getStop(getTripFirstStopTime(trip)[1]);
+}
+
 function getTripLastStop(trip) {
   return getStop(getTripLastStopTime(trip)[1]);
 }
@@ -254,6 +258,7 @@ export default {
   getTripLastStopTime: getTripLastStopTime,
   getTripNextStopTime: getTripNextStopTime,
   getTripPrevStopTime: getTripPrevStopTime,
+  getTripFirstStop: getTripFirstStop,
   getTripLastStop: getTripLastStop,
   isTripByNumber: isTripByNumber,
   getStopTimeStop: getStopTimeStop,

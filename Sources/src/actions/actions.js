@@ -9,6 +9,9 @@ export const VIEW_TRIP = 'VIEW_TRIP';
 export const UNVIEW_TRIP = 'UNVIEW_TRIP';
 export const PLANNED_TRIP = 'PLANNED_TRIP';
 export const NOT_PLANNED_TRIP = 'NOT_PLANNED_TRIP';
+export const CANCELLED_TRIP = 'CANCELLED_TRIP';
+export const DELAYED_TRIP = 'DELAYED_TRIP';
+export const REAL_TIME_TRIP = 'REAL_TIME_TRIP';
 
 /*
  * action creators
@@ -27,8 +30,8 @@ function unviewTripAction() {
 }
 
 export function viewTrip(trip) {
-  return dispatch => {
-    dispatch(viewTripAction(trip, tripStateSetUp(trip, dispatch)));
+  return (dispatch, getState) => {
+    dispatch(viewTripAction(trip, tripStateSetUp(trip, dispatch, getState)));
   }
 }
 
@@ -50,5 +53,17 @@ export function plannedTrip(trip, date) {
 
 export function notPlannedTrip(trip, date) {
   return { type: NOT_PLANNED_TRIP, data: { trip, date } };
+}
+
+export function cancelledTrip(trip) {
+  return { type: CANCELLED_TRIP, data: { trip } };
+}
+
+export function delayedTrip(trip, stopTime) {
+  return { type: DELAYED_TRIP, data: { trip, stopTime } };
+}
+
+export function newTripRealTimeState(status) {
+  return { type: REAL_TIME_TRIP, data: { status } };
 }
 
