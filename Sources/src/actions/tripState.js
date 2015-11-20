@@ -1,5 +1,5 @@
 ﻿import SNCFData, { RealTimeRequester } from '../components/SNCFData.jsx'
-import { plannedTrip, PLANNED_TRIP } from './actions.js';
+import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, newTripRealTimeState } from './actions.js';
 
 export function tripStateSetUp(trip, dispatch, getState) {
   let state =  new RealTimeTrainState(trip, dispatch, getState);
@@ -13,11 +13,12 @@ class RealTimeTrainState {
     this.getState = getState;
 
     setTimeout(_ => this.transition(RealTimeTrainState.Events.INITIAL_EVENT), 10);
+    this.dispatch(newTripRealTimeState(RealTimeStatus.OFFLINE));
   }
 
   state = RealTimeTrainState.States.INITIAL_STATE;
 
-  transition(event, param1) {
+  transition(event, param1, param2) {
     switch (this.state) {
       case RealTimeTrainState.States.INITIAL_STATE:
         switch (event) {
@@ -60,21 +61,28 @@ class RealTimeTrainState {
             break;
 
           case RealTimeTrainState.Events.GOT_TRIP_REAL_TIME:
-            this.processRealTimeData(SNCFData.getTripFirstStop(this.trip), param1);
+            this.processRealTimeData(SNCFData.getTripFirstStopTime(this.trip), param1);
             break;
 
           case RealTimeTrainState.Events.CANCELLED:
             // the train has been cancelled
             this.dispatch(cancelledTrip(this.trip));
-            this.dispatch(newTripRealTimeState(true));
+            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
             this.state = RealTimeTrainState.States.FINAL_STATE;
             break;
 
           case RealTimeTrainState.Events.DELAYED:
             // the train has been delayed
             this.dispatch(delayedTrip(this.trip, param1));
-            this.dispatch(newTripRealTimeState(true));
-            this.locateDelayedTrainPosition()
+            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.locateDelayedTrainPosition();
+            break;
+
+          case RealTimeTrainState.Events.TRIP_RUNNING:
+            // the train is running
+            this.dispatch(runningTrip(this.trip, param1, param2));
+            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.nextCheckAt(this.getNextDepartureCheck(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1)), false));
             break;
 
           default:
@@ -104,12 +112,13 @@ class RealTimeTrainState {
         this.transition(RealTimeTrainState.Events.DELAYED, stopTime);
       }
       else {
-
+        this.transition(RealTimeTrainState.Events.TRIP_RUNNING, stopTime, train.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime());
       }
     }
   }
 
   checkTripRealTime(stop) {
+    this.dispatch(newTripRealTimeState(RealTimeStatus.CHECKING));
     RealTimeRequester.get(stop, SNCFData.getTripLastStop(this.trip), trains => {
       this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, trains.find(train => train.number === SNCFData.getTripNumber(this.trip)));
     });
@@ -217,6 +226,7 @@ class RealTimeTrainState {
     INITIAL_EVENT: -1,         // initial event
     TIMEOUT: -2,
     GOT_TRIP_REAL_TIME: -3,
+    TRIP_RUNNING: -4,
     TRIP_NOT_PLANNED: 0,      // the train is not longer planned
     WAIT_FOR_NEXT_CHECK: 1,    // time to check the real time of the train
     GET_REAL_TIME: 2,          // get the real time of the train at the stop

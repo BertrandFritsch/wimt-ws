@@ -12,6 +12,16 @@ export const NOT_PLANNED_TRIP = 'NOT_PLANNED_TRIP';
 export const CANCELLED_TRIP = 'CANCELLED_TRIP';
 export const DELAYED_TRIP = 'DELAYED_TRIP';
 export const REAL_TIME_TRIP = 'REAL_TIME_TRIP';
+export const RUNNING_TRIP = 'RUNNING_TRIP';
+
+/*
+ * real time status
+ */
+export var RealTimeStatus = {
+  OFFLINE: "OFFLINE",
+  ONLINE: "ONLINE",
+  "CHECKING": "CHECKING"
+};
 
 /*
  * action creators
@@ -61,6 +71,10 @@ export function cancelledTrip(trip) {
 
 export function delayedTrip(trip, stopTime) {
   return { type: DELAYED_TRIP, data: { trip, stopTime } };
+}
+
+export function runningTrip(trip, stopTime, time) {
+  return { type: RUNNING_TRIP, data: { trip, stopTime, time } };
 }
 
 export function newTripRealTimeState(status) {
