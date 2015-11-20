@@ -227,7 +227,7 @@ function getNextRunDate(trip, date) {
   // get the first running date in the period if the period starts before the first running exception
   // undefined is returned is no date has been found
   startDay = (_ => {
-    if (startDay && firstRunningException && startDay < firstRunningException) {
+    if (startDay && (!firstRunningException || startDay < firstRunningException)) {
       endDay = Math.min(endDay, firstRunningException || endDay);
       for (startDay = Math.max(day, startDay) ; startDay <= endDay ; ++startDay) {
         let exception = service[3] && service[3].find(e => e[0] === startDay);
