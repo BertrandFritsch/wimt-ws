@@ -93,7 +93,9 @@ class Trip extends React.Component {
                 }
               {(() => {
                   let delayed = isRunning ? this.props.viewTrip.state.delayed : 0;
-                  if (hasTripState && (isRunning || this.props.viewTrip.state.type === DELAYED_TRIP)) {
+                  let tripTrainStyles = null;
+                  let hasTrainPosition = hasTripState && (isRunning || this.props.viewTrip.state.type === DELAYED_TRIP);
+                  if (hasTrainPosition) {
                     let stopTimeTime = SNCFData.getStopTimeTime(this.props.viewTrip.state.stopTime) + delayed - stopTimeTime0;
                     let stopTimePosition = stopTimeTime * PIXELS_PER_MINUTE;
                     let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
@@ -108,17 +110,17 @@ class Trip extends React.Component {
                       this.registerInitialTrainPosition(2000);
                     }
 
-                    let tripTrainStyles = {
+                    tripTrainStyles = {
                       transitionDuration: String.format("{0}ms", this.state.initialTrainPosition ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000),
                       transform: String.format("translateY({0}px)", this.state.initialTrainPosition ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition)
                     };
-
-                    let tripClasses = ['trip-train-frame', this.state.initialTrainPosition ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation'].join(' ');
-
-                    return <div className={tripClasses} style={tripTrainStyles}>
-                      <div className="trip-train-position"/>
-                    </div>
                   }
+
+                  let tripClasses = ['trip-train-frame', hasTrainPosition ? this.state.initialTrainPosition ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation' : ''].join(' ');
+
+                  return <div className={tripClasses} style={tripTrainStyles}>
+                    <div className="trip-train-position"/>
+                  </div>
                 })()
               }
             </div>
