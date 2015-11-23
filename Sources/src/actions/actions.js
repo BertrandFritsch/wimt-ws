@@ -13,6 +13,7 @@ export const CANCELLED_TRIP = 'CANCELLED_TRIP';
 export const DELAYED_TRIP = 'DELAYED_TRIP';
 export const REAL_TIME_TRIP = 'REAL_TIME_TRIP';
 export const RUNNING_TRIP = 'RUNNING_TRIP';
+export const ARRIVED_TRIP = 'ARRIVED_TRIP';
 
 /*
  * real time status
@@ -20,7 +21,7 @@ export const RUNNING_TRIP = 'RUNNING_TRIP';
 export var RealTimeStatus = {
   OFFLINE: "OFFLINE",
   ONLINE: "ONLINE",
-  "CHECKING": "CHECKING"
+  CHECKING: "CHECKING"
 };
 
 /*
@@ -73,8 +74,26 @@ export function delayedTrip(trip, stopTime) {
   return { type: DELAYED_TRIP, data: { trip, stopTime } };
 }
 
+/**
+ * the trip is running, it may not has been started yet, or it may have been arrived
+ * @param trip {trip} the trip
+ * @param stopTime {stopTime} the next stop to reach
+ * @param time {Integer} the delayed time in mn
+ * @returns {{type: string, data: {trip: *, stopTime: *, time: *}}}
+ */
 export function runningTrip(trip, stopTime, time) {
   return { type: RUNNING_TRIP, data: { trip, stopTime, time } };
+}
+
+/**
+ * the trip has arrived
+ * @param trip {trip} the trip
+ * @param stopTime {stopTime} the next stop to reach
+ * @param time {Integer} the delayed time in mn
+ * @returns {{type: string, data: {trip: *, stopTime: *, time: *}}}
+ */
+export function arrivedTrip(trip, stopTime, time) {
+  return { type: ARRIVED_TRIP, data: { trip, stopTime, time } };
 }
 
 export function newTripRealTimeState(status) {

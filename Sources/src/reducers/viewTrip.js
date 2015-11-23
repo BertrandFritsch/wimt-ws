@@ -1,4 +1,4 @@
-﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP } from '../actions/actions.js'
+﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../actions/actions.js'
 import SNCFData from '../components/SNCFData.jsx'
 
 export function viewTrip(state = {}, action = {}) {
@@ -49,8 +49,16 @@ export function viewTrip(state = {}, action = {}) {
         state: {type: RUNNING_TRIP, stopTime: action.data.stopTime, delayed: action.data.time}
       };
 
+    case ARRIVED_TRIP:
+      return {
+        trip: action.data.trip,
+        endTripNotifier: state.endTripNotifier,
+        realTimeStatus: state.realTimeStatus,
+        state: {type: ARRIVED_TRIP, stopTime: action.data.stopTime, delayed: action.data.time}
+      };
+
     case REAL_TIME_TRIP:
-      return Object.assign({}, state, { realTimeStatus: action.data.status })
+      return Object.assign({}, state, { realTimeStatus: action.data.status });
 
     default:
       return state;

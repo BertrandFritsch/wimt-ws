@@ -309,10 +309,10 @@ function getDateByMinutes(time, date = new Date()) {
   const minutesPerDay = 24 * 60;
 
   // be aware of trips that starts the day before
-  if (time >= minutesPerDay) {
-    date = new Date(date);
-    date.setDate(date.getDate() - 1);
-  }
+  //if (time >= minutesPerDay) {
+  //  date = new Date(date);
+  //  date.setDate(date.getDate() - 1);
+  //}
 
   return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
 }

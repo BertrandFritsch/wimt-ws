@@ -6,7 +6,7 @@ import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
 import SNCFData, { RealTimeRequester } from '../SNCFData';
 import { updateDebuggingInfo } from '../../actions/actions.js';
-import { RealTimeStatus, PLANNED_TRIP, NOT_PLANNED_TRIP, DELAYED_TRIP, CANCELLED_TRIP, RUNNING_TRIP } from '../../actions/actions.js'
+import { RealTimeStatus, PLANNED_TRIP, NOT_PLANNED_TRIP, DELAYED_TRIP, CANCELLED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js'
 import theme from './Trip.css'
 
 const PIXELS_PER_MINUTE = 15;
@@ -21,12 +21,13 @@ class Trip extends React.Component {
   state = { initialTrainPosition: true }
 
   componentWillUnmount = () => {
+    this.cancelSecondTrainPosition = true;
     GridLayout.resizeListeners.remove(this.onResize);
   }
 
   render = () => {
     let hasTripState = this.props.viewTrip.state;
-    let isRunning = hasTripState && this.props.viewTrip.state.type === RUNNING_TRIP;
+    let isRunning = hasTripState && (this.props.viewTrip.state.type === RUNNING_TRIP || this.props.viewTrip.state.type === ARRIVED_TRIP);
     let stopTimeReached = false;
     let rows = SNCFData.getTripStopTimes(this.props.viewTrip.trip).map(stopTime => {
       if (!stopTimeReached && isRunning && stopTime === this.props.viewTrip.state.stopTime) {
@@ -42,10 +43,8 @@ class Trip extends React.Component {
 
     let stopTimeTime0 = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.viewTrip.trip));
     let tripContainerStyles = {
-      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.viewTrip.trip)) + (isRunning && this.props.viewTrip.state.delayedMinutes || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
+      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.viewTrip.trip)) + (isRunning && this.props.viewTrip.state.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
     };
-
-    let tripFrameClasses = ['trip-frame', this.props.viewTrip.realTimeStatus === RealTimeStatus.ONLINE ? 'trip-real-time' : this.props.viewTrip.realTimeStatus === RealTimeStatus.CHECKING ? 'trip-real-time-checking' : 'trip-no-real-time'].join(' ');
 
     let state = (_ => {
       if (this.props.viewTrip.state) {
@@ -63,16 +62,20 @@ class Trip extends React.Component {
             return "Supprimé";
 
           case RUNNING_TRIP:
-            return this.props.viewTrip.state.delayed === 0 ? "A l'heure" : String.format('{0}mn', this.props.viewTrip.state.delayed * 60 * 1000);
+            return this.props.viewTrip.state.delayed === 0 ? "A l'heure" : String.format('{0} mn', this.props.viewTrip.state.delayed);
+
+          case ARRIVED_TRIP:
+            return "Arrivé";
         }
       }
     })();
 
     return (
-      <div data-g-layout-container='' className={tripFrameClasses}>
+      <div data-g-layout-container='' className="trip-frame">
         <div data-g-layout-item='"row": 0'>
           <TripHeaderRow trip={this.props.viewTrip.trip}
-                         state={state} />
+                         state={state}
+                         status={this.props.viewTrip.realTimeStatus}/>
           <div className="trip-frame-top-space"/>
         </div>
         <div ref="tripScrollEl" style={{overflowY: 'auto'}} data-g-layout-item='"row": 1, "isXSpacer": true' data-g-layout-policy='"heightHint": "*", "heightPolicy": "Fixed"'>
@@ -101,7 +104,9 @@ class Trip extends React.Component {
                     //}
 
 
-                     let transitionEnd = this.state.initialTrainPosition ? _ => { debugger; this.setState({ initialTrainPosition: false }) } : null;
+                    if (this.state.initialTrainPosition) {
+                      this.registerInitialTrainPosition(2000);
+                    }
 
                     let tripTrainStyles = {
                       transitionDuration: String.format("{0}ms", this.state.initialTrainPosition ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000),
@@ -110,7 +115,7 @@ class Trip extends React.Component {
 
                     let tripClasses = ['trip-train-frame', this.state.initialTrainPosition ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation'].join(' ');
 
-                    return <div className={tripClasses} sty onTransitionEnd={transitionEnd} style={tripTrainStyles}>
+                    return <div className={tripClasses} style={tripTrainStyles}>
                       <div className="trip-train-position"/>
                     </div>
                   }
@@ -130,6 +135,15 @@ class Trip extends React.Component {
     this.setState({
       containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
     });
+  }
+
+  registerInitialTrainPosition = timeout => {
+    setTimeout(_ => {
+      if (!this.cancelSecondTrainPosition) {
+        this.setState({ initialTrainPosition: false });
+      }
+    }, timeout);
+    this.cancelSecondTrainPosition = false;
   }
 
   /**

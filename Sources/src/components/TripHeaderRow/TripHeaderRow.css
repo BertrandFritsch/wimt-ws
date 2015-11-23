@@ -38,3 +38,11 @@
   background-position:0 0;
   background-repeat: no-repeat;
 }
+
+.trip-real-time {
+  border-bottom-color: #008000;
+}
+
+.trip-real-time-checking {
+  border-bottom-color: #aaaaaa;
+}
