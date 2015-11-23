@@ -56,6 +56,12 @@ class RealTimeTrainState {
             this.state = RealTimeTrainState.States.TRIP_RT_RUNNING;
             break;
 
+          case RealTimeTrainState.Events.TRIP_ARRIVED:
+            // the end station has been reached
+            this.dispatch(arrivedTrip(this.trip, SNCFData.getTripLastStopTime(this.trip), 0));
+            this.state = RealTimeTrainState.States.FINAL_STATE;
+            break;
+
           case RealTimeTrainState.Events.TERMINATE:
             this.cancelTimeout();
             this.state = RealTimeTrainState.States.FINAL_STATE;
@@ -311,11 +317,11 @@ class RealTimeTrainState {
           return SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime() < now.getTime() ? stopTime : r;
         }, null);
 
-        if (prevStopTime) {
+        if (prevStopTime !== SNCFData.getTripLastStopTime(this.trip)) {
           this.transition(RealTimeTrainState.Events.TRIP_RUNNING, prevStopTime);
         }
         else {
-          throw new Error("Not implemented!");
+          this.transition(RealTimeTrainState.Events.TRIP_ARRIVED);
         }
       }
     }
