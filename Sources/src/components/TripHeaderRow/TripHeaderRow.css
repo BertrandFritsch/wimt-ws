@@ -5,7 +5,7 @@
   width: 100%;
   height: 50px;
 
-  border-top: 1px solid black;
+  border-top: 3px solid black;
   border-bottom: 5px solid black;
   white-space: nowrap;
 }
@@ -40,9 +40,9 @@
 }
 
 .trip-real-time {
-  border-bottom-color: #008000;
+  border-top-color: #008000;
 }
 
 .trip-real-time-checking {
-  border-bottom-color: #aaaaaa;
+  border-top-color: #aaaaaa;
 }
