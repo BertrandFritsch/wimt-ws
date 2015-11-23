@@ -29,7 +29,7 @@ class RealTimeTrainState {
 
   transition(event, param1, param2) {
     console.group("RealTimeTrainState.transition");
-    console.log(String.format("%c State: {0} - Event: {1}", this.state, event), "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#4CAF50" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
+    console.log(String.format("%c State: {0} - Event: {1}", this.state, event), "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#8A0000" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
     switch (this.state) {
       case RealTimeTrainState.States.INITIAL_STATE:
         switch (event) {
@@ -106,14 +106,13 @@ class RealTimeTrainState {
             this.dispatch(runningTrip(this.trip, param1, param2 / (1000 * 60)));
             this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
+            this.state = RealTimeTrainState.States.TRIP_RT_RUNNING;
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_NONE:
-            // no real time
-            this.dispatch(runningTrip(this.trip, param1, 0));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.OFFLINE));
-            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1)), false));
-            this.state = RealTimeTrainState.States.TRIP_RUNNING;
+            // no real time yet -- get next planned check -- switch to the TRIP_RT_NONE state to handle next steps
+            this.state = RealTimeTrainState.States.TRIP_RT_NONE;
+            this.nextPlannedCheck(0);
             break;
 
           default:
@@ -158,9 +157,9 @@ class RealTimeTrainState {
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_NONE:
-            // no real time -- look for the train at the next stop
-            this.checkTripRealTime(SNCFData.getTripNextStopTime(this.trip, param1));
+            // no real time -- look for the train at the next stop -- switch to the TRIP_RT_NONE state to handle the response
             this.state = RealTimeTrainState.States.TRIP_RT_NONE;
+            this.checkTripRealTime(SNCFData.getTripNextStopTime(this.trip, param1));
             break;
 
           default:
@@ -255,6 +254,7 @@ class RealTimeTrainState {
   }
 
   nextCheckAt(duration, stopTime) {
+    console.log(String.format("%c Next RT check in {0}ms, at {1}", duration, new Date(Date.now() + duration).toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit', second: '2-digit'})), "color: #8A0000; font-weight: bold");
     this.timeoutId = setTimeout(_ => {
       this.timeoutId = 0;
       this.transition(RealTimeTrainState.Events.TIMEOUT, stopTime, duration);
@@ -334,37 +334,38 @@ class RealTimeTrainState {
    * @returns {number}
    */
   static getNextCheckTimeout(date, initialCheck) {
-    let time = date.getTime();
-    let now = Date.now();
+    let time = date.getTime() - Date.now();
 
-    if (initialCheck && time - now < _2H) {
+    if (initialCheck && time < _2H) {
       // check immediately to display the accurate information as soon as possible
-      return now + 10;
+      return 10;
     }
 
-    if (time - now > _2H) {
+    if (time > _2H) {
       return time - _2H;
     }
-    else if (time - now > _1_5H) {
+    else if (time > _1_5H) {
       return time - _1_5H;
     }
-    else if (time - now > _1H) {
+    else if (time > _1H) {
       return time - _1H;
     }
-    else if (time - now > _30M) {
+    else if (time > _30M) {
       return time - _30M;
     }
-    else if (time - now > _15M) {
+    else if (time > _15M) {
       return time - _15M;
     }
-    else if (time - now > _10M) {
+    else if (time > _10M) {
       return time - _10M;
     }
-    else if (time - now > _5M) {
+    else if (time > _5M) {
       return time - _5M;
     }
     else {
-      let duration = Math.min(now + _1M, time) - now;
+      let duration = Math.min(_1M, time);
+
+      // return the minimum time, but not 0
       return duration > 0 ? duration : _1M;
     }
   }
@@ -391,6 +392,7 @@ class RealTimeTrainState {
     TRIP_RT_NONE: 'TRIP_RT_NONE',         // no real time
     TRIP_RUNNING: 'TRIP_RUNNING',
     TRIP_ARRIVED: 'TRIP_ARRIVED',
+    TRIP_PLANNED: 'TRIP_PLANNED',      // the train is not longer planned
     TRIP_NOT_PLANNED: 'TRIP_NOT_PLANNED',      // the train is not longer planned
     WAIT_FOR_NEXT_CHECK: 'WAIT_FOR_NEXT_CHECK',    // time to check the real time of the train
     GET_REAL_TIME: 'GET_REAL_TIME',          // get the real time of the train at the stop
