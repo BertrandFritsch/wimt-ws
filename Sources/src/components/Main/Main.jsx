@@ -12,42 +12,11 @@ class Main extends React.Component {
   constructor(props) {
     super(props);
 
-    setTimeout(() => {
-      let departureStop = null,
-        arrivalStop = null,
-        trip = null;
-
-      if (document.location.hash && document.location.hash.match(/(#|&)trip=/)) {
-        let matches = /(#|&)trip=(.*?)(&|$)/.exec(document.location.hash);
-        if (matches[2]) {
-          trip = SNCFData.getTrip(matches[2]);
-          //TODO: report bad trip id
-          if (trip) {
-            departureStop = SNCFData.getStopTimeStop(SNCFData.getTripFirstStopTime(trip));
-            arrivalStop = SNCFData.getStopTimeStop(SNCFData.getTripLastStopTime(trip));
-
-            setTimeout(_ => this.onStopTimeSelected(matches[2]), 10);
-          }
-        }
-      }
-      else {
-        departureStop = SNCFData.getStopById(87382887);
-        arrivalStop = SNCFData.getStopById(87382218);
-      }
-
-      this.setState({
-        stops: SNCFData.getStopsArray(),
-
-        departureStop: departureStop,
-        arrivalStop: arrivalStop
-      });
-    }, 1);
-
     this.setUpHistoryNavigation();
   }
 
   state = {
-    stops: [],
+    stops: SNCFData.getStopsArray(),
     departureStop: null,
     arrivalStop: null
   }
