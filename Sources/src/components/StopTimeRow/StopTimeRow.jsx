@@ -35,7 +35,7 @@ class StopTimeRow extends React.Component {
             return this.props.realTime.state;
 
           default: {
-            let delayed = (this.props.realTime.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime)).getTime()) / 1000 / 60 / 60;
+            let delayed = (this.props.realTime.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime)).getTime()) / 60 / 1000;
             if (delayed !== 0) {
               return String.format('{0} mn', delayed);
             }
@@ -48,7 +48,7 @@ class StopTimeRow extends React.Component {
       <span className="stop-time-row-time">{hours}:{minutes}</span>
       <span className="stop-time-row-time-separator" />
       <span className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getStopTimeTrip(this.props.stopTime))} - {SNCFData.getTripNumber(SNCFData.getStopTimeTrip(this.props.stopTime))} - {lastStop}</span>
-      <span className="stop-time-row-state">{this.props.realTime && this.props.realTime.state}</span>
+      <span className="stop-time-row-state">{realTimeState}</span>
     </div>
   }
 }
