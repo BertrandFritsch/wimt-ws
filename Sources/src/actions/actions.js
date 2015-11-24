@@ -40,9 +40,9 @@ function unviewTripAction() {
   return { type: UNVIEW_TRIP };
 }
 
-export function viewTrip(trip) {
+export function viewTrip(trip, date) {
   return (dispatch, getState) => {
-    dispatch(viewTripAction(trip, tripStateSetUp(trip, dispatch, getState)));
+    dispatch(viewTripAction(trip, tripStateSetUp(trip, date, dispatch, getState)));
   }
 }
 

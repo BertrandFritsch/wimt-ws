@@ -1,8 +1,8 @@
 ﻿import SNCFData, { RealTimeRequester } from '../components/SNCFData.jsx'
 import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, newTripRealTimeState } from './actions.js';
 
-export function tripStateSetUp(trip, dispatch, getState) {
-  let state =  new RealTimeTrainState(trip, dispatch, getState);
+export function tripStateSetUp(trip, date, dispatch, getState) {
+  let state =  new RealTimeTrainState(trip, date, dispatch, getState);
   return () => state.transition(RealTimeTrainState.Events.TERMINATE);
 }
 
@@ -16,9 +16,10 @@ const _5M = 5 * 60 * 1000;
 const _1M = 1 * 60 * 1000;
 
 class RealTimeTrainState {
-  constructor(trip, dispatch, getState) {
+  constructor(trip, date, dispatch, getState) {
     this.dispatch = dispatch;
     this.trip = SNCFData.getTrip(trip);
+    this.date = date;
     this.getState = getState;
 
     setTimeout(_ => this.transition(RealTimeTrainState.Events.INITIAL_EVENT), 10);
@@ -291,20 +292,9 @@ class RealTimeTrainState {
 
   startupProcess() {
     let now = new Date();
+    let date = this.date || now;
 
-    if (!SNCFData.doesRunAt(this.trip, now)) {
-      // if the train does not run today, determine the next run
-      let nextRunDate = SNCFData.getNextRunDate(this.trip, now);
-      if (!nextRunDate) {
-        // the train does no more run
-        this.transition(RealTimeTrainState.Events.TRIP_NOT_PLANNED);
-      }
-      else {
-        // next run is at nextRunDate
-        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), nextRunDate));
-      }
-    }
-    else {
+    if (RealTimeTrainState.isDateToday(date) && SNCFData.doesRunAt(this.trip, now)) {
       // the trip is planned today
       let departureDate = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)));
       if (departureDate.getTime() > now.getTime()) {
@@ -325,6 +315,26 @@ class RealTimeTrainState {
         }
       }
     }
+    else {
+      // if the train does not run today, determine the next run
+      let nextRunDate = SNCFData.getNextRunDate(this.trip, date);
+      if (!nextRunDate) {
+        // the train does no more run
+        this.transition(RealTimeTrainState.Events.TRIP_NOT_PLANNED);
+      }
+      else {
+        // next run is at nextRunDate
+        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), nextRunDate));
+      }
+    }
+  }
+
+  static isDateToday(date) {
+    let now = new Date();
+
+    return now.getFullYear() === date.getFullYear()
+        && now.getMonth() === date.getMonth()
+        && now.getDay() === date.getDay();
   }
 
   /**

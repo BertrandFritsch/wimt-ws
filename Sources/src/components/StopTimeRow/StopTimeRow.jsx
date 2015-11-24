@@ -10,7 +10,7 @@ class StopTimeRow extends React.Component {
       minutes = SNCFData.getStopTimeTime(this.props.stopTime) - (hours * 60);
 
     let onStopTimeSelected = () => {
-      this.props.onStopTimeSelected(this.props.stopTime);
+      this.props.onStopTimeSelected(this.props.stopTime, this.props.date);
     }
 
     if (hours >= 24) {

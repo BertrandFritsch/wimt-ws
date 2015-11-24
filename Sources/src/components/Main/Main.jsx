@@ -37,7 +37,7 @@ class Main extends React.Component {
                            arrivalStop={this.state.arrivalStop}
                            onDepartureStopChange={this.onDepartureStopChange}
                            onArrivalStopChange={this.onArrivalStopChange}
-                           onStopTimeSelected={stopTime => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime)))}/>
+                           onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime)), date)}/>
                   </LayoutContainer>
                 )
             } })()}
@@ -80,14 +80,14 @@ class Main extends React.Component {
         this.props.dispatch(unviewTrip());
       }
       else if (event.state.trip) {
-        this.props.dispatch(viewTrip(event.state.trip));
+        this.props.dispatch(viewTrip(event.state.trip, event.state.date));
       }
     });
   }
 
-  onStopTimeSelected = (trip) => {
-    this.props.dispatch(viewTrip(trip));
-    window.history.pushState({ trip }, "Voyage d'un train", String.format("#trip={0}", trip));
+  onStopTimeSelected = (trip, date) => {
+    this.props.dispatch(viewTrip(trip, date));
+    window.history.pushState({ trip, date }, "Voyage d'un train", String.format("#trip={0}&date={1}", trip, date.getTime()));
   }
 
   onDepartureStopChange = (stop) => {

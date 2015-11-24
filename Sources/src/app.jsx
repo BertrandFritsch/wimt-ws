@@ -29,14 +29,28 @@ ReactDOM.render(<Provider store={store}><Main /></Provider>, document.getElement
 GridLayout.initialize();
 
 function parseQueryString(store) {
-  if (document.location.hash && document.location.hash.match(/(#|&)trip=/)) {
-    let matches = /(#|&)trip=(.*?)(&|$)/.exec(document.location.hash);
-    if (matches[2]) {
-      let trip = SNCFData.getTrip(matches[2]);
-      //TODO: report bad trip id
-      if (trip) {
-        store.dispatch(viewTrip(SNCFData.getTripId(trip)));
+  let hs = document.location.hash ? document.location.hash.substr(1).split('&').reduce((r, t) => {
+    let q = t.split('=');
+    r[q[0]] = q[1];
+    return r;
+  }, {}) : {};
+
+  if (hs.trip) {
+    if (SNCFData.getTrip(hs.trip)) {
+      let date = new Date();
+      if (hs.date) {
+        let date2 = new Date(parseInt(hs.date));
+        if (!isNaN(date2.getTime())) {
+          date = date2;
+        }
+        else {
+          console.warn(String.format("The date '{0}' is invalid!", hs.date));
+        }
       }
+      store.dispatch(viewTrip(hs.trip, date));
+    }
+    else {
+      console.warn(String.format("The trip id '{0}' is invalid!", hs.trip));
     }
   }
 }

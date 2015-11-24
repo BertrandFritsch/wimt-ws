@@ -212,7 +212,7 @@ function doesRunAt(trip, date) {
 
 // get the next run date of the trip after the provided date
 function getNextRunDate(trip, date) {
-  let day = getDateAsDays(date) + 1;
+  let day = getDateAsDays(date);
   let service = Services[trip[2]];
   let startDay = service[0];
   let endDay = service[1];
@@ -275,7 +275,8 @@ export default {
   getService: getService,
   doesRunAt: doesRunAt,
   getNextRunDate: getNextRunDate,
-  getDateByMinutes: getDateByMinutes
+  getDateByMinutes: getDateByMinutes,
+  getTripDepartureDateByStopTime: getTripDepartureDateByStopTime
 };
 
 // utils
@@ -295,24 +296,34 @@ function getDateAsString(date) {
   return day + '/' + month + '/' + year;
 }
 
-// gets the number of days since 01/01/1970
+// gets the number of days since 01/01/1970 in locale time
 function getDateAsDays(date) {
-  return Math.floor(date.getTime() / 1000 / 60 / 60 / 24);
+  return Math.floor((date.getTime() - (date.getTimezoneOffset() * 60 * 1000)) / 1000 / 60 / 60 / 24);
 }
 
-// gets the date according the number of days since 01/01/1970
+// gets the date according the number of days since 01/01/1970 in locale time
 function getDateByDays(days) {
-  return new Date(days * 24 * 60 * 60 * 1000);
+  return new Date(days * 24 * 60 * 60 * 1000 + (new Date().getTimezoneOffset() * 60 * 1000));
 }
 
 function getDateByMinutes(time, date = new Date()) {
+  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
+}
+
+/**
+ * gets the trip departure date of the stop time
+ * @param stopTime any stop time of the trip
+ * @param date the date of the stop time
+ * @returns {Date} the departure date
+ */
+function getTripDepartureDateByStopTime(stopTime, date = new Date()) {
   const minutesPerDay = 24 * 60;
 
-  // be aware of trips that starts the day before
-  //if (time >= minutesPerDay) {
-  //  date = new Date(date);
-  //  date.setDate(date.getDate() - 1);
-  //}
+   //be aware of trips that starts the day before
+  if (getStopTimeTime(stopTime) >= minutesPerDay) {
+    date = new Date(date);
+    date.setDate(date.getDate() - 1);
+  }
 
-  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
+  return getDateByMinutes(getStopTimeTime(getTripFirstStopTime(getStopTimeTrip(stopTime))), date);
 }

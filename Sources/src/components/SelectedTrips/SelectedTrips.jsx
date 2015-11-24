@@ -164,6 +164,7 @@ class SelectedTrips extends React.Component {
       rows.push(<StopTimeRow key={++SelectedTrips.rowKeyGenerator}
                              stopTime={stopTimes[i].stopTime}
                              realTime={realTime}
+                             date={SNCFData.getTripDepartureDateByStopTime(stopTimes[i].stopTime, date)}
                              onStopTimeSelected={this.props.onStopTimeSelected}/>)
     }
 
