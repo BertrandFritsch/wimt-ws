@@ -117,9 +117,10 @@ class Trip extends React.Component {
                   }
 
                   let tripClasses = ['trip-train-frame', hasTrainPosition ? this.state.initialTrainPosition ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation' : ''].join(' ');
+                  let trainClasses = hasTrainPosition ? 'trip-train-position' : null;
 
                   return <div className={tripClasses} style={tripTrainStyles}>
-                    <div className="trip-train-position"/>
+                    <div className={trainClasses}/>
                   </div>
                 })()
               }

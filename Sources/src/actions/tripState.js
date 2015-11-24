@@ -1,5 +1,5 @@
 ﻿import SNCFData, { RealTimeRequester } from '../components/SNCFData.jsx'
-import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, newTripRealTimeState } from './actions.js';
+import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, delayedTrip, cancelledTrip, newTripRealTimeState } from './actions.js';
 
 export function tripStateSetUp(trip, date, dispatch, getState) {
   let state =  new RealTimeTrainState(trip, date, dispatch, getState);
