@@ -27,9 +27,28 @@ class StopTimeRow extends React.Component {
 
     let lastStop = SNCFData.getStopName(SNCFData.getStopTimeStop(SNCFData.getTripLastStopTime(SNCFData.getStopTimeTrip(this.props.stopTime))));
     let realTimeClass = this.props.realTime ? 'stop-time-row-real-time' : '';
+    let realTimeState = (_ => {
+      if (this.props.realTime) {
+        switch (this.props.realTime.state) {
+          case 'Supprimé':
+          case 'Retardé':
+            return this.props.realTime.state;
+
+          default: {
+            let delayed = (this.props.realTime.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime)).getTime()) / 1000 / 60 / 60;
+            if (delayed !== 0) {
+              return String.format('{0} mn', delayed);
+            }
+          }
+        }
+      }
+    })();
 
     return <div className={'stop-time-row' + ' ' + realTimeClass} theme={theme} onClick={onStopTimeSelected}>
-      <span className="stop-time-row-time">{hours}:{minutes}</span><span className="stop-time-row-time-separator" /><span className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getStopTimeTrip(this.props.stopTime))} - {SNCFData.getTripNumber(SNCFData.getStopTimeTrip(this.props.stopTime))} - {lastStop}</span>
+      <span className="stop-time-row-time">{hours}:{minutes}</span>
+      <span className="stop-time-row-time-separator" />
+      <span className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getStopTimeTrip(this.props.stopTime))} - {SNCFData.getTripNumber(SNCFData.getStopTimeTrip(this.props.stopTime))} - {lastStop}</span>
+      <span className="stop-time-row-state">{this.props.realTime && this.props.realTime.state}</span>
     </div>
   }
 }

@@ -155,7 +155,7 @@ class SelectedTrips extends React.Component {
       let realTime;
       if (stopTimes[i].realTime) {
         realTime = {
-          time: stopTimes[i].realTime,
+          time: stopTimes[i].realTime.time,
           mode: stopTimes[i].realTime.mode,
           state: stopTimes[i].realTime.state
         }
