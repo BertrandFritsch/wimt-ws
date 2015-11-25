@@ -4,10 +4,34 @@ import SNCFData from '../components/SNCFData.jsx'
 export function viewTrip(state = {}, action = {}) {
   switch (action.type) {
     case VIEW_TRIP:
-      return { trip: SNCFData.getTrip(action.data.trip), endTripNotifier: action.data.endTripNotifier };
+      return {
+        trip: action.data.trip,
+        tripsStates: Object.assign({}, state.tripsStates, {
+          [action.data.trip]: {
+            refs: (state.tripsStates && state.tripsStates[action.data.trip] && state.tripsStates[action.data.trip].refs || 0) + 1,
+            endTripNotifier: action.data.endTripNotifier
+          }
+        })
+      };
 
     case UNVIEW_TRIP:
-      return { };
+      return (_ => {
+        let refs = state.tripsStates[action.data.trip].refs - 1;
+        let newState = {
+          tripsStates: Object.assign({}, state.tripsStates, refs > 0 ? {
+            [action.data.trip]: {
+              refs: state.tripsStates[action.data.trip].refs - 1,
+              endTripNotifier: state.tripsStates[action.data.trip].endTripNotifier
+            }
+          } : null)
+        };
+
+        if (refs === 0) {
+          delete newState.tripsStates[action.data.trip];
+        }
+
+        return newState;
+      })();
 
     case PLANNED_TRIP:
       return {

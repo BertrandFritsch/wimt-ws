@@ -36,8 +36,8 @@ function viewTripAction(trip, endTripNotifier) {
   return { type: VIEW_TRIP, data: { trip, endTripNotifier } };
 }
 
-function unviewTripAction() {
-  return { type: UNVIEW_TRIP };
+function unviewTripAction(trip) {
+  return { type: UNVIEW_TRIP, data: { trip } };
 }
 
 export function viewTrip(trip, date) {
@@ -46,14 +46,14 @@ export function viewTrip(trip, date) {
   }
 }
 
-export function unviewTrip() {
+export function unviewTrip(trip) {
   return (dispatch, getState) => {
-    // stop the trip state machine
+    // stop the trip state machine if no component does reference it anymore
     let state = getState();
 
-    if (state.viewTrip.trip !== undefined) {
-      state.viewTrip.endTripNotifier();
-      dispatch(unviewTripAction());
+    if (state.tripsStates[trip].refs === 1) {
+      state.tripsStates[trip].endTripNotifier();
+      dispatch(unviewTripAction(trip));
     }
   }
 }
