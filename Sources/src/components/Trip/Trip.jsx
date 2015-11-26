@@ -26,31 +26,32 @@ class Trip extends React.Component {
   }
 
   render = () => {
-    let hasTripState = this.props.viewTrip.state;
-    let isRunning = hasTripState && (this.props.viewTrip.state.type === RUNNING_TRIP || this.props.viewTrip.state.type === ARRIVED_TRIP);
+    let tripState = this.props.viewTrip.tripsStates && this.props.viewTrip.tripsStates[SNCFData.getTripId(this.props.viewTrip.trip)] && this.props.viewTrip.tripsStates[SNCFData.getTripId(this.props.viewTrip.trip)].state;
+    let hasTripState = !!tripState;
+    let isRunning = hasTripState && (tripState.type === RUNNING_TRIP || tripState.type === ARRIVED_TRIP);
     let stopTimeReached = false;
     let rows = SNCFData.getTripStopTimes(this.props.viewTrip.trip).map(stopTime => {
-      if (!stopTimeReached && isRunning && stopTime === this.props.viewTrip.state.stopTime) {
+      if (!stopTimeReached && isRunning && stopTime === tripState.stopTime) {
         stopTimeReached = true;
       }
 
       return {
         trainHasPassedBy: false && !stopTimeReached,
-        delayedMinutes: stopTimeReached ? (this.props.viewTrip.state.delayed || 0) : 0,
-        delayed: stopTimeReached ? this.props.viewTrip.state.delayed !== 0 : false
+        delayedMinutes: stopTimeReached ? (tripState.delayed || 0) : 0,
+        delayed: stopTimeReached ? tripState.delayed !== 0 : false
       }
     });
 
     let stopTimeTime0 = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.viewTrip.trip));
     let tripContainerStyles = {
-      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.viewTrip.trip)) + (isRunning && this.props.viewTrip.state.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
+      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.viewTrip.trip)) + (isRunning && tripState.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
     };
 
     let state = (_ => {
-      if (this.props.viewTrip.state) {
-        switch (this.props.viewTrip.state.type) {
+      if (tripState) {
+        switch (tripState.type) {
           case PLANNED_TRIP:
-            return Trip.formatDate(this.props.viewTrip.state.date);
+            return Trip.formatDate(tripState.date);
 
           case NOT_PLANNED_TRIP:
             return "Non planifié !";
@@ -62,7 +63,7 @@ class Trip extends React.Component {
             return "Supprimé";
 
           case RUNNING_TRIP:
-            return this.props.viewTrip.state.delayed === 0 ? "A l'heure" : String.format('{0} mn', this.props.viewTrip.state.delayed);
+            return tripState.delayed === 0 ? "A l'heure" : String.format('{0} mn', tripState.delayed);
 
           case ARRIVED_TRIP:
             return "Arrivé";
@@ -92,11 +93,11 @@ class Trip extends React.Component {
                   })
                 }
               {(() => {
-                  let delayed = isRunning ? this.props.viewTrip.state.delayed : 0;
+                  let delayed = isRunning ? tripState.delayed : 0;
                   let tripTrainStyles = null;
-                  let hasTrainPosition = hasTripState && (isRunning || this.props.viewTrip.state.type === DELAYED_TRIP);
+                  let hasTrainPosition = hasTripState && (isRunning || tripState.type === DELAYED_TRIP);
                   if (hasTrainPosition) {
-                    let stopTimeTime = SNCFData.getStopTimeTime(this.props.viewTrip.state.stopTime) + delayed - stopTimeTime0;
+                    let stopTimeTime = SNCFData.getStopTimeTime(tripState.stopTime) + delayed - stopTimeTime0;
                     let stopTimePosition = stopTimeTime * PIXELS_PER_MINUTE;
                     let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
                     let nowPosition = now * PIXELS_PER_MINUTE;
