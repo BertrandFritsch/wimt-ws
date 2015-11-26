@@ -12,7 +12,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux';
 import reducers from './reducers/reducers.js'
 import SNCFData from './components/SNCFData';
-import { viewTrip } from './actions/actions.js';
+import { viewTrip, viewLine } from './actions/actions.js';
 
 const loggerMiddleware = createLogger();
 
@@ -34,6 +34,35 @@ function parseQueryString(store) {
     r[q[0]] = q[1];
     return r;
   }, {}) : {};
+
+  let departureStopLine = hs.departureStopLine && (_ => {
+      let stop = parseInt(hs.departureStopLine);
+      if (!SNCFData.getStopById(stop)) {
+        console.warn(String.format("The stop id '{0}' is invalid!", hs.departureStopLine));
+      }
+      else {
+        return stop;
+      }
+    })();
+  let arrivalStopLine = hs.arrivalStopLine && (_ => {
+      let stop = parseInt(hs.arrivalStopLine);
+      if (!SNCFData.getStopById(stop)) {
+        console.warn(String.format("The stop id '{0}' is invalid!", hs.arrivalStopLine));
+      }
+      else {
+        return stop;
+      }
+    })();
+
+  if (departureStopLine && arrivalStopLine) {
+    store.dispatch(viewLine(hs.departureStopLine, hs.arrivalStopLine));
+  }
+  else if (departureStopLine) {
+    store.dispatch(viewLine(hs.departureStopLine));
+  }
+  else if (arrivalStopLine) {
+    store.dispatch(viewLine(undefined, hs.arrivalStopLine));
+  }
 
   if (hs.trip) {
     if (SNCFData.getTrip(hs.trip)) {

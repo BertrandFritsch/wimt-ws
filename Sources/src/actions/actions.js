@@ -16,6 +16,8 @@ export const REAL_TIME_TRIP = 'REAL_TIME_TRIP';
 export const RUNNING_TRIP = 'RUNNING_TRIP';
 export const ARRIVED_TRIP = 'ARRIVED_TRIP';
 
+export const VIEW_LINE = 'VIEW_LINE';
+
 /*
  * real time status
  */
@@ -139,5 +141,18 @@ export function arrivedTrip(trip, stopTime, time) {
  */
 export function newTripRealTimeState(status) {
   return { type: REAL_TIME_TRIP, data: { status } };
+}
+
+/**
+ * View line status
+ *
+ * @param trip {string} trip id
+ * @param date {Date} the date the trip is running
+ * @returns {Function}
+ */
+export function viewLine(departureStopLine, arrivalStopLine) {
+  return (dispatch, getState) => {
+    dispatch(viewLineAction(trip, tripStateSetUp(trip, date, dispatch, getState)));
+  }
 }
 
