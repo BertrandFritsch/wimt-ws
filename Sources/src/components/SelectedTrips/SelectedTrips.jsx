@@ -77,7 +77,7 @@ class SelectedTrips extends React.Component {
 
       if (props.departureStop && props.arrivalStop) {
         // filter end stops trips
-        let stopTimes = SNCFData.getTripStopTimes(SNCFData.getStopTimeTrip(stopTime));
+        let stopTimes = SNCFData.getTripStopTimes(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime)));
         let endStopTime = stopTimes.find(stopTime => {
           return SNCFData.getStopTimeStop(stopTime) === props.arrivalStop;
         });
@@ -89,7 +89,7 @@ class SelectedTrips extends React.Component {
         }
       }
 
-      if (SNCFData.doesRunAt(SNCFData.getStopTimeTrip(stopTime), date)) {
+      if (SNCFData.doesRunAt(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime)), date)) {
         result.push({date: date, stopTime: stopTime});
       }
     }
@@ -190,7 +190,7 @@ class SelectedTrips extends React.Component {
     RealTimeRequester.get(props.departureStop, props.arrivalStop, trains => {
       for (let i = 0, iLength = me.state.generator.stopTimes.length; i < iLength; ++i) {
         let stopTime = me.state.generator.stopTimes[i];
-        let trip = SNCFData.getStopTimeTrip(stopTime.stopTime);
+        let trip = SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime.stopTime));
         let train = trains.find(t => SNCFData.isTripByNumber(trip, t.number));
 
         if (train) {

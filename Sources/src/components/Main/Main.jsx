@@ -37,7 +37,7 @@ class Main extends React.Component {
                            arrivalStop={this.state.arrivalStop}
                            onDepartureStopChange={this.onDepartureStopChange}
                            onArrivalStopChange={this.onArrivalStopChange}
-                           onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getStopTimeTrip(stopTime)), date)}/>
+                           onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
                   </LayoutContainer>
                 )
             } })()}

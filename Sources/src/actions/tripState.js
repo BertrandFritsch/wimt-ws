@@ -18,7 +18,7 @@ const _1M = 1 * 60 * 1000;
 class RealTimeTrainState {
   constructor(trip, date, dispatch, getState) {
     this.dispatch = dispatch;
-    this.trip = SNCFData.getTrip(trip);
+    this.trip = SNCFData.getTripById(trip);
     this.date = date;
     this.getState = getState;
 

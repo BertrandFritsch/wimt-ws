@@ -32,7 +32,7 @@ class Trips extends React.Component {
       arrivalStops = (() => {
         // use a map to make stops being unique
         let stopsMap = SNCFData.getStopTrips(this.props.departureStop).reduce((res, trip) => {
-          return SNCFData.getTripStopTimes(SNCFData.getStopTimeTrip(trip)).reduce((res, stopTime) => {
+          return SNCFData.getTripStopTimes(SNCFData.getTrip(SNCFData.getStopTimeTrip(trip))).reduce((res, stopTime) => {
             if (SNCFData.getStopTimeStop(stopTime) !== this.props.departureStop) {
               res[SNCFData.getStopUICCode(SNCFData.getStopTimeStop(stopTime))] = SNCFData.getStopTimeStop(stopTime);
             }
@@ -51,7 +51,7 @@ class Trips extends React.Component {
 
       if (this.props.arrivalStop) {
         startStopTimes = startStopTimes.filter(stopTime => {
-          return SNCFData.getTripStopTimes(SNCFData.getStopTimeTrip(stopTime)).find(stopTime => {
+          return SNCFData.getTripStopTimes(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))).find(stopTime => {
             return SNCFData.getStopTimeStop(stopTime) === this.props.arrivalStop;
           }) !== undefined;
         });

@@ -72,7 +72,11 @@ export class RealTimeRequester {
 }
 
 // SNCFData interface
-function getTrip(id) {
+function getTrip(index) {
+  return Trips[index];
+}
+
+function getTripById(id) {
   return Trips.find(t => t !== null && t[0] === id);
 }
 
@@ -81,7 +85,7 @@ function getTripId(trip) {
 }
 
 function getStopTimeTrip(stopTime) {
-  return Trips[stopTime[2]];
+  return stopTime[2];
 }
 
 function getStopTimeTime(stopTime) {
@@ -271,6 +275,7 @@ export default {
   getTripNumber: getTripNumber,
   getTripMission: getTripMission,
   getTrip: getTrip,
+  getTripById: getTripById,
   getTripId: getTripId,
   getService: getService,
   doesRunAt: doesRunAt,
@@ -325,5 +330,5 @@ function getTripDepartureDateByStopTime(stopTime, date = new Date()) {
     date.setDate(date.getDate() - 1);
   }
 
-  return getDateByMinutes(getStopTimeTime(getTripFirstStopTime(getStopTimeTrip(stopTime))), date);
+  return getDateByMinutes(getStopTimeTime(getTripFirstStopTime(getTrip(getStopTimeTrip(stopTime)))), date);
 }

@@ -33,7 +33,7 @@ export function viewTrip(state = {}, action = {}) {
   switch (action.type) {
     case VIEW_TRIP:
       return {
-        trip: SNCFData.getTrip(action.data.trip),
+        trip: SNCFData.getTripById(action.data.trip),
         tripsStates: Object.assign({}, state.tripsStates, {
           [action.data.trip]: {
             refs: (state.tripsStates && state.tripsStates[action.data.trip] && state.tripsStates[action.data.trip].refs || 0) + 1,

@@ -55,17 +55,17 @@ function parseQueryString(store) {
     })();
 
   if (departureStopLine && arrivalStopLine) {
-    store.dispatch(viewLine(hs.departureStopLine, hs.arrivalStopLine));
+    store.dispatch(viewLine(departureStopLine, arrivalStopLine));
   }
   else if (departureStopLine) {
-    store.dispatch(viewLine(hs.departureStopLine));
+    store.dispatch(viewLine(departureStopLine));
   }
   else if (arrivalStopLine) {
-    store.dispatch(viewLine(undefined, hs.arrivalStopLine));
+    store.dispatch(viewLine(null, arrivalStopLine));
   }
 
   if (hs.trip) {
-    if (SNCFData.getTrip(hs.trip)) {
+    if (SNCFData.getTripById(hs.trip)) {
       let date = new Date();
       if (hs.date) {
         let date2 = new Date(parseInt(hs.date));

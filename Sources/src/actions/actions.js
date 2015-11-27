@@ -1,5 +1,6 @@
 ﻿import SNCFData from '../components/SNCFData.jsx'
 import { tripStateSetUp } from './tripState.js'
+import { lineStateSetUp } from './lineState.js'
 
 /*
  * action types
@@ -143,16 +144,20 @@ export function newTripRealTimeState(status) {
   return { type: REAL_TIME_TRIP, data: { status } };
 }
 
+function viewLineAction(nextLineTrips) {
+  return { type: VIEW_LINE, data: { nextLineTrips } };
+}
+
 /**
  * View line status
  *
- * @param trip {string} trip id
- * @param date {Date} the date the trip is running
+ * @param departureStopLine {number} stop id
+ * @param arrivalStopLine {number} stop id
  * @returns {Function}
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
   return (dispatch, getState) => {
-    dispatch(viewLineAction(trip, tripStateSetUp(trip, date, dispatch, getState)));
+    dispatch(viewLineAction(lineStateSetUp(departureStopLine, arrivalStopLine, dispatch, getState)));
   }
 }
 
