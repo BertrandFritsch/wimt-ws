@@ -1,4 +1,5 @@
 'use strict';
+import theme from './gridlayout.css'
 
 /**
  * @fileOverview This file implements the Genero layout rules (a.k.a. grid layout).

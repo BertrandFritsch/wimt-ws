@@ -178,6 +178,7 @@ TestResults.xml
 
 ## Personal
 Sources/src/SNCFData
+Sources/src/assets/SNCFData.min.js
 Sources/dist
 
 ## Node
