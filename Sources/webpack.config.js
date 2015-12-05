@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var path = require('path');
+var WebpackNotifierPlugin = require('webpack-notifier');
 
 module.exports = {
   devServer: {
@@ -36,6 +37,7 @@ module.exports = {
     //noParse: new RegExp(path.resolve(__dirname, 'src/assets/SNCFData.min.js'))
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new WebpackNotifierPlugin()
   ]
 };
