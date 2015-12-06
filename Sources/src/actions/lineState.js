@@ -1,9 +1,12 @@
 ﻿import SNCFData from '../components/SNCFData.jsx'
+import { viewLines } from '../actions/actions.js'
 
 export function lineStateSetUp(departureStopLine, arrivalStopLine, dispatch, getState) {
   let state =  new LineState(departureStopLine, arrivalStopLine, dispatch, getState);
   return () => state.nextTrips();
 }
+
+const minutesPerDay = 24 * 60;
 
 class LineState {
   constructor(departureStopLine, arrivalStopLine, dispatch, getState) {
@@ -12,6 +15,10 @@ class LineState {
 
     this.tripsGenerator = function* () {
       let trips = [];
+      let date = new Date();
+      let now = (date.getTime() - SNCFData.getDateByMinutes(0).getTime()) / 1000 / 60;
+
+      date = SNCFData.getDateByMinutes(0, date);
 
       if (!departureStopLine) {
         departureStopLine = arrivalStopLine;
@@ -30,15 +37,56 @@ class LineState {
             return arrivalTrip && SNCFData.getStopTimeSequence(departureStopTime) < SNCFData.getStopTimeSequence(arrivalTrip);
           });
         }
+
+        // get the next very first arrival trip
+        let cursor = trips.findIndex(t => {
+          let lastStopTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(SNCFData.getTrip(SNCFData.getStopTimeTrip(t))));
+
+          if (lastStopTime >= minutesPerDay) {
+            lastStopTime -= minutesPerDay;
+          }
+
+          return now <= lastStopTime;
+        });
+
+        if (cursor < 0) {
+          cursor = trips.length;
+        }
+
+        // use startCursor to prevent infinite cycling
+
+        for (let startCursor = cursor ;; ) {
+          if (cursor === trips.length) {
+            cursor = 0;
+            date = new Date(date);
+            date.setDate(date.getDate() + 1);
+          }
+
+          let trip = SNCFData.getTrip(SNCFData.getStopTimeTrip(trips[cursor]));
+          if (SNCFData.doesRunAt(trip, date)) {
+            startCursor = cursor;
+            yield { date, trip };
+          }
+
+          ++cursor;
+
+          if (startCursor === cursor) {
+            break;
+          }
+        }
       }
-      else {
-        // neither departure stop nor arrival stop has been specified, generate an empty array and end the generator
-        yield trips;
-      }
-    }
+    };
+
+    this.nextTrips(40);
   }
 
-  nextTrips() {
+  nextTrips(count) {
+    let trips = [];
+    for (let t of this.tripsGenerator()) {
+      trips.push(t);
+      if (--count <= 0) break;
+    }
 
+    this.dispatch(viewLines(trips));
   }
 }

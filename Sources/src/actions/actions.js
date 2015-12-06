@@ -161,3 +161,15 @@ export function viewLine(departureStopLine, arrivalStopLine) {
   }
 }
 
+/**
+ * View line status
+ *
+ * @param trips {Array} trips to watch
+ * @returns {Function}
+ */
+export function viewLines(trips) {
+  return (dispatch, getState) => {
+    dispatch(viewLinesAction(trips));
+  }
+}
+
