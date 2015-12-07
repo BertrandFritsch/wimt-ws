@@ -63,7 +63,7 @@ class Trip extends React.Component {
             return "Supprimé";
 
           case RUNNING_TRIP:
-            return tripState.delayed === 0 ? "A l'heure" : String.format('{0} mn', tripState.delayed);
+            return tripState.delayed === 0 ? "A l'heure" : `${tripState.delayed} mn`;
 
           case ARRIVED_TRIP:
             return "Arrivé";
@@ -103,7 +103,7 @@ class Trip extends React.Component {
                     let nowPosition = now * PIXELS_PER_MINUTE;
                     //let trainPosition = (this.state.trainPosition || 0) * PIXELS_PER_MINUTE;
                     //if (trainPosition > 0 && this.initialTrainPositionning && this.refs.tripScrollEl) {
-                    //  $(this.refs.tripScrollEl).animate({ scrollTop: String.format("{0}px", trainPosition) }, 2000);
+                    //  $(this.refs.tripScrollEl).animate({ scrollTop: `${trainPosition}px` }, 2000);
                     //}
 
 
@@ -112,8 +112,8 @@ class Trip extends React.Component {
                     }
 
                     tripTrainStyles = {
-                      transitionDuration: String.format("{0}ms", this.state.initialTrainPosition ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000),
-                      transform: String.format("translateY({0}px)", this.state.initialTrainPosition ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition)
+                      transitionDuration: `${this.state.initialTrainPosition ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000}ms`,
+                      transform: `translateY(${this.state.initialTrainPosition ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition}px)`
                     };
                   }
 
@@ -179,7 +179,7 @@ class Trip extends React.Component {
     }
     //else {
     //  // the date is less than 1 hour, show the minutes
-    //  return String.format('{0mn}', (time - now) / (1000 * 60));
+    //  return `${(time - now) / (1000 * 60)}0mn`;
     //}
   }
 }

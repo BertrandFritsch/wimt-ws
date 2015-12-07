@@ -87,7 +87,7 @@ class Main extends React.Component {
 
   onStopTimeSelected = (trip, date) => {
     this.props.dispatch(viewTrip(trip, date));
-    window.history.pushState({ trip, date }, "Voyage d'un train", String.format("#trip={0}&date={1}", trip, date.getTime()));
+    window.history.pushState({ trip, date }, "Voyage d'un train", `#trip=${trip}&date=${date.getTime()}`);
   }
 
   onDepartureStopChange = (stop) => {

@@ -38,7 +38,7 @@ function parseQueryString(store) {
   let departureStopLine = hs.departureStopLine && (_ => {
       let stop = parseInt(hs.departureStopLine);
       if (!SNCFData.getStopById(stop)) {
-        console.warn(String.format("The stop id '{0}' is invalid!", hs.departureStopLine));
+        console.warn(`The stop id '${hs.departureStopLine}' is invalid!`);
       }
       else {
         return stop;
@@ -47,7 +47,7 @@ function parseQueryString(store) {
   let arrivalStopLine = hs.arrivalStopLine && (_ => {
       let stop = parseInt(hs.arrivalStopLine);
       if (!SNCFData.getStopById(stop)) {
-        console.warn(String.format("The stop id '{0}' is invalid!", hs.arrivalStopLine));
+        console.warn(`The stop id '${hs.arrivalStopLine}' is invalid!`);
       }
       else {
         return stop;
@@ -73,13 +73,13 @@ function parseQueryString(store) {
           date = date2;
         }
         else {
-          console.warn(String.format("The date '{0}' is invalid!", hs.date));
+          console.warn(`The date '${hs.date}' is invalid!`);
         }
       }
       store.dispatch(viewTrip(hs.trip, date));
     }
     else {
-      console.warn(String.format("The trip id '{0}' is invalid!", hs.trip));
+      console.warn(`The trip id '${hs.trip}' is invalid!`);
     }
   }
 }

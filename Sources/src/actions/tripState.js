@@ -21,16 +21,17 @@ class RealTimeTrainState {
     this.trip = SNCFData.getTripById(trip);
     this.date = date;
     this.getState = getState;
+    
+    this.state = RealTimeTrainState.States.INITIAL_STATE;
 
     setTimeout(_ => this.transition(RealTimeTrainState.Events.INITIAL_EVENT), 10);
     this.dispatch(newTripRealTimeState(RealTimeStatus.OFFLINE));
+    
   }
-
-  state = RealTimeTrainState.States.INITIAL_STATE;
 
   transition(event, param1, param2) {
     console.group("RealTimeTrainState.transition");
-    console.log(String.format("%c State: {0} - Event: {1}", this.state, event), "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#8A0000" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
+    console.log(`%c State: ${this.state} - Event: ${event}`, "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#8A0000" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
     switch (this.state) {
       case RealTimeTrainState.States.INITIAL_STATE:
         switch (event) {
@@ -221,12 +222,12 @@ class RealTimeTrainState {
       default:
         this.invalidTransitionEvent(event);
     }
-    console.log(String.format("State: {0}", this.state));
+    console.log(`State: ${this.state}`);
     console.groupEnd();
   }
 
   invalidTransitionEvent(event) {
-    throw new Error(String.format("RealTimeTrainState: state: {0} - invalid transition event '{1}'", this.state, event));
+    throw new Error(`RealTimeTrainState: state: ${this.state} - invalid transition event '${event}'`);
   }
 
   processRealTimeData(stopTime, train) {
@@ -255,7 +256,7 @@ class RealTimeTrainState {
   }
 
   nextCheckAt(duration, stopTime) {
-    console.log(String.format("%c Next RT check in {0}ms, at {1}", duration, new Date(Date.now() + duration).toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit', second: '2-digit'})), "color: #8A0000; font-weight: bold");
+    console.log(`%c Next RT check in ${duration}ms, at ${new Date(Date.now() + duration).toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}`, "color: #8A0000; font-weight: bold");
     this.timeoutId = setTimeout(_ => {
       this.timeoutId = 0;
       this.transition(RealTimeTrainState.Events.TIMEOUT, stopTime, duration);

@@ -31,9 +31,9 @@ import $ from 'jquery';
 export class RealTimeRequester {
   static get(departureStop, arrivalStop, result) {
     if (departureStop) {
-      let url = String.format('http://localhost:82/gare/{0}/depart/', departureStop[0]);
+      let url = `http://localhost:82/gare/${departureStop[0]}/depart/`;
       if (arrivalStop) {
-        url = String.format('{0}{1}/', url, arrivalStop[0]);
+        url = `${url}${arrivalStop[0]}/`;
       }
       $.ajax({
         url: url,

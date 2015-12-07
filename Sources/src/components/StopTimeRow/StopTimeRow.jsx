@@ -37,7 +37,7 @@ class StopTimeRow extends React.Component {
           default: {
             let delayed = (this.props.realTime.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime)).getTime()) / 60 / 1000;
             if (delayed !== 0) {
-              return String.format('{0} mn', delayed);
+              return `${delayed} mn`;
             }
           }
         }
