@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "sourceMap": true
+    },
+    "exclude": [
+        "node_modules",
+        "SNCFData.min.js",
+        "SNCFData"
+    ]
+}
