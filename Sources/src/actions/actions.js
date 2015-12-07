@@ -169,7 +169,7 @@ export function viewLine(departureStopLine, arrivalStopLine) {
  */
 export function viewLines(trips) {
   return (dispatch, getState) => {
-    dispatch(viewLinesAction(trips));
+    dispatch(viewLineAction(trips));
   }
 }
 
