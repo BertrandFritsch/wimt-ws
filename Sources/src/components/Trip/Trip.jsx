@@ -4,7 +4,7 @@ import $ from 'jquery';
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import GridLayout from '../../gridlayout/gridlayout';
-import SNCFData, { RealTimeRequester } from '../SNCFData';
+import SNCFData, { RealTimeRequester } from '../../SNCFData';
 import { updateDebuggingInfo } from '../../actions/actions.js';
 import { RealTimeStatus, PLANNED_TRIP, NOT_PLANNED_TRIP, DELAYED_TRIP, CANCELLED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js'
 import theme from './Trip.css'

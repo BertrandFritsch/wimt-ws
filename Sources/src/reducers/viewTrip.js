@@ -1,5 +1,5 @@
 ﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../actions/actions.js'
-import SNCFData from '../components/SNCFData.jsx'
+import SNCFData from '../SNCFData.js'
 
 /**
  * viewTrip structure

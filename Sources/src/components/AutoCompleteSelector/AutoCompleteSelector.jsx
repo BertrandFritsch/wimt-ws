@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import Autosuggest from 'react-autosuggest';
-import SNCFData from '../SNCFData.jsx';
+import SNCFData from '../../SNCFData.js';
 import theme from './AutoCompleteSelector.css';
 
 class AutoCompleteSelector extends React.Component {

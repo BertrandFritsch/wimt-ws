@@ -1,4 +1,4 @@
-﻿import SNCFData, { RealTimeRequester } from '../components/SNCFData.jsx'
+﻿import SNCFData, { RealTimeRequester } from '../SNCFData.js'
 import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, delayedTrip, cancelledTrip, newTripRealTimeState } from './actions.js';
 
 export function tripStateSetUp(trip, date, dispatch, getState) {

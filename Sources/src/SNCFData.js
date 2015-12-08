@@ -1,3 +1,6 @@
+/* global Services */
+/* global Stops */
+/* global Trips */
 import $ from 'jquery';
 //import Routes from '../SNCFData/routes.js'
 //import Services from '../SNCFData/routes.js'
@@ -326,7 +329,7 @@ function getTripDepartureDateByStopTime(stopTime, date = new Date()) {
 
    //be aware of trips that starts the day before
   if (getStopTimeTime(stopTime) >= minutesPerDay) {
-    date = new Date(date);
+    date = new Date(date.getTime());
     date.setDate(date.getDate() - 1);
   }
 

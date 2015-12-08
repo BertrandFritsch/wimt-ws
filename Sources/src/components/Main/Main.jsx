@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import SNCFData from './../SNCFData';
+import SNCFData from './../../SNCFData';
 import Trips from './../Trips/Trips';
 import Trip from './../Trip/Trip';
 import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';

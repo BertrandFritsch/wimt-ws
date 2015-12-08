@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import SNCFData from './../SNCFData';
+import SNCFData from './../../SNCFData';
 import theme from './StopTimeRow.css';
 
 class StopTimeRow extends React.Component {

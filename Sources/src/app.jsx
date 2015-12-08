@@ -10,7 +10,7 @@ import createLogger from 'redux-logger'
 import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux';
 import reducers from './reducers/reducers.js'
-import SNCFData from './components/SNCFData';
+import SNCFData from './SNCFData';
 import { viewTrip, viewLine } from './actions/actions.js';
 
 const loggerMiddleware = createLogger();
