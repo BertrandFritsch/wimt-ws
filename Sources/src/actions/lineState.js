@@ -1,92 +1,78 @@
-﻿import SNCFData from '../components/SNCFData.jsx'
-import { viewLines } from '../actions/actions.js'
+﻿import SNCFData from '../SNCFData.js'
 
-export function lineStateSetUp(departureStopLine, arrivalStopLine, dispatch, getState) {
-  let state =  new LineState(departureStopLine, arrivalStopLine, dispatch, getState);
-  return () => state.nextTrips();
-}
+export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
+  function* tripsGenerator() {
+    const minutesPerDay = 24 * 60;
+    let trips = [];
+    let date = new Date();
+    const now = (date.getTime() - SNCFData.getDateByMinutes(0).getTime()) / 1000 / 60;
 
-const minutesPerDay = 24 * 60;
+    date = SNCFData.getDateByMinutes(0, date);
 
-class LineState {
-  constructor(departureStopLine, arrivalStopLine, dispatch, getState) {
-    this.dispatch = dispatch;
-    this.getState = getState;
+    if (!departureStopLine) {
+      departureStopLine = arrivalStopLine;
+      arrivalStopLine = null;
+    }
 
-    this.tripsGenerator = function* () {
-      let trips = [];
-      let date = new Date();
-      let now = (date.getTime() - SNCFData.getDateByMinutes(0).getTime()) / 1000 / 60;
+    if (departureStopLine) {
+      trips = SNCFData.getStopTrips(SNCFData.getStopById(departureStopLine));
 
-      date = SNCFData.getDateByMinutes(0, date);
-
-      if (!departureStopLine) {
-        departureStopLine = arrivalStopLine;
-        arrivalStopLine = null;
-      }
-
-      if (departureStopLine) {
-        trips = SNCFData.getStopTrips(SNCFData.getStopById(departureStopLine));
-
-        if (arrivalStopLine) {
-          // filter trips that pass by the arrival stop too
-          let arrivalTrips = SNCFData.getStopTrips(SNCFData.getStopById(arrivalStopLine));
-          trips = trips.filter(departureStopTime => {
-            let trip = SNCFData.getStopTimeTrip(departureStopTime);
-            let arrivalTrip = arrivalTrips.find(arrivalStopTime => SNCFData.getStopTimeTrip(arrivalStopTime) === trip);
-            return arrivalTrip && SNCFData.getStopTimeSequence(departureStopTime) < SNCFData.getStopTimeSequence(arrivalTrip);
-          });
-        }
-
-        // get the next very first arrival trip
-        let cursor = trips.findIndex(t => {
-          let lastStopTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(SNCFData.getTrip(SNCFData.getStopTimeTrip(t))));
-
-          if (lastStopTime >= minutesPerDay) {
-            lastStopTime -= minutesPerDay;
-          }
-
-          return now <= lastStopTime;
+      if (arrivalStopLine) {
+        // filter trips that pass by the arrival stop too
+        const arrivalTrips = SNCFData.getStopTrips(SNCFData.getStopById(arrivalStopLine));
+        trips = trips.filter(departureStopTime => {
+          const trip = SNCFData.getStopTimeTrip(departureStopTime);
+          const arrivalTrip = arrivalTrips.find(arrivalStopTime => SNCFData.getStopTimeTrip(arrivalStopTime) === trip);
+          return arrivalTrip && SNCFData.getStopTimeSequence(departureStopTime) < SNCFData.getStopTimeSequence(arrivalTrip);
         });
+      }
 
-        if (cursor < 0) {
-          cursor = trips.length;
+      // get the next very first arrival trip
+      let cursor = trips.findIndex(t => {
+        let lastStopTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(SNCFData.getTrip(SNCFData.getStopTimeTrip(t))));
+
+        if (lastStopTime >= minutesPerDay) {
+          lastStopTime -= minutesPerDay;
         }
 
-        // use startCursor to prevent infinite cycling
+        return now <= lastStopTime;
+      });
 
-        for (let startCursor = cursor ;; ) {
-          if (cursor === trips.length) {
-            cursor = 0;
-            date = new Date(date);
-            date.setDate(date.getDate() + 1);
-          }
+      if (cursor < 0) {
+        cursor = trips.length;
+      }
 
-          let trip = SNCFData.getTrip(SNCFData.getStopTimeTrip(trips[cursor]));
-          if (SNCFData.doesRunAt(trip, date)) {
-            startCursor = cursor;
-            yield { date, trip };
-          }
+      // use startCursor to prevent infinite cycling
 
-          ++cursor;
+      for (let startCursor = cursor ;; ) {
+        if (cursor === trips.length) {
+          cursor = 0;
+          date = new Date(date.getTime());
+          date.setDate(date.getDate() + 1);
+        }
 
-          if (startCursor === cursor) {
-            break;
-          }
+        const trip = SNCFData.getTrip(SNCFData.getStopTimeTrip(trips[cursor]));
+        if (SNCFData.doesRunAt(trip, date)) {
+          startCursor = cursor;
+          yield { date, trip };
+        }
+
+        ++cursor;
+
+        if (startCursor === cursor) {
+          break;
         }
       }
-    };
-
-    this.nextTrips(40);
+    }
   }
 
-  nextTrips(count) {
-    let trips = [];
-    for (let t of this.tripsGenerator()) {
+  return (count) => {
+    const trips = [];
+    for (const t of tripsGenerator()) {
       trips.push(t);
       if (--count <= 0) break;
     }
 
-    this.dispatch(viewLines(trips));
+    return trips;
   }
 }

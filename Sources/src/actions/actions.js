@@ -1,6 +1,6 @@
-﻿import SNCFData from '../components/SNCFData.jsx'
+﻿import SNCFData from '../SNCFData.js'
 import { tripStateSetUp } from './tripState.js'
-import { lineStateSetUp } from './lineState.js'
+import { lineTripsGenerator } from './lineState.js'
 
 /*
  * action types
@@ -18,6 +18,7 @@ export const RUNNING_TRIP = 'RUNNING_TRIP';
 export const ARRIVED_TRIP = 'ARRIVED_TRIP';
 
 export const VIEW_LINE = 'VIEW_LINE';
+export const VIEW_LINE_NEXT_TRIPS = 'VIEW_LINE_NEXT_TRIPS';
 
 /*
  * real time status
@@ -144,8 +145,12 @@ export function newTripRealTimeState(status) {
   return { type: REAL_TIME_TRIP, data: { status } };
 }
 
-function viewLineAction(nextLineTrips) {
-  return { type: VIEW_LINE, data: { nextLineTrips } };
+function viewLineAction(tripsGenerator) {
+  return { type: VIEW_LINE, data: { tripsGenerator } };
+}
+
+function viewLineNextTripsAction(nextLineTrips) {
+  return { type: VIEW_LINE_NEXT_TRIPS, data: { nextLineTrips } };
 }
 
 /**
@@ -157,19 +162,26 @@ function viewLineAction(nextLineTrips) {
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
   return (dispatch, getState) => {
-    dispatch(viewLineAction(lineStateSetUp(departureStopLine, arrivalStopLine, dispatch, getState)));
+    let tripsGenerator = lineTripsGenerator(departureStopLine, arrivalStopLine);
+    dispatch(viewLineAction(tripsGenerator));
+
+    const trips = tripsGenerator(40);
+    dispatch(viewLineNextTripsAction(trips.map(e => SNCFData.getTripId(e.trip)), trips.map(e => {
+      return null;
+    })));
   }
 }
 
 /**
- * View line status
+ * View next line trips
  *
- * @param trips {Array} trips to watch
  * @returns {Function}
  */
-export function viewLines(trips) {
+export function viewLineNextTrips() {
   return (dispatch, getState) => {
-    dispatch(viewLineAction(trips));
+    let state = getState();
+    
+    let tripsGenerator = state.viewTrip.line.generator;
+    dispatch(viewLineNextTripsAction(tripsGenerator(40)));
   }
 }
-

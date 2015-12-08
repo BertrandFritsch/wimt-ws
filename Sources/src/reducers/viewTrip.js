@@ -1,4 +1,4 @@
-﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../actions/actions.js'
+﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS } from '../actions/actions.js'
 import SNCFData from '../SNCFData.js'
 
 /**
@@ -6,6 +6,10 @@ import SNCFData from '../SNCFData.js'
  *
  * {
  *   trip: <trip-id>         // the current viewed trip details
+ *   line: {                 // the current viewed line details
+ *     generator: <line-trips-generator>,
+ *     trips: [trip-id, ...]
+ *   }
  *   tripsStates: {          // the set of watched trips
  *     <trip-id>: {
  *       endTripNotifier: <function> // function to call to end a trip state machine
@@ -82,6 +86,14 @@ export function viewTrip(state = {}, action = {}) {
 
     case REAL_TIME_TRIP:
       return Object.assign({}, state, { realTimeStatus: action.data.status });
+      
+    case VIEW_LINE:
+      return Object.assign({}, { line: { generator: action.data.tripsGenerator, trips: [] }, ...state });
+
+    case VIEW_LINE_NEXT_TRIPS:
+      return (_=> {
+        return state;
+      })();
 
     default:
       return state;
