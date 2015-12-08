@@ -106,6 +106,7 @@ $calendarDatesColl |% { $_.GetEnumerator() } |% {
 }
 "
 }
-$outputFilename = "$RootDir\Sources\src\SNCFData\services.js"
+$outputFilename = "$RootDir\tmp\SNCFData\services.js"
 Write-Host "Generate $outputFilename"
+if (-not(Test-Path $outputFilename)) { New-Item -Force -Type File -Path $outputFilename | Out-Null }
 generate-services | Out-File $outputFilename -Encoding utf8

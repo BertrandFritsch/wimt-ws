@@ -58,7 +58,8 @@ Stops = [
 ]
 "
 }
-$outputFilename = "$RootDir\Sources\src\SNCFData\stops.js"
+$outputFilename = "$RootDir\tmp\SNCFData\stops.js"
 Write-Host "Generate $outputFilename"
+if (-not(Test-Path $outputFilename)) { New-Item -Force -Type File -Path $outputFilename | Out-Null }
 generate-stops $paths | Out-File $outputFilename -Encoding utf8
 $paths | Remove-Item

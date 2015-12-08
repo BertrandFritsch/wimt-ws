@@ -42,7 +42,8 @@ Trips = [
 ]
 "
 }
-$outputFilename = "$RootDir\Sources\src\SNCFData\trips.js"
+$outputFilename = "$RootDir\tmp\SNCFData\trips.js"
 Write-Host "Generate $outputFilename"
+if (-not(Test-Path $outputFilename)) { New-Item -Force -Type File -Path $outputFilename | Out-Null }
 generate-trips $paths | Out-File $outputFilename -Encoding utf8
 $paths | Remove-Item

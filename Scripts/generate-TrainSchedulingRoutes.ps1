@@ -31,6 +31,7 @@ Routes = {
 }
 "
 }
-$outputFilename = "$RootDir\Sources\src\SNCFData\routes.js"
+$outputFilename = "$RootDir\tmp\SNCFData\routes.js"
 Write-Host "Generate $outputFilename"
+if (-not(Test-Path $outputFilename)) { New-Item -Force -Type File -Path $outputFilename | Out-Null }
 generate-routes | Out-File $outputFilename -Encoding utf8
