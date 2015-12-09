@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
-import SNCFData, { RealTimeRequester } from './../../SNCFData';
+import SNCFData from './../../SNCFData.js';
+import RealTimeRequester from './../../SNCFDataRTRequester.js';
 import GridLayout from '../../gridlayout/gridlayout';
 import theme from './SelectedTrips.css';
 

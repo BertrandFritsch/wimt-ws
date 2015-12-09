@@ -1,5 +1,7 @@
-﻿import SNCFData, { RealTimeRequester } from '../SNCFData.js'
+﻿import SNCFData from '../SNCFData.js';
+import RealTimeRequester from '../SNCFDataRTRequester.js';
 import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, delayedTrip, cancelledTrip, newTripRealTimeState } from './actions.js';
+import assert from 'assert';
 
 export function tripStateSetUp(trip, date, dispatch, getState) {
   let state =  new RealTimeTrainState(trip, date, dispatch, getState);
@@ -21,6 +23,8 @@ class RealTimeTrainState {
     this.trip = SNCFData.getTripById(trip);
     this.date = date;
     this.getState = getState;
+
+    assert(this.trip, "Missing trip!");
     
     this.state = RealTimeTrainState.States.INITIAL_STATE;
 
