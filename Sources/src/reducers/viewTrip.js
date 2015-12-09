@@ -12,6 +12,7 @@ import SNCFData from '../SNCFData.js'
  *   }
  *   tripsStates: {          // the set of watched trips
  *     <trip-id>: {
+ *       refs: <number>,
  *       endTripNotifier: <function> // function to call to end a trip state machine
  *       realTimeStatus: <status>    // real time status
  *       state: {
@@ -24,10 +25,11 @@ import SNCFData from '../SNCFData.js'
  */
 
 function reduceByTripState(state, trip, tripState) {
+  const realTimeStatus = state.tripsStates && state.tripsStates[trip].realTimeStatus; // preserve the RT status
   return Object.assign({}, state, {
     tripsStates: Object.assign({}, state.tripsStates, {
-      [trip]: Object.assign({}, state.tripsStates[trip], {
-        state: tripState
+      [trip]: Object.assign({}, state.tripsStates && state.tripsStates[trip] || {}, {
+        state: Object.assign(tripState, { realTimeStatus })
       })
     })
   });
@@ -85,15 +87,28 @@ export function viewTrip(state = {}, action = {}) {
       return reduceByTripState(state, action.data.trip, {type: ARRIVED_TRIP, stopTime: action.data.stopTime, delayed: action.data.time});
 
     case REAL_TIME_TRIP:
-      return Object.assign({}, state, { realTimeStatus: action.data.status });
-      
+      return reduceByTripState(state, action.data.trip, Object.assign({}, state.tripsStates && state.tripsStates[action.data.trip] || {}, { realTimeStatus: action.data.status }));
+
     case VIEW_LINE:
-      return Object.assign({}, { line: { generator: action.data.tripsGenerator, trips: [] }, ...state });
+      return { line: { generator: action.data.tripsGenerator, trips: [] }, ...state };
 
     case VIEW_LINE_NEXT_TRIPS:
-      return (_=> {
-        return state;
-      })();
+      return Object.assign({}, state, {
+        line: Object.assign({}, state.line, {
+          trips: [...state.line.trips, ...action.data.trips]
+        }),
+        tripsStates: (_ => {
+          return action.data.states.reduce((r, s, index) => {
+            const tripId = action.data.trips[index].trip;
+            r[tripId] = {
+              refs: (r[tripId] && r[tripId].refs || 0) + 1,
+              endTripNotifier: s
+            };
+
+            return r;
+          }, state.tripsStates || {})
+        })()
+      });
 
     default:
       return state;

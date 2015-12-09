@@ -76,7 +76,7 @@ class Trip extends React.Component {
         <div data-g-layout-item='"row": 0'>
           <TripHeaderRow trip={this.props.viewTrip.trip}
                          state={state}
-                         status={this.props.viewTrip.realTimeStatus}/>
+                         status={tripState.realTimeStatus}/>
           <div className="trip-frame-top-space"/>
         </div>
         <div ref="tripScrollEl" style={{overflowY: 'auto'}} data-g-layout-item='"row": 1, "isXSpacer": true' data-g-layout-policy='"heightHint": "*", "heightPolicy": "Fixed"'>

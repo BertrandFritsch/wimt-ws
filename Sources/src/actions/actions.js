@@ -138,19 +138,20 @@ export function arrivedTrip(trip, stopTime, time) {
 
 /**
  * Update the real time status
+ * @param trip {string} the trip id
  * @param status {string} the real time status
  * @returns {object}
  */
-export function newTripRealTimeState(status) {
-  return { type: REAL_TIME_TRIP, data: { status } };
+export function newTripRealTimeState(trip, status) {
+  return { type: REAL_TIME_TRIP, data: { trip, status } };
 }
 
 function viewLineAction(tripsGenerator) {
   return { type: VIEW_LINE, data: { tripsGenerator } };
 }
 
-function viewLineNextTripsAction(nextLineTrips) {
-  return { type: VIEW_LINE_NEXT_TRIPS, data: { nextLineTrips } };
+function viewLineNextTripsAction(trips, states) {
+  return { type: VIEW_LINE_NEXT_TRIPS, data: { trips, states } };
 }
 
 /**
@@ -158,30 +159,22 @@ function viewLineNextTripsAction(nextLineTrips) {
  *
  * @param departureStopLine {number} stop id
  * @param arrivalStopLine {number} stop id
- * @returns {Function}
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
-  return (dispatch, getState) => {
-    let tripsGenerator = lineTripsGenerator(departureStopLine, arrivalStopLine);
-    dispatch(viewLineAction(tripsGenerator));
-
-    const trips = tripsGenerator(40);
-    dispatch(viewLineNextTripsAction(trips.map(e => SNCFData.getTripId(e.trip)), trips.map(e => {
-      return null;
-    })));
-  }
+  return viewLineAction(lineTripsGenerator(departureStopLine, arrivalStopLine));
 }
 
 /**
  * View next line trips
- *
+ * @param count {number} expected count of trips
  * @returns {Function}
  */
-export function viewLineNextTrips() {
+export function viewLineNextTrips(count) {
   return (dispatch, getState) => {
-    let state = getState();
-    
-    let tripsGenerator = state.viewTrip.line.generator;
-    dispatch(viewLineNextTripsAction(tripsGenerator(40)));
+    const viewTripState = getState().viewTrip;
+    const trips = viewTripState.line.generator(count);
+    dispatch(viewLineNextTripsAction(trips.map(e => ({ trip: SNCFData.getTripId(e.trip), date: e.date })), trips.map(e => {
+      return viewTripState.tripsStates && viewTripState.tripsStates[SNCFData.getTripId(e.trip)] || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
+    })));
   }
 }

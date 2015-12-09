@@ -28,9 +28,10 @@ class RealTimeTrainState {
     
     this.state = RealTimeTrainState.States.INITIAL_STATE;
 
-    setTimeout(_ => this.transition(RealTimeTrainState.Events.INITIAL_EVENT), 10);
-    this.dispatch(newTripRealTimeState(RealTimeStatus.OFFLINE));
-    
+    setTimeout(_ => {
+      this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.OFFLINE));
+      this.transition(RealTimeTrainState.Events.INITIAL_EVENT)
+    }, 10);
   }
 
   transition(event, param1, param2) {
@@ -96,21 +97,21 @@ class RealTimeTrainState {
           case RealTimeTrainState.Events.TRIP_RT_CANCELLED:
             // the train has been cancelled
             this.dispatch(cancelledTrip(SNCFData.getTripId(this.trip)));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.state = RealTimeTrainState.States.FINAL_STATE;
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_DELAYED:
             // the train has been delayed
             this.dispatch(delayedTrip(SNCFData.getTripId(this.trip), param1));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.locateDelayedTrainPosition(param1);
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_RUNNING:
             // the train is running
             this.dispatch(runningTrip(SNCFData.getTripId(this.trip), param1, param2 / (1000 * 60)));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
             this.state = RealTimeTrainState.States.TRIP_RT_RUNNING;
             break;
@@ -144,21 +145,21 @@ class RealTimeTrainState {
           case RealTimeTrainState.Events.TRIP_RT_CANCELLED:
             // the train has been cancelled
             this.dispatch(cancelledTrip(SNCFData.getTripId(this.trip)));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.state = RealTimeTrainState.States.FINAL_STATE;
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_DELAYED:
             // the train has been delayed
             this.dispatch(delayedTrip(SNCFData.getTripId(this.trip), param1));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.locateDelayedTrainPosition(param1);
             break;
 
           case RealTimeTrainState.Events.TRIP_RT_RUNNING:
             // the train is running
             this.dispatch(runningTrip(SNCFData.getTripId(this.trip), param1, param2 / (1000 * 60)));
-            this.dispatch(newTripRealTimeState(RealTimeStatus.ONLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.ONLINE));
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
             break;
 
@@ -198,7 +199,7 @@ class RealTimeTrainState {
 
           case RealTimeTrainState.Events.TRIP_RT_NONE:
             // no real time -- for the second time, assume there is no real time for now
-            this.dispatch(newTripRealTimeState(RealTimeStatus.OFFLINE));
+            this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.OFFLINE));
             this.nextPlannedCheck(this.getCurrentDelay());
             break;
 
@@ -253,7 +254,7 @@ class RealTimeTrainState {
 
   checkTripRealTime(stopTime) {
     // TODO: handle the last stop case
-    this.dispatch(newTripRealTimeState(RealTimeStatus.CHECKING));
+    this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.CHECKING));
     RealTimeRequester.get(SNCFData.getStopTimeStop(stopTime), SNCFData.getTripLastStop(this.trip), trains => {
       this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, trains.find(train => train.number === SNCFData.getTripNumber(this.trip)));
     });

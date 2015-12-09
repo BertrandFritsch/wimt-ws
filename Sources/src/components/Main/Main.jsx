@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
 import Trips from './../Trips/Trips';
+import Line from './../Line/Line';
 import Trip from './../Trip/Trip';
 import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx'
@@ -40,6 +41,17 @@ class Main extends React.Component {
                              onDepartureStopChange={this.onDepartureStopChange}
                              onArrivalStopChange={this.onArrivalStopChange}
                              onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
+                    </LayoutContainer>
+                  )
+                }
+              })()}
+              {(() => {
+                if (this.props.viewTrip.line) {
+                  return (
+                    <LayoutContainer>
+                      <Line actionDispatcher={this.props.dispatch}
+                            viewTrip={this.props.viewTrip}
+                            onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
                     </LayoutContainer>
                   )
                 }
