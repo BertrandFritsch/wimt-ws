@@ -11,7 +11,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux';
 import reducers from './reducers/reducers.js'
 import SNCFData from './SNCFData';
-import { viewTrip, viewLine } from './actions/actions.js';
+import { viewStop, viewTrip, viewLine } from './actions/actions.js';
 
 const loggerMiddleware = createLogger();
 
@@ -33,6 +33,35 @@ function parseQueryString(store) {
     r[q[0]] = q[1];
     return r;
   }, {}) : {};
+
+  let departureStop = hs.departureStop && (_ => {
+      let stop = SNCFData.getStopById(parseInt(hs.departureStop));
+      if (!stop) {
+        console.warn(`The stop id '${hs.departureStop}' is invalid!`);
+      }
+      else {
+        return stop;
+      }
+    })();
+  let arrivalStop = hs.arrivalStop && (_ => {
+      let stop = SNCFData.getStopById(parseInt(hs.arrivalStop));
+      if (!stop) {
+        console.warn(`The stop id '${hs.arrivalStop}' is invalid!`);
+      }
+      else {
+        return stop;
+      }
+    })();
+
+  if (departureStop && arrivalStop) {
+    store.dispatch(viewStop(departureStop, arrivalStop));
+  }
+  else if (departureStop) {
+    store.dispatch(viewStop(departureStop));
+  }
+  else if (arrivalStop) {
+    store.dispatch(viewStop(null, arrivalStop));
+  }
 
   let departureStopLine = hs.departureStopLine && (_ => {
       let stop = parseInt(hs.departureStopLine);

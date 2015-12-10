@@ -7,7 +7,7 @@ import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx'
 import theme from './Main.css';
 import { connect } from 'react-redux'
-import { viewTrip, unviewTrip } from '../../actions/actions.js';
+import { viewTrip, unviewTrip, viewStop } from '../../actions/actions.js';
 
 class Main extends React.Component {
   constructor(props) {
@@ -17,9 +17,7 @@ class Main extends React.Component {
   }
 
   state = {
-    stops: SNCFData.getStopsArray(),
-    departureStop: null,
-    arrivalStop: null
+    stops: SNCFData.getStopsArray()
   }
 
   render = () => {
@@ -36,10 +34,10 @@ class Main extends React.Component {
                     <LayoutContainer>
                       <Trips actionDispatcher={this.props.dispatch}
                              stops={this.state.stops}
-                             departureStop={this.state.departureStop}
-                             arrivalStop={this.state.arrivalStop}
-                             onDepartureStopChange={this.onDepartureStopChange}
-                             onArrivalStopChange={this.onArrivalStopChange}
+                             departureStop={this.props.viewStop.departureStop}
+                             arrivalStop={this.props.viewStop.arrivalStop}
+                             onDepartureStopChange={stop => this.props.dispatch(viewStop(stop, this.props.viewStop.arrivalStop))}
+                             onArrivalStopChange={stop => this.props.dispatch(viewStop(this.props.viewStop.departureStop, stop))}
                              onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
                     </LayoutContainer>
                   )
@@ -61,7 +59,7 @@ class Main extends React.Component {
                   return (
                     <LayoutContainer>
                       <Trip actionDispatcher={this.props.dispatch} viewTrip={this.props.viewTrip}
-                            departureStop={this.state.departureStop} arrivalStop={this.state.arrivalStop}/>
+                            departureStop={this.props.viewStop.departureStop} arrivalStop={this.props.viewStop.arrivalStop}/>
                     </LayoutContainer>
                   )
                 }
@@ -104,18 +102,6 @@ class Main extends React.Component {
   onStopTimeSelected = (trip, date) => {
     this.props.dispatch(viewTrip(trip, date));
     window.history.pushState({trip, date}, "Voyage d'un train", `#trip=${trip}&date=${date.getTime()}`);
-  }
-
-  onDepartureStopChange = (stop) => {
-    this.setState({
-      departureStop: stop
-    });
-  }
-
-  onArrivalStopChange = (stop) => {
-    this.setState({
-      arrivalStop: stop
-    });
   }
 }
 

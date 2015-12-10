@@ -20,6 +20,8 @@ export const ARRIVED_TRIP = 'ARRIVED_TRIP';
 export const VIEW_LINE = 'VIEW_LINE';
 export const VIEW_LINE_NEXT_TRIPS = 'VIEW_LINE_NEXT_TRIPS';
 
+export const VIEW_STOP = 'VIEW_STOP';
+
 /*
  * real time status
  */
@@ -177,4 +179,14 @@ export function viewLineNextTrips(count) {
       return viewTripState.tripsStates && viewTripState.tripsStates[SNCFData.getTripId(e.trip)] || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
     })));
   }
+}
+
+/**
+ * View stop trips
+ *
+ * @param departureStop {number} stop id
+ * @param arrivalStop {number} stop id
+ */
+export function viewStop(departureStop, arrivalStop) {
+  return { type: VIEW_STOP, data: { departureStop, arrivalStop } };
 }
