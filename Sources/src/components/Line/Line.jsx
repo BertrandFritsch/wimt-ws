@@ -50,11 +50,17 @@ class Line extends React.Component {
         rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
       }
 
+      let trip = SNCFData.getTripById(e.trip);
+      let tripState = this.props.viewTrip.tripsStates && this.props.viewTrip.tripsStates[e.trip];
+      let stopTime = tripState && tripState.stopTime || SNCFData.getTripFirstStopTime(trip);
+
       rows.push(<StopTimeRow key={index}
-                             stopTime={stopTimes[i].stopTime}
-                             realTime={realTime}
-                             date={SNCFData.getTripDepartureDateByStopTime(stopTimes[i].stopTime, date)}
+                             stopTime={stopTime}
+                             realTime={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + (tripState && tripState.delayedMinutes || 0), e.date)}
+                             date={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime), e.date)}
                              onStopTimeSelected={this.props.onStopTimeSelected} />);
+
+      return rows;
     }, []);
 
     var length, i,

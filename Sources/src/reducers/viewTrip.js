@@ -25,7 +25,7 @@ import SNCFData from '../SNCFData.js'
  */
 
 function reduceByTripState(state, trip, tripState) {
-  const realTimeStatus = state.tripsStates && state.tripsStates[trip].realTimeStatus; // preserve the RT status
+  const realTimeStatus = tripState.realTimeStatus || (state.tripsStates && state.tripsStates[trip].realTimeStatus); // preserve the RT status
   return Object.assign({}, state, {
     tripsStates: Object.assign({}, state.tripsStates, {
       [trip]: Object.assign({}, state.tripsStates && state.tripsStates[trip] || {}, {
