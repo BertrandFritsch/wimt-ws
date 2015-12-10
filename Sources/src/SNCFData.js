@@ -54,6 +54,10 @@ function getStopTimeStop(stopTime) {
   return Stops[stopTime[1]];
 }
 
+function getStopStopTimeByTime(stop, time) {
+  return stop[2].find(t => t[0] === time);
+}
+
 function getStopTimeSequence(stopTime) {
   return stopTime[1];
 }
@@ -224,6 +228,7 @@ export default {
   getTripLastStop: getTripLastStop,
   isTripByNumber: isTripByNumber,
   getStopTimeStop: getStopTimeStop,
+  getStopStopTimeByTime: getStopStopTimeByTime,
   getStopTimeSequence: getStopTimeSequence,
   getStopTimeTrip: getStopTimeTrip,
   getStopTimeTime: getStopTimeTime,

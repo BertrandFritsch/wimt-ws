@@ -17,7 +17,7 @@ import SNCFData from '../SNCFData.js'
  *       realTimeStatus: <status>    // real time status
  *       state: {
  *         type: <state-type>
- *         <state dependant data>
+ *         <state dependent data>
  *       }
  *     }
  *   }
@@ -25,11 +25,10 @@ import SNCFData from '../SNCFData.js'
  */
 
 function reduceByTripState(state, trip, tripState) {
-  const realTimeStatus = tripState.realTimeStatus || (state.tripsStates && state.tripsStates[trip].realTimeStatus); // preserve the RT status
   return Object.assign({}, state, {
     tripsStates: Object.assign({}, state.tripsStates, {
-      [trip]: Object.assign({}, state.tripsStates && state.tripsStates[trip] || {}, {
-        state: Object.assign(tripState, { realTimeStatus })
+      [trip]: Object.assign({}, state.tripsStates[trip], {
+        state: tripState
       })
     })
   });
@@ -87,7 +86,13 @@ export function viewTrip(state = {}, action = {}) {
       return reduceByTripState(state, action.data.trip, {type: ARRIVED_TRIP, stopTime: action.data.stopTime, delayed: action.data.time});
 
     case REAL_TIME_TRIP:
-      return reduceByTripState(state, action.data.trip, Object.assign({}, state.tripsStates && state.tripsStates[action.data.trip] || {}, { realTimeStatus: action.data.status }));
+      return Object.assign({}, state, {
+        tripsStates: Object.assign({}, state.tripsStates, {
+          [action.data.trip]: Object.assign({}, state.tripsStates[action.data.trip], {
+            realTimeStatus: action.data.status
+          })
+        })
+      });
 
     case VIEW_LINE:
       return { line: { generator: action.data.tripsGenerator, trips: [] }, ...state };

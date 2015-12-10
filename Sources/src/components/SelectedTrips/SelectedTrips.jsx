@@ -23,7 +23,7 @@ class SelectedTrips extends React.Component {
       containerHeight: 250
     };
 
-    if (this.props.departureStop !== null) {
+    if (this.props.departureStop !== undefined) {
       this.checkRealTimes(this.props);
     }
   }

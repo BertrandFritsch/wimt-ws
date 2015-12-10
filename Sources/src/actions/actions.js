@@ -31,6 +31,63 @@ export var RealTimeStatus = {
   CHECKING: "CHECKING"
 };
 
+/**
+ * Format the date
+ * @param date
+ * @returns {String}
+ */
+function formatDate(date) {
+  const _1H = 1 * 60 * 60 * 1000;
+
+  let today = new Date();
+  let midnight = (_ => {
+    let d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    d.setDate(d.getDate() + 1);
+    return d;
+  })();
+
+  let midnightTime = midnight.getTime();
+  let time = date.getTime();
+  let now = today.getTime();
+
+  if (time >= midnightTime) {
+    // the date is later than today, show the date
+    return date.toLocaleString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
+  }
+  else { //if (time - now >= _1H) {
+    // the date is later than 1 hour from now, show the hours and minutes
+    return date.toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+  }
+  //else {
+  //  // the date is less than 1 hour, show the minutes
+  //  return `${(time - now) / (1000 * 60)}0mn`;
+  //}
+}
+
+export function realTimeStateDisplay(state, showAtTime = true) {
+  if (state) {
+    switch (state.type) {
+      case PLANNED_TRIP:
+        return formatDate(state.date);
+
+      case NOT_PLANNED_TRIP:
+        return "Non planifié !";
+
+      case DELAYED_TRIP:
+        return "Retardé";
+
+      case CANCELLED_TRIP:
+        return "Supprimé";
+
+      case RUNNING_TRIP:
+        return state.delayed === 0 ? showAtTime ? "A l'heure" : '' : `${state.delayed} mn`;
+
+      case ARRIVED_TRIP:
+        return "Arrivé";
+    }
+  }
+}
+
 /*
  * action creators
  */
