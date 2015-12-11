@@ -34,14 +34,14 @@ const Line = React.createClass({
 
         const trip = SNCFData.getTripById(e.trip);
         const tripState = this.props.viewTrip.tripsStates && this.props.viewTrip.tripsStates[e.trip];
-        let stopTime = tripState && tripState.stopTime || SNCFData.getTripFirstStopTime(trip);
+        let stopTime = tripState.state && tripState.state.stopTime || SNCFData.getTripFirstStopTime(trip);
 
         // convert the trip stop time to a stop stop time expected by the StopTimeRow component
         stopTime = SNCFData.getStopStopTimeByTime(SNCFData.getStopTimeStop(stopTime), SNCFData.getStopTimeTime(stopTime));
 
         rows.push(<StopTimeRow key={index}
                                stopTime={stopTime}
-                               realTimeState={realTimeStateDisplay(tripState && tripState.state || '', false)}
+                               realTimeState={tripState && tripState.state && realTimeStateDisplay(tripState.state, true) || ''}
                                date={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime), e.date)}
                                onStopTimeSelected={this.props.onStopTimeSelected} />);
 
