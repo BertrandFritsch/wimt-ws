@@ -14,6 +14,7 @@ module.exports = {
   entry: [
     'webpack/hot/dev-server',
     'webpack-dev-server/client?http://localhost:83',
+    'font-awesome/css/font-awesome.min.css',
     path.resolve(__dirname, 'src/app.jsx'),
     //path.resolve(__dirname, 'src/index.html')
   ],
@@ -27,8 +28,9 @@ module.exports = {
   },
   module: {
     loaders:[
-      { test: /\.css$/, include: path.resolve(__dirname, 'src'), loader: 'style-loader!css-loader' },
+      { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.png$/, loader: "url-loader?limit=100000" },
+      { test: /\.(otf|eot|svg|ttf|woff|woff2)(\?.+)?$/, loader: 'url-loader?limit=8192&name=wimt/fontawesome/[hash].[ext]' },
       //{ test: /\.jpg$|\.png$/, loader: "file-loader" },
       //{ test: require.resolve(path.resolve(__dirname, 'src/assets/SNCFData.min.js')), loader: "scripts" },
       //{ test: /\.html$/, loader: "html-loader" },
