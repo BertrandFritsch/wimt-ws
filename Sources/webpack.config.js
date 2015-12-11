@@ -20,8 +20,8 @@ module.exports = {
   ],
   output: {
     path: __dirname + '/build',
-    publicPath: '/',
-    filename: './index.js'
+    publicPath: '/wimt/',
+    filename: 'index.js'
   },
   resolve: {
     extensions: ['', '.js', '.jsx']
@@ -30,7 +30,7 @@ module.exports = {
     loaders:[
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.png$/, loader: "url-loader?limit=100000" },
-      { test: /\.(otf|eot|svg|ttf|woff|woff2)(\?.+)?$/, loader: 'url-loader?limit=8192&name=wimt/fontawesome/[hash].[ext]' },
+      { test: /\.(otf|eot|svg|ttf|woff|woff2)(\?.+)?$/, loader: 'url-loader?limit=8192' },
       //{ test: /\.jpg$|\.png$/, loader: "file-loader" },
       //{ test: require.resolve(path.resolve(__dirname, 'src/assets/SNCFData.min.js')), loader: "scripts" },
       //{ test: /\.html$/, loader: "html-loader" },
