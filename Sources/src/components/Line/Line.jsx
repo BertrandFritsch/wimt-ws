@@ -7,6 +7,7 @@ import SNCFData from './../../SNCFData.js';
 import GridLayout from '../../gridlayout/gridlayout';
 import theme from './Line.css';
 import { viewLineNextTrips, realTimeStateDisplay } from '../../actions/actions.js';
+import FontAwesome from 'react-fontawesome';
 
 const Line = React.createClass({
   getInitialState() {
@@ -43,7 +44,7 @@ const Line = React.createClass({
                                stopTime={stopTime}
                                realTimeState={tripState && tripState.state && realTimeStateDisplay(tripState.state, true) || ''}
                                date={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime), e.date)}
-                               onStopTimeSelected={this.props.onStopTimeSelected} />);
+                               onStopTimeSelected={this.props.onStopTimeSelected}/>);
 
         return rows;
       }, []);
@@ -51,13 +52,18 @@ const Line = React.createClass({
 
 
     return (
-      <div className="trip-frame">
-        <Infinite elementHeight={50}
-                  containerHeight={this.state.containerHeight}
-                  infiniteLoadBeginEdgeOffset={200}
-                  onInfiniteLoad={() => this.props.actionDispatcher(viewLineNextTrips(40))}>
-          {rows}
-        </Infinite>
+      <div data-g-layout-container='' className="line-frame">
+        <div data-g-layout-item='"row": 0'>
+          <div className="line-header">{SNCFData.getStopName(SNCFData.getStopById(this.props.viewTrip.line.departureStop))}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{SNCFData.getStopName(SNCFData.getStopById(this.props.viewTrip.line.arrivalStop))}</div>
+        </div>
+        <div className="line-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
+          <Infinite elementHeight={50}
+                    containerHeight={this.state.containerHeight}
+                    infiniteLoadBeginEdgeOffset={200}
+                    onInfiniteLoad={() => this.props.actionDispatcher(viewLineNextTrips(40))}>
+            {rows}
+          </Infinite>
+        </div>
       </div>
     )
   },

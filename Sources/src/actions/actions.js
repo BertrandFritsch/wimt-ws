@@ -205,8 +205,8 @@ export function newTripRealTimeState(trip, status) {
   return { type: REAL_TIME_TRIP, data: { trip, status } };
 }
 
-function viewLineAction(tripsGenerator) {
-  return { type: VIEW_LINE, data: { tripsGenerator } };
+function viewLineAction(departureStopLine, arrivalStopLine, tripsGenerator) {
+  return { type: VIEW_LINE, data: { departureStopLine, arrivalStopLine, tripsGenerator } };
 }
 
 function viewLineNextTripsAction(trips, states) {
@@ -220,7 +220,7 @@ function viewLineNextTripsAction(trips, states) {
  * @param arrivalStopLine {number} stop id
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
-  return viewLineAction(lineTripsGenerator(departureStopLine, arrivalStopLine));
+  return viewLineAction(departureStopLine, arrivalStopLine, lineTripsGenerator(departureStopLine, arrivalStopLine));
 }
 
 /**

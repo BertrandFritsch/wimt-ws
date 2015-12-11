@@ -5,3 +5,15 @@
 
     background-color: white;
 }
+
+.line-header {
+    white-space: nowrap;
+    line-height: 50px;
+    text-align: center;
+
+    font-weight: bold;
+}
+
+.line-header-separator {
+    margin: 0 10px;
+}

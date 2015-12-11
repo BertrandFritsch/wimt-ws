@@ -7,6 +7,8 @@ import SNCFData from '../SNCFData.js'
  * {
  *   trip: <trip-id>         // the current viewed trip details
  *   line: {                 // the current viewed line details
+ *     departureStop: <stop-id>,
+ *     arrivalStop: <stop-id>,
  *     generator: <line-trips-generator>,
  *     trips: [trip-id, ...]
  *   }
@@ -95,7 +97,7 @@ export function viewTrip(state = {}, action = {}) {
       });
 
     case VIEW_LINE:
-      return { line: { generator: action.data.tripsGenerator, trips: [] }, ...state };
+      return { line: { departureStop: action.data.departureStopLine, arrivalStop: action.data.arrivalStopLine, generator: action.data.tripsGenerator, trips: [] }, ...state };
 
     case VIEW_LINE_NEXT_TRIPS:
       return Object.assign({}, state, {
