@@ -70,7 +70,7 @@ const Line = React.createClass({
   onResize() {
     this.setState({
       containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
-    });
+    })
   }
 });
 

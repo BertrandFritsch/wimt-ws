@@ -23,16 +23,16 @@ class SelectedTrips extends React.Component {
       containerHeight: 250
     };
 
-    if (this.props.departureStop !== undefined) {
-      this.checkRealTimes(this.props);
-    }
+    //if (this.props.departureStop !== undefined) {
+    //  this.checkRealTimes(this.props);
+    //}
   }
 
-  componentWillUnmount = () => {
+  componentWillUnmount() {
     GridLayout.resizeListeners.remove(this.onResize);
   }
 
-  componentWillReceiveProps = (nextProps) => {
+  componentWillReceiveProps(nextProps) {
     var generator, rows;
 
     if (nextProps.departureStop !== this.props.departureStop || nextProps.arrivalStop !== this.props.arrivalStop) {
@@ -48,7 +48,7 @@ class SelectedTrips extends React.Component {
     }
   }
 
-  render = () => {
+  render() {
     return (
       <Infinite elementHeight={50}
                 containerHeight={this.state.containerHeight}
@@ -153,20 +153,20 @@ class SelectedTrips extends React.Component {
         rows.push(<DayHeaderRow key={date} date={date}/>);
       }
 
-      let realTime;
-      if (stopTimes[i].realTime) {
-        realTime = {
-          time: stopTimes[i].realTime.time,
-          mode: stopTimes[i].realTime.mode,
-          state: stopTimes[i].realTime.state
-        }
-      }
+      //let realTime;
+      //if (stopTimes[i].realTime) {
+      //  realTime = {
+      //    time: stopTimes[i].realTime.time,
+      //    mode: stopTimes[i].realTime.mode,
+      //    state: stopTimes[i].realTime.state
+      //  }
+      //}
 
       rows.push(<StopTimeRow key={++SelectedTrips.rowKeyGenerator}
+                             displayStopTime={SNCFData.getTripLastStopTime(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTimes[i].stopTime)))}
                              stopTime={stopTimes[i].stopTime}
-                             realTime={realTime}
-                             date={SNCFData.getTripDepartureDateByStopTime(stopTimes[i].stopTime, date)}
-                             onStopTimeSelected={this.props.onStopTimeSelected}/>)
+                             date={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTimes[i].stopTime), date)}
+                             onStopTimeSelected={this.props.onStopTimeSelected}/>);
     }
 
     return rows;
