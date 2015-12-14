@@ -5,11 +5,19 @@ import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
 import SNCFData from './../../SNCFData.js';
 import GridLayout from '../../gridlayout/gridlayout';
-import theme from './Line.css';
+import './Line.css';
 import { viewLineNextTrips, realTimeStateDisplay } from '../../actions/actions.js';
 import FontAwesome from 'react-fontawesome';
 
 const Line = React.createClass({
+  displayName: 'Line',
+
+  propTypes: {
+    viewTrip: React.PropTypes.any,
+    onStopTimeSelected: React.PropTypes.func,
+    actionDispatcher: React.PropTypes.func
+  },
+
   getInitialState() {
     return {
       containerHeight: 250
@@ -25,7 +33,7 @@ const Line = React.createClass({
   },
 
   render() {
-    const rows = (_ => {
+    const rows = (() => {
       let date;
       return this.props.viewTrip.line.trips.reduce((rows, e, index) => {
         if (date !== e.date) {
@@ -64,13 +72,13 @@ const Line = React.createClass({
           </Infinite>
         </div>
       </div>
-    )
+    );
   },
 
   onResize() {
     this.setState({
       containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
-    })
+    });
   }
 });
 
