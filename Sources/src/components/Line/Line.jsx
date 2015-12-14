@@ -10,8 +10,6 @@ import { viewLineNextTrips, realTimeStateDisplay } from '../../actions/actions.j
 import FontAwesome from 'react-fontawesome';
 
 const Line = React.createClass({
-  displayName: 'Line',
-
   propTypes: {
     viewTrip: React.PropTypes.any,
     onStopTimeSelected: React.PropTypes.func,
