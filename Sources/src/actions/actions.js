@@ -1,6 +1,6 @@
-﻿import SNCFData from '../SNCFData.js'
-import { tripStateSetUp } from './tripState.js'
-import { lineTripsGenerator } from './lineState.js'
+﻿import SNCFData from '../SNCFData.js';
+import { tripStateSetUp } from './tripState.js';
+import { lineTripsGenerator } from './lineState.js';
 
 /*
  * action types
@@ -33,14 +33,12 @@ export var RealTimeStatus = {
 
 /**
  * Format the date
- * @param date
- * @returns {String}
+ * @param {date} date the date to format
+ * @returns {String} the formatted date
  */
 function formatDate(date) {
-  const _1H = 1 * 60 * 60 * 1000;
-
   let today = new Date();
-  let midnight = (_ => {
+  let midnight = (() => {
     let d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     d.setDate(d.getDate() + 1);
     return d;
@@ -48,15 +46,14 @@ function formatDate(date) {
 
   let midnightTime = midnight.getTime();
   let time = date.getTime();
-  let now = today.getTime();
 
   if (time >= midnightTime) {
     // the date is later than today, show the date
-    return date.toLocaleString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
+    return date.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
   }
   else { //if (time - now >= _1H) {
     // the date is later than 1 hour from now, show the hours and minutes
-    return date.toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+    return date.toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
   //else {
   //  // the date is less than 1 hour, show the minutes
@@ -93,7 +90,7 @@ export function realTimeStateDisplay(state, showAtTime = true) {
  */
 
 export function updateDebuggingInfo(type, text) {
-  return { type: UPDATE_DEBUGGING_INFO, data: { type, text }};
+  return { type: UPDATE_DEBUGGING_INFO, data: { type, text } };
 }
 
 function viewTripAction(trip, endTripNotifier) {
@@ -108,19 +105,19 @@ function unviewTripAction() {
  * View trip details
  * Only one trip details can be viewed at a time
  *
- * @param trip {string} trip id
- * @param date {Date} the date the trip is running
- * @returns {Function}
+ * @param {string} trip trip id
+ * @param {Date} date the date the trip is running
+ * @returns {Function} internal redux function
  */
 export function viewTrip(trip, date) {
   return (dispatch, getState) => {
     dispatch(viewTripAction(trip, tripStateSetUp(trip, date, dispatch, getState)));
-  }
+  };
 }
 
 /**
  * Unview trip details
- * @returns {Function}
+ * @returns {Function} internal redux function
  */
 export function unviewTrip() {
   return (dispatch, getState) => {
@@ -132,14 +129,14 @@ export function unviewTrip() {
       state.viewTrip.tripsStates[trip].endTripNotifier();
       dispatch(unviewTripAction());
     }
-  }
+  };
 }
 
 /**
  * The trip is planned
- * @param trip {string} trip id
- * @param date {Date} The next time the trip will run
- * @returns {object}
+ * @param {string} trip trip id
+ * @param {Date} date The next time the trip will run
+ * @returns {object} The PLANNED_TRIP action
  */
 export function plannedTrip(trip, date) {
   return { type: PLANNED_TRIP, data: { trip, date } };
@@ -147,8 +144,8 @@ export function plannedTrip(trip, date) {
 
 /**
  * The trip is no longer planned
- * @param trip {string} trip id
- * @returns {object}
+ * @param {string} trip trip id
+ * @returns {object} The NOT_PLANNED_TRIP action
  */
 export function notPlannedTrip(trip) {
   return { type: NOT_PLANNED_TRIP, data: { trip } };
@@ -156,8 +153,8 @@ export function notPlannedTrip(trip) {
 
 /**
  * The trip has been cancelled
- * @param trip {string} trip id
- * @returns {object}
+ * @param {string} trip trip id
+ * @returns {object} The CANCELLED_TRIP action
  */
 export function cancelledTrip(trip) {
   return { type: CANCELLED_TRIP, data: { trip } };
@@ -165,9 +162,9 @@ export function cancelledTrip(trip) {
 
 /**
  * The trip has been delayed
- * @param trip {string} trip id
- * @param stopTime {Array} The next stop the train has to reach
- * @returns {object}
+ * @param {string} trip trip id
+ * @param {Array} stopTime The next stop the train has to reach
+ * @returns {object} The DELAYED_TRIP action
  */
 export function delayedTrip(trip, stopTime) {
   return { type: DELAYED_TRIP, data: { trip, stopTime } };
@@ -175,10 +172,10 @@ export function delayedTrip(trip, stopTime) {
 
 /**
  * the trip is running, it may not has been started yet, or it may have been arrived
- * @param trip {string} the trip id
- * @param stopTime {stopTime} the next stop to reach
- * @param time {number} the delayed time in mn
- * @returns {object}
+ * @param {string} trip the trip id
+ * @param {stopTime} stopTime the next stop to reach
+ * @param {number} time the delayed time in mn
+ * @returns {object} The RUNNING_TRIP action
  */
 export function runningTrip(trip, stopTime, time) {
   return { type: RUNNING_TRIP, data: { trip, stopTime, time } };
@@ -186,10 +183,10 @@ export function runningTrip(trip, stopTime, time) {
 
 /**
  * The trip has arrived
- * @param trip {string} the trip id
- * @param stopTime {stopTime} the last stop
- * @param time {number} the delayed time in mn
- * @returns {object}
+ * @param {string} trip the trip id
+ * @param {stopTime} stopTime the last stop
+ * @param {number} time the delayed time in mn
+ * @returns {object} The ARRIVED_TRIP action
  */
 export function arrivedTrip(trip, stopTime, time) {
   return { type: ARRIVED_TRIP, data: { trip, stopTime, time } };
@@ -197,9 +194,9 @@ export function arrivedTrip(trip, stopTime, time) {
 
 /**
  * Update the real time status
- * @param trip {string} the trip id
- * @param status {string} the real time status
- * @returns {object}
+ * @param {string} trip the trip id
+ * @param {string} status the real time status
+ * @returns {object} The REAL_TIME_TRIP action
  */
 export function newTripRealTimeState(trip, status) {
   return { type: REAL_TIME_TRIP, data: { trip, status } };
@@ -216,8 +213,9 @@ function viewLineNextTripsAction(trips, states) {
 /**
  * View line status
  *
- * @param departureStopLine {number} stop id
- * @param arrivalStopLine {number} stop id
+ * @param {number} departureStopLine stop id
+ * @param {number} arrivalStopLine stop id
+ * @returns {object} The VIEW_LINE action
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
   return viewLineAction(departureStopLine, arrivalStopLine, lineTripsGenerator(departureStopLine, arrivalStopLine));
@@ -225,24 +223,28 @@ export function viewLine(departureStopLine, arrivalStopLine) {
 
 /**
  * View next line trips
- * @param count {number} expected count of trips
- * @returns {Function}
+ * @param {number} count expected count of trips
+ * @returns {Function} internal redux function
  */
 export function viewLineNextTrips(count) {
   return (dispatch, getState) => {
     const viewTripState = getState().viewTrip;
     const trips = viewTripState.line.generator(count);
-    dispatch(viewLineNextTripsAction(trips.map(e => ({ trip: SNCFData.getTripId(e.trip), date: e.date })), trips.map(e => {
+    dispatch(viewLineNextTripsAction(trips.map(e => ({
+      trip: SNCFData.getTripId(e.trip),
+      date: e.date
+    })), trips.map(e => {
       return viewTripState.tripsStates && viewTripState.tripsStates[SNCFData.getTripId(e.trip)] || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
     })));
-  }
+  };
 }
 
 /**
  * View stop trips
  *
- * @param departureStop {number} stop id
- * @param arrivalStop {number} stop id
+ * @param {number} departureStop stop id
+ * @param {number} arrivalStop stop id
+ * @returns {object} The VIEW_STOP action
  */
 export function viewStop(departureStop, arrivalStop) {
   return { type: VIEW_STOP, data: { departureStop, arrivalStop } };
