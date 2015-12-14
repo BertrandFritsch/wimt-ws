@@ -102,7 +102,7 @@
     "react/react-in-jsx-scope": 1,
     "react/self-closing-comp": 1,
     "react/wrap-multilines": 1,
-    "semi": [2, "never"],
+    "semi": [2, "always"],
     "semi-spacing": 2,
     "strict": 2,
     "space-after-keywords": [2, "always"],
