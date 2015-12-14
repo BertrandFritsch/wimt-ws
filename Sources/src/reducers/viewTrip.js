@@ -53,14 +53,15 @@ export function viewTrip(state = {}, action = {}) {
       return (() => {
         const trip = SNCFData.getTripId(state.trip);
         const tripState = state.tripsStates[trip];
-        const newState = {
+        const newState = Object.assign({}, state, {
           tripsStates: Object.assign({}, state.tripsStates, {
             [trip]: {
               refs: tripState.refs - 1,
               ...tripState
             }
-          })
-        };
+          }) });
+
+        delete newState.trip;
 
         if (tripState.refs === 1) {
           delete newState.tripsStates[trip];
