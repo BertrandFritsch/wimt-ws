@@ -226,7 +226,6 @@ function getNextRunDate(trip, date) {
 
   // get the first running date in the period if the period starts before the first running exception
   // undefined is returned is no date has been found
-  /*eslint-disable *//* complexity *//* no-loop-func */
   startDay = (() => {
     if (startDay && (!firstRunningException || startDay < firstRunningException)) {
       endDay = Math.min(endDay, firstRunningException || endDay);
@@ -238,7 +237,6 @@ function getNextRunDate(trip, date) {
       }
     }
   })();
-  /*eslint-enable */
 
   // if no date has been found in the period, use the first running exception if any
   if (!startDay) {
@@ -280,5 +278,5 @@ export default {
   doesRunAt: doesRunAt,
   getNextRunDate: getNextRunDate,
   getDateByMinutes: getDateByMinutes,
-  getTripDepartureDateByStopTime: getTripDepartureDateByStopTime,
+  getTripDepartureDateByStopTime: getTripDepartureDateByStopTime
 };

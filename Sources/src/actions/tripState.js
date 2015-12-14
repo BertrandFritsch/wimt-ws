@@ -3,11 +3,6 @@ import RealTimeRequester from '../SNCFDataRTRequester.js';
 import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, delayedTrip, cancelledTrip, newTripRealTimeState } from './actions.js';
 import assert from 'assert';
 
-export function tripStateSetUp(trip, date, dispatch, getState) {
-  let state =  new RealTimeTrainState(trip, date, dispatch, getState);
-  return () => state.transition(RealTimeTrainState.Events.TERMINATE);
-}
-
 const _2H = 2 * 60 * 60 * 1000;
 const _1_5H = 1.5 * 60 * 60 * 1000;
 const _1H = 1 * 60 * 60 * 1000;
@@ -25,12 +20,12 @@ class RealTimeTrainState {
     this.getState = getState;
 
     assert(this.trip, "Missing trip!");
-    
+
     this.state = RealTimeTrainState.States.INITIAL_STATE;
 
-    setTimeout(_ => {
+    setTimeout(() => {
       this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.OFFLINE));
-      this.transition(RealTimeTrainState.Events.INITIAL_EVENT)
+      this.transition(RealTimeTrainState.Events.INITIAL_EVENT);
     }, 10);
   }
 
@@ -253,16 +248,36 @@ class RealTimeTrainState {
   }
 
   checkTripRealTime(stopTime) {
-    // TODO: handle the last stop case
     this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.CHECKING));
-    RealTimeRequester.get(SNCFData.getStopTimeStop(stopTime), SNCFData.getTripLastStop(this.trip), trains => {
-      this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, trains.find(train => train.number === SNCFData.getTripNumber(this.trip)));
-    });
+
+    const stop = SNCFData.getStopTimeStop(stopTime),
+          lastStop = SNCFData.getTripLastStop(this.trip);
+
+    if (stop === lastStop) {
+      // the real time requester cannot provide time for the last stop
+      // the last stop information is deduced from the previous time
+      // we assume that the is no delay that will occur until then
+      const state = this.getState().viewTrip.tripStates[SNCFData.getTripId(this.trip)];
+
+      setTimeout(() => {
+        this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, {
+          mode: 'T',
+          number: SNCFData.getTripNumber(this.trip),
+          state: '',
+          time: SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + (state.state && state.state.delayed || 0))
+        });
+      }, 1);
+    }
+    else {
+      RealTimeRequester.get(stop, lastStop, trains => {
+        this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, trains.find(train => train.number === SNCFData.getTripNumber(this.trip)));
+      });
+    }
   }
 
   nextCheckAt(duration, stopTime) {
-    console.log(`%c Next RT check in ${duration}ms, at ${new Date(Date.now() + duration).toLocaleString('fr-FR', {hour: '2-digit', minute: '2-digit', second: '2-digit'})}`, "color: #8A0000; font-weight: bold");
-    this.timeoutId = setTimeout(_ => {
+    console.log(`%c Next RT check in ${duration}ms, at ${new Date(Date.now() + duration).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`, "color: #8A0000; font-weight: bold");
+    this.timeoutId = setTimeout(() => {
       this.timeoutId = 0;
       this.transition(RealTimeTrainState.Events.TIMEOUT, stopTime, duration);
     }, duration);
@@ -278,7 +293,7 @@ class RealTimeTrainState {
   /**
    * Get the next planned stop the train has not already passed by
    * according to the accumulated delay
-   * @param delayed {Integer} Accumulated delay
+   * @param {Integer} delayed Accumulated delay
    */
   nextPlannedCheck(delayed) {
     let now = new Date();
@@ -350,9 +365,9 @@ class RealTimeTrainState {
 
   /**
    * Determine the next time the real time has to be checked
-   * @param date {Date} the next trip date
-   * @param initialCheck {boolean} true if its the initial check to immediately inform about the train status
-   * @returns {number}
+   * @param {Date} date the next trip date
+   * @param {boolean} initialCheck true if its the initial check to immediately inform about the train status
+   * @returns {number} the number of ms before the next check
    */
   static getNextCheckTimeout(date, initialCheck) {
     let time = date.getTime() - Date.now();
@@ -391,35 +406,44 @@ class RealTimeTrainState {
     }
   }
 
-  static States = {
-    TRIP_PLANNED: 'TRIP_PLANNED',
-    TRIP_RT_RUNNING: 'TRIP_RT_RUNNING',
-    TRIP_RT_NONE: 'TRIP_RT_NONE',       // the train has not been found at the current stop
-    TRIP_RUNNING: 'TRIP_RUNNING',       // the train is running but there is no real time data for now
-    INITIAL_STATE: 'INITIAL_STATE',
-    FINAL_STATE: 'FINAL_STATE',
-    TRIP_NOT_PLANNED: 'TRIP_NOT_PLANNED',         // the train is no longer planned
-    WAITING_FOR_NEXT_CHECK: 'WAITING_FOR_NEXT_CHECK',    // the train is not yet running
-    GETTING_REAL_TIME: 'GETTING_REAL_TIME',         // getting the real time of a station
-    GETTING_INITIAL_REAL_TIME: 'GETTING_INITIAL_REAL_TIME'  // getting the initial real time of a station
+  static get States() {
+    return {
+      TRIP_PLANNED: 'TRIP_PLANNED',
+      TRIP_RT_RUNNING: 'TRIP_RT_RUNNING',
+      TRIP_RT_NONE: 'TRIP_RT_NONE',       // the train has not been found at the current stop
+      TRIP_RUNNING: 'TRIP_RUNNING',       // the train is running but there is no real time data for now
+      INITIAL_STATE: 'INITIAL_STATE',
+      FINAL_STATE: 'FINAL_STATE',
+      TRIP_NOT_PLANNED: 'TRIP_NOT_PLANNED',         // the train is no longer planned
+      WAITING_FOR_NEXT_CHECK: 'WAITING_FOR_NEXT_CHECK',    // the train is not yet running
+      GETTING_REAL_TIME: 'GETTING_REAL_TIME',         // getting the real time of a station
+      GETTING_INITIAL_REAL_TIME: 'GETTING_INITIAL_REAL_TIME'  // getting the initial real time of a station
+    };
   }
 
-  static Events = {
-    INITIAL_EVENT: 'INITIAL_EVENT',         // initial event
-    TIMEOUT: 'TIMEOUT',
-    GOT_TRIP_REAL_TIME: 'GOT_TRIP_REAL_TIME',
-    TRIP_RT_RUNNING: 'TRIP_RT_RUNNING',
-    TRIP_RT_DELAYED: 'TRIP_RT_DELAYED',
-    TRIP_RT_NONE: 'TRIP_RT_NONE',         // no real time
-    TRIP_RUNNING: 'TRIP_RUNNING',
-    TRIP_ARRIVED: 'TRIP_ARRIVED',
-    TRIP_PLANNED: 'TRIP_PLANNED',      // the train is not longer planned
-    TRIP_NOT_PLANNED: 'TRIP_NOT_PLANNED',      // the train is not longer planned
-    WAIT_FOR_NEXT_CHECK: 'WAIT_FOR_NEXT_CHECK',    // time to check the real time of the train
-    GET_REAL_TIME: 'GET_REAL_TIME',          // get the real time of the train at the stop
-    TRIP_RT_CANCELLED: 'TRIP_RT_CANCELLED',         // train canceled, get the next occurrence of this trip
-    TRAIN_SCHEDULED: 'TRAIN_SCHEDULED',        // the train is scheduled at date, but has not started yet
-    TRAIN_NOT_SCHEDULED: 'TRAIN_NOT_SCHEDULED',    // the train is not scheduled at date
-    TERMINATE: 'TERMINATE'  // it's the end
+  static get Events() {
+    return {
+      INITIAL_EVENT: 'INITIAL_EVENT',         // initial event
+      TIMEOUT: 'TIMEOUT',
+      GOT_TRIP_REAL_TIME: 'GOT_TRIP_REAL_TIME',
+      TRIP_RT_RUNNING: 'TRIP_RT_RUNNING',
+      TRIP_RT_DELAYED: 'TRIP_RT_DELAYED',
+      TRIP_RT_NONE: 'TRIP_RT_NONE',         // no real time
+      TRIP_RUNNING: 'TRIP_RUNNING',
+      TRIP_ARRIVED: 'TRIP_ARRIVED',
+      TRIP_PLANNED: 'TRIP_PLANNED',      // the train is not longer planned
+      TRIP_NOT_PLANNED: 'TRIP_NOT_PLANNED',      // the train is not longer planned
+      WAIT_FOR_NEXT_CHECK: 'WAIT_FOR_NEXT_CHECK',    // time to check the real time of the train
+      GET_REAL_TIME: 'GET_REAL_TIME',          // get the real time of the train at the stop
+      TRIP_RT_CANCELLED: 'TRIP_RT_CANCELLED',         // train canceled, get the next occurrence of this trip
+      TRAIN_SCHEDULED: 'TRAIN_SCHEDULED',        // the train is scheduled at date, but has not started yet
+      TRAIN_NOT_SCHEDULED: 'TRAIN_NOT_SCHEDULED',    // the train is not scheduled at date
+      TERMINATE: 'TERMINATE'  // it's the end
+    };
   }
+}
+
+export function tripStateSetUp(trip, date, dispatch, getState) {
+  let state =  new RealTimeTrainState(trip, date, dispatch, getState);
+  return () => state.transition(RealTimeTrainState.Events.TERMINATE);
 }

@@ -4,23 +4,30 @@ import Trips from './../Trips/Trips';
 import Line from './../Line/Line';
 import Trip from './../Trip/Trip';
 import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
-import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx'
-import theme from './Main.css';
-import { connect } from 'react-redux'
+import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx';
+import './Main.css';
+import { connect } from 'react-redux';
 import { viewTrip, unviewTrip, viewStop } from '../../actions/actions.js';
 
-class Main extends React.Component {
-  constructor(props) {
-    super(props);
+const Main = React.createClass({
+  propTypes: {
+    debuggingInfo: React.PropTypes.any,
+    dispatch: React.PropTypes.func,
+    viewStop: React.PropTypes.any,
+    viewTrip: React.PropTypes.any
+  },
 
+  getInitialState() {
+    return {
+      stops: SNCFData.getStopsArray()
+    };
+  },
+
+  componentDidMount() {
     this.setUpHistoryNavigation();
-  }
+  },
 
-  state = {
-    stops: SNCFData.getStopsArray()
-  }
-
-  render = () => {
+  render() {
     return (
       <div className="root-container">
         <div id="gGridLayoutRoot" className="gLayoutMeasuring" data-g-layout-container="">
@@ -40,7 +47,7 @@ class Main extends React.Component {
                              onArrivalStopChange={stop => this.props.dispatch(viewStop(this.props.viewStop.departureStop, stop))}
                              onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
                     </LayoutContainer>
-                  )
+                  );
                 }
               })()}
               {(() => {
@@ -51,7 +58,7 @@ class Main extends React.Component {
                             viewTrip={this.props.viewTrip}
                             onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
                     </LayoutContainer>
-                  )
+                  );
                 }
               })()}
               {(() => {
@@ -59,14 +66,15 @@ class Main extends React.Component {
                   return (
                     <LayoutContainer>
                       <Trip actionDispatcher={this.props.dispatch} viewTrip={this.props.viewTrip}
-                            departureStop={this.props.viewStop.departureStop} arrivalStop={this.props.viewStop.arrivalStop}/>
+                            departureStop={this.props.viewStop.departureStop}
+                            arrivalStop={this.props.viewStop.arrivalStop}/>
                     </LayoutContainer>
-                  )
+                  );
                 }
               })()}
               {(() => {
                 if (this.state.stops.length === 0) {
-                  return <p>The data are loading...</p>
+                  return <p>The data are loading...</p>;
                 }
               })()}
             </div>
@@ -78,15 +86,15 @@ class Main extends React.Component {
                 <LayoutContainer>
                   <DebuggingRow debuggingInfo={this.props.debuggingInfo}/>
                 </LayoutContainer>
-              )
+              );
             }
           })()}</div>
         </div>
       </div>
-    )
-  }
+    );
+  },
 
-  setUpHistoryNavigation = () => {
+  setUpHistoryNavigation() {
     window.addEventListener('popstate', (event) => {
       event.preventDefault();
 
@@ -97,13 +105,13 @@ class Main extends React.Component {
         this.props.dispatch(viewTrip(event.state.trip, event.state.date));
       }
     });
-  }
+  },
 
-  onStopTimeSelected = (trip, date) => {
+  onStopTimeSelected(trip, date) {
     this.props.dispatch(viewTrip(trip, date));
-    window.history.pushState({trip, date}, "Voyage d'un train", `#trip=${trip}&date=${date.getTime()}`);
+    window.history.pushState({ trip, date }, "Voyage d'un train", `#trip=${trip}&date=${date.getTime()}`);
   }
-}
+});
 
 function select(state) {
   return state;
