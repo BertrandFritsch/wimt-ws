@@ -1,5 +1,5 @@
-﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS } from '../actions/actions.js'
-import SNCFData from '../SNCFData.js'
+﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS } from '../actions/actions.js';
+import SNCFData from '../SNCFData.js';
 
 /**
  * viewTrip structure
@@ -50,7 +50,7 @@ export function viewTrip(state = {}, action = {}) {
       };
 
     case UNVIEW_TRIP:
-      return (_ => {
+      return (() => {
         let trip = SNCFData.getTripId(state.trip);
         let refs = state.tripsStates[trip].refs - 1;
         let newState = {
@@ -70,22 +70,30 @@ export function viewTrip(state = {}, action = {}) {
       })();
 
     case PLANNED_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: PLANNED_TRIP, date: action.data.date});
+      return reduceByTripState(state, action.data.trip, { type: PLANNED_TRIP, date: action.data.date });
 
     case NOT_PLANNED_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: NOT_PLANNED_TRIP});
+      return reduceByTripState(state, action.data.trip, { type: NOT_PLANNED_TRIP });
 
     case CANCELLED_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: CANCELLED_TRIP});
+      return reduceByTripState(state, action.data.trip, { type: CANCELLED_TRIP });
 
     case DELAYED_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: DELAYED_TRIP, stopTime: action.data.stopTime});
+      return reduceByTripState(state, action.data.trip, { type: DELAYED_TRIP, stopTime: action.data.stopTime });
 
     case RUNNING_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: RUNNING_TRIP, stopTime: action.data.stopTime, delayed: action.data.time});
+      return reduceByTripState(state, action.data.trip, {
+        type: RUNNING_TRIP,
+        stopTime: action.data.stopTime,
+        delayed: action.data.time
+      });
 
     case ARRIVED_TRIP:
-      return reduceByTripState(state, action.data.trip, {type: ARRIVED_TRIP, stopTime: action.data.stopTime, delayed: action.data.time});
+      return reduceByTripState(state, action.data.trip, {
+        type: ARRIVED_TRIP,
+        stopTime: action.data.stopTime,
+        delayed: action.data.time
+      });
 
     case REAL_TIME_TRIP:
       return Object.assign({}, state, {
@@ -97,14 +105,21 @@ export function viewTrip(state = {}, action = {}) {
       });
 
     case VIEW_LINE:
-      return { line: { departureStop: action.data.departureStopLine, arrivalStop: action.data.arrivalStopLine, generator: action.data.tripsGenerator, trips: [] }, ...state };
+      return {
+        line: {
+          departureStop: action.data.departureStopLine,
+          arrivalStop: action.data.arrivalStopLine,
+          generator: action.data.tripsGenerator,
+          trips: []
+        }, ...state
+      };
 
     case VIEW_LINE_NEXT_TRIPS:
       return Object.assign({}, state, {
         line: Object.assign({}, state.line, {
-          trips: [...state.line.trips, ...action.data.trips]
+          trips: [ ...state.line.trips, ...action.data.trips ]
         }),
-        tripsStates: (_ => {
+        tripsStates: (() => {
           return action.data.states.reduce((r, s, index) => {
             const tripId = action.data.trips[index].trip;
             r[tripId] = {
@@ -113,7 +128,7 @@ export function viewTrip(state = {}, action = {}) {
             };
 
             return r;
-          }, state.tripsStates || {})
+          }, state.tripsStates || {});
         })()
       });
 
