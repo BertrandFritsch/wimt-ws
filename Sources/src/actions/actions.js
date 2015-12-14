@@ -127,8 +127,9 @@ export function unviewTrip() {
 
     if (state.viewTrip.tripsStates[trip].refs === 1) {
       state.viewTrip.tripsStates[trip].endTripNotifier();
-      dispatch(unviewTripAction());
     }
+
+    dispatch(unviewTripAction());
   };
 }
 

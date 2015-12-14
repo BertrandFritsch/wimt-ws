@@ -158,6 +158,12 @@ class RealTimeTrainState {
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
             break;
 
+          case RealTimeTrainState.Events.TRIP_ARRIVED:
+            // the end station has been reached
+            this.dispatch(arrivedTrip(this.trip, SNCFData.getTripLastStopTime(this.trip), this.getCurrentDelay()));
+            this.state = RealTimeTrainState.States.FINAL_STATE;
+            break;
+
           case RealTimeTrainState.Events.TRIP_RT_NONE:
             // no real time -- look for the train at the next stop -- switch to the TRIP_RT_NONE state to handle the response
             this.state = RealTimeTrainState.States.TRIP_RT_NONE;
@@ -250,22 +256,29 @@ class RealTimeTrainState {
   checkTripRealTime(stopTime) {
     this.dispatch(newTripRealTimeState(SNCFData.getTripId(this.trip), RealTimeStatus.CHECKING));
 
-    const stop = SNCFData.getStopTimeStop(stopTime),
+    const stop     = SNCFData.getStopTimeStop(stopTime),
           lastStop = SNCFData.getTripLastStop(this.trip);
 
     if (stop === lastStop) {
       // the real time requester cannot provide time for the last stop
       // the last stop information is deduced from the previous time
       // we assume that the is no delay that will occur until then
-      const state = this.getState().viewTrip.tripStates[SNCFData.getTripId(this.trip)];
+      const delay = this.getCurrentDelay();
 
       setTimeout(() => {
-        this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, {
-          mode: 'T',
-          number: SNCFData.getTripNumber(this.trip),
-          state: '',
-          time: SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + (state.state && state.state.delayed || 0))
-        });
+        const arrivalTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delay);
+
+        if (arrivalTime.getTime() > Date.now()) {
+          this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, {
+            mode: 'T',
+            number: SNCFData.getTripNumber(this.trip),
+            state: '',
+            time: arrivalTime
+          });
+        }
+        else {
+          this.transition(RealTimeTrainState.Events.TRIP_ARRIVED);
+        }
       }, 1);
     }
     else {
@@ -359,8 +372,8 @@ class RealTimeTrainState {
     let now = new Date();
 
     return now.getFullYear() === date.getFullYear()
-        && now.getMonth() === date.getMonth()
-        && now.getDay() === date.getDay();
+      && now.getMonth() === date.getMonth()
+      && now.getDay() === date.getDay();
   }
 
   /**
@@ -444,6 +457,6 @@ class RealTimeTrainState {
 }
 
 export function tripStateSetUp(trip, date, dispatch, getState) {
-  let state =  new RealTimeTrainState(trip, date, dispatch, getState);
+  let state = new RealTimeTrainState(trip, date, dispatch, getState);
   return () => state.transition(RealTimeTrainState.Events.TERMINATE);
 }

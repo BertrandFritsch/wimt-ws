@@ -39,7 +39,7 @@ function reduceByTripState(state, trip, tripState) {
 export function viewTrip(state = {}, action = {}) {
   switch (action.type) {
     case VIEW_TRIP:
-      return {
+      return Object.assign({}, state, {
         trip: SNCFData.getTripById(action.data.trip),
         tripsStates: Object.assign({}, state.tripsStates, {
           [action.data.trip]: {
@@ -47,22 +47,22 @@ export function viewTrip(state = {}, action = {}) {
             endTripNotifier: action.data.endTripNotifier
           }
         })
-      };
+      });
 
     case UNVIEW_TRIP:
       return (() => {
-        let trip = SNCFData.getTripId(state.trip);
-        let refs = state.tripsStates[trip].refs - 1;
-        let newState = {
-          tripsStates: Object.assign({}, state.tripsStates, refs > 0 ? {
+        const trip = SNCFData.getTripId(state.trip);
+        const tripState = state.tripsStates[trip];
+        const newState = {
+          tripsStates: Object.assign({}, state.tripsStates, {
             [trip]: {
-              refs: state.tripsStates[trip].refs - 1,
-              endTripNotifier: state.tripsStates[trip].endTripNotifier
+              refs: tripState.refs - 1,
+              ...tripState
             }
-          } : null)
+          })
         };
 
-        if (refs === 0) {
+        if (tripState.refs === 1) {
           delete newState.tripsStates[trip];
         }
 
