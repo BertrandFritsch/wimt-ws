@@ -160,7 +160,7 @@ class RealTimeTrainState {
 
           case RealTimeTrainState.Events.TRIP_ARRIVED:
             // the end station has been reached
-            this.dispatch(arrivedTrip(this.trip, SNCFData.getTripLastStopTime(this.trip), this.getCurrentDelay()));
+            this.dispatch(arrivedTrip(SNCFData.getTripId(this.trip), SNCFData.getTripLastStopTime(this.trip), this.getCurrentDelay()));
             this.state = RealTimeTrainState.States.FINAL_STATE;
             break;
 
@@ -212,7 +212,7 @@ class RealTimeTrainState {
 
           case RealTimeTrainState.Events.TRIP_ARRIVED:
             // the end station has been reached
-            this.dispatch(arrivedTrip(this.trip, SNCFData.getTripLastStopTime(this.trip), this.getCurrentDelay()));
+            this.dispatch(arrivedTrip(SNCFData.getTripId(this.trip), SNCFData.getTripLastStopTime(this.trip), this.getCurrentDelay()));
             this.state = RealTimeTrainState.States.FINAL_STATE;
             break;
 
