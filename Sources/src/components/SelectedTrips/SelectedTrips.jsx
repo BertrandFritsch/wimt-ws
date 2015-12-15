@@ -44,7 +44,7 @@ class SelectedTrips extends React.Component {
         rows: rows
       });
 
-      this.checkRealTimes(nextProps);
+      //this.checkRealTimes(nextProps);
     }
   }
 
