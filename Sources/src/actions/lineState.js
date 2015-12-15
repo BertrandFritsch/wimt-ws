@@ -1,7 +1,7 @@
 ﻿import SNCFData from '../SNCFData.js';
 
 export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
-  function* tripsGenerator() {
+  let tripsGenerator = (function* () {
     const minutesPerDay = 24 * 60;
     let trips = [];
     let date = new Date();
@@ -64,13 +64,17 @@ export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
         }
       }
     }
-  }
+  }());
 
-  return (count) => {
+  return count => {
     const trips = [];
-    for (let t of tripsGenerator()) {
-      trips.push(t);
-      if (--count <= 0) {
+    for (let i = 0; i < count; ++i) {
+      const item = tripsGenerator.next();
+      if (item.value !== undefined) {
+        trips.push(item.value);
+      }
+
+      if (item.done) {
         break;
       }
     }
