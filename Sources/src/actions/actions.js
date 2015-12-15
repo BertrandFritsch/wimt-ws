@@ -66,7 +66,7 @@ export function realTimeStateDisplay(state, showAtTime = true) {
   if (state) {
     switch (state.type) {
       case PLANNED_TRIP:
-        return formatDate(state.date);
+        return formatDate(new Date(state.time));
 
       case NOT_PLANNED_TRIP:
         return "Non planifié !";
@@ -94,8 +94,8 @@ export function updateDebuggingInfo(type, text) {
   return { type: UPDATE_DEBUGGING_INFO, data: { type, text } };
 }
 
-function viewTripAction(trip, endTripNotifier) {
-  return { type: VIEW_TRIP, data: { trip, endTripNotifier } };
+function viewTripAction(trip, date, endTripNotifier) {
+  return { type: VIEW_TRIP, data: { trip, date, endTripNotifier } };
 }
 
 function unviewTripAction() {
@@ -112,7 +112,7 @@ function unviewTripAction() {
  */
 export function viewTrip(trip, date) {
   return (dispatch, getState) => {
-    dispatch(viewTripAction(trip, ViewTripAccessor.create(getState()).states.getTripState(trip) || tripStateSetUp(trip, date, dispatch, getState)));
+    dispatch(viewTripAction(trip, date, ViewTripAccessor.create(getState().viewTrip).states.getEndTripNotifier(trip, date.getTime()) || tripStateSetUp(trip, date, dispatch, getState)));
   };
 }
 
@@ -123,11 +123,10 @@ export function viewTrip(trip, date) {
 export function unviewTrip() {
   return (dispatch, getState) => {
     // stop the trip state machine if no component does reference it anymore
-    let state = getState();
-    let trip = SNCFData.getTripId(state.viewTrip.trip);
+    let tripState = ViewTripAccessor.create(getState().viewTrip).trip.getState();
 
-    if (state.viewTrip.tripsStates[trip].refs === 1) {
-      state.viewTrip.tripsStates[trip].endTripNotifier();
+    if (tripState.refs === 1) {
+      tripState.endTripNotifier();
     }
 
     dispatch(unviewTripAction());
@@ -149,8 +148,8 @@ export function plannedTrip(trip, date) {
  * @param {string} trip trip id
  * @returns {object} The NOT_PLANNED_TRIP action
  */
-export function notPlannedTrip(trip) {
-  return { type: NOT_PLANNED_TRIP, data: { trip } };
+export function notPlannedTrip(trip, date) {
+  return { type: NOT_PLANNED_TRIP, data: { trip, date } };
 }
 
 /**
@@ -158,8 +157,8 @@ export function notPlannedTrip(trip) {
  * @param {string} trip trip id
  * @returns {object} The CANCELLED_TRIP action
  */
-export function cancelledTrip(trip) {
-  return { type: CANCELLED_TRIP, data: { trip } };
+export function cancelledTrip(trip, date) {
+  return { type: CANCELLED_TRIP, data: { trip, date } };
 }
 
 /**
@@ -168,8 +167,8 @@ export function cancelledTrip(trip) {
  * @param {Array} stopTime The next stop the train has to reach
  * @returns {object} The DELAYED_TRIP action
  */
-export function delayedTrip(trip, stopTime) {
-  return { type: DELAYED_TRIP, data: { trip, stopTime } };
+export function delayedTrip(trip, date, stopTime) {
+  return { type: DELAYED_TRIP, data: { trip, date, stopTime } };
 }
 
 /**
@@ -179,8 +178,8 @@ export function delayedTrip(trip, stopTime) {
  * @param {number} time the delayed time in mn
  * @returns {object} The RUNNING_TRIP action
  */
-export function runningTrip(trip, stopTime, time) {
-  return { type: RUNNING_TRIP, data: { trip, stopTime, time } };
+export function runningTrip(trip, date, stopTime, time) {
+  return { type: RUNNING_TRIP, data: { trip, date, stopTime, time } };
 }
 
 /**
@@ -190,8 +189,8 @@ export function runningTrip(trip, stopTime, time) {
  * @param {number} time the delayed time in mn
  * @returns {object} The ARRIVED_TRIP action
  */
-export function arrivedTrip(trip, stopTime, time) {
-  return { type: ARRIVED_TRIP, data: { trip, stopTime, time } };
+export function arrivedTrip(trip, date, stopTime, time) {
+  return { type: ARRIVED_TRIP, data: { trip, date, stopTime, time } };
 }
 
 /**
@@ -200,8 +199,8 @@ export function arrivedTrip(trip, stopTime, time) {
  * @param {string} status the real time status
  * @returns {object} The REAL_TIME_TRIP action
  */
-export function newTripRealTimeState(trip, status) {
-  return { type: REAL_TIME_TRIP, data: { trip, status } };
+export function newTripRealTimeState(trip, date, status) {
+  return { type: REAL_TIME_TRIP, data: { trip, date, status } };
 }
 
 function viewLineAction(departureStopLine, arrivalStopLine, tripsGenerator) {
@@ -230,13 +229,14 @@ export function viewLine(departureStopLine, arrivalStopLine) {
  */
 export function viewLineNextTrips(count) {
   return (dispatch, getState) => {
-    const viewTripState = getState().viewTrip;
-    const trips = viewTripState.line.generator(count);
+    const viewTrip = ViewTripAccessor.create(getState().viewTrip);
+    const trips = viewTrip.line.getGenerator()(count);
+
     dispatch(viewLineNextTripsAction(trips.map(e => ({
       trip: SNCFData.getTripId(e.trip),
       date: e.date
     })), trips.map(e => {
-      return viewTripState.tripsStates && viewTripState.tripsStates[SNCFData.getTripId(e.trip)] || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
+      return viewTrip.states.getEndTripNotifier(SNCFData.getTripId(e.trip), e.date.getTime()) || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
     })));
   };
 }

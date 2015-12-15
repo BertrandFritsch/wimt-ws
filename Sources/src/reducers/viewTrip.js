@@ -5,13 +5,16 @@ import SNCFData from '../SNCFData.js';
  * viewTrip structure
  *
  * {
- *   trip: <trip-id>         // the current viewed trip details
+ *   trip: {
+ *     trip: <trip-id>,        // the current viewed trip details
+ *     time: <trip time>       // the date when the trip is planned
+ *   },
  *   line: {                 // the current viewed line details
  *     departureStop: <stop-id>,
  *     arrivalStop: <stop-id>,
  *     generator: <line-trips-generator>,
  *     trips: [trip-id, ...]
- *   }
+ *   },
  *   tripsStates: {          // the set of watched trips
  *     <trip-id>: {
  *       refs: <number>,
@@ -26,46 +29,61 @@ import SNCFData from '../SNCFData.js';
  * }
  */
 
+function makeTripStateIndex(trip, time) {
+  return `${trip}-${time}`;
+}
+
 export let ViewTripAccessor = {
   create(state) {
     return {
       trip: {
         getTrip() {
-          return SNCFData.getTripById(state.viewTrip.trip);
+          return SNCFData.getTripById(state.trip.trip);
+        },
+        getTime() {
+          return state.trip.time;
+        },
+        getState() {
+          return ViewTripAccessor.create(state).states.getTripState(state.trip.trip, state.trip.time);
         }
       },
 
       line: {
-        getLineDepartureStop() {
-          return SNCFData.getStopById(state.viewTrip.line.departureStop);
+        getDepartureStop() {
+          return SNCFData.getStopById(state.line.departureStop);
         },
 
-        getLineArrivalStop() {
-          return SNCFData.getStopById(state.viewTrip.line.arrivalStop);
+        getArrivalStop() {
+          return SNCFData.getStopById(state.line.arrivalStop);
         },
 
-        getLineGenerator() {
-          return state.viewTrip.line.generator;
+        getGenerator() {
+          return state.line.generator;
         },
 
-        getLineTrips() {
-          return state.viewTrip.line.trips;
+        getTrips() {
+          return state.line.trips;
         }
       },
 
       states: {
-        getTripState(trip) {
-          return state.viewTrip.tripsStates && state.viewTrip.tripsStates[trip];
+        getTripState(trip, time) {
+          return state.tripsStates && state.tripsStates[makeTripStateIndex(trip, time)];
+        },
+        getEndTripNotifier(trip, time) {
+          return state.tripsStates && state.tripsStates[makeTripStateIndex(trip, time)] && state.tripsStates[makeTripStateIndex(trip, time)].endTripNodifier;
         }
       }
     };
   }
 };
 
-function reduceByTripState(state, trip, tripState) {
+function reduceByTripState(state, trip, time, tripState) {
+  const tripStateIndex = makeTripStateIndex(trip, time);
+
   return Object.assign({}, state, {
     tripsStates: Object.assign({}, state.tripsStates, {
-      [trip]: Object.assign({}, state.tripsStates[trip], {
+      [tripStateIndex]: Object.assign({}, state.tripsStates[tripStateIndex], {
         state: tripState
       })
     })
@@ -75,23 +93,29 @@ function reduceByTripState(state, trip, tripState) {
 export function viewTrip(state = {}, action = {}) {
   switch (action.type) {
     case VIEW_TRIP:
-      return Object.assign({}, state, {
-        trip: SNCFData.getTripById(action.data.trip),
-        tripsStates: Object.assign({}, state.tripsStates, {
-          [action.data.trip]: Object.assign({}, state.tripsStates && state.tripsStates[action.data.trip], {
-            refs: (state.tripsStates && state.tripsStates[action.data.trip] && state.tripsStates[action.data.trip].refs || 0) + 1,
-            endTripNotifier: action.data.endTripNotifier
+      return (() => {
+        let tripStateIndex = makeTripStateIndex(action.data.trip, action.data.date.getTime());
+        let tripState = state.tripsStates && state.tripsStates[tripStateIndex];
+
+        return Object.assign({}, state, {
+          trip: { trip: action.data.trip, time: action.data.date.getTime() },
+          tripsStates: Object.assign({}, state.tripsStates, {
+            [tripStateIndex]: Object.assign({}, tripState, {
+              refs: (tripState && tripState.refs || 0) + 1,
+              endTripNotifier: action.data.endTripNotifier
+            })
           })
-        })
-      });
+        });
+      })();
 
     case UNVIEW_TRIP:
       return (() => {
-        const trip = SNCFData.getTripId(state.trip);
-        const tripState = state.tripsStates[trip];
+        const trip = state.trip.trip;
+        const time = state.trip.time;
+        const tripState = ViewTripAccessor.create(state).trip.getState();
         const newState = Object.assign({}, state, {
           tripsStates: Object.assign({}, state.tripsStates, {
-            [trip]: {
+            [makeTripStateIndex(trip, time)]: {
               refs: tripState.refs - 1,
               ...tripState
             }
@@ -107,39 +131,44 @@ export function viewTrip(state = {}, action = {}) {
       })();
 
     case PLANNED_TRIP:
-      return reduceByTripState(state, action.data.trip, { type: PLANNED_TRIP, date: action.data.date });
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), { type: PLANNED_TRIP, time: action.data.date.getTime() });
 
     case NOT_PLANNED_TRIP:
-      return reduceByTripState(state, action.data.trip, { type: NOT_PLANNED_TRIP });
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), { type: NOT_PLANNED_TRIP });
 
     case CANCELLED_TRIP:
-      return reduceByTripState(state, action.data.trip, { type: CANCELLED_TRIP });
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), { type: CANCELLED_TRIP });
 
     case DELAYED_TRIP:
-      return reduceByTripState(state, action.data.trip, { type: DELAYED_TRIP, stopTime: action.data.stopTime });
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), { type: DELAYED_TRIP, stopTime: action.data.stopTime });
 
     case RUNNING_TRIP:
-      return reduceByTripState(state, action.data.trip, {
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), {
         type: RUNNING_TRIP,
         stopTime: action.data.stopTime,
         delayed: action.data.time
       });
 
     case ARRIVED_TRIP:
-      return reduceByTripState(state, action.data.trip, {
+      return reduceByTripState(state, action.data.trip, action.data.date.getTime(), {
         type: ARRIVED_TRIP,
         stopTime: action.data.stopTime,
         delayed: action.data.time
       });
 
     case REAL_TIME_TRIP:
-      return Object.assign({}, state, {
-        tripsStates: Object.assign({}, state.tripsStates, {
-          [action.data.trip]: Object.assign({}, state.tripsStates[action.data.trip], {
-            realTimeStatus: action.data.status
+      return (() => {
+        const tripStateIndex = makeTripStateIndex(action.data.trip, action.data.date.getTime());
+
+        return Object.assign({}, state, {
+          tripsStates: Object.assign({}, state.tripsStates, {
+            [tripStateIndex]: Object.assign({}, state.tripsStates[tripStateIndex], {
+              realTimeStatus: action.data.status
+            })
           })
-        })
-      });
+        });
+      })();
+
 
     case VIEW_LINE:
       return {

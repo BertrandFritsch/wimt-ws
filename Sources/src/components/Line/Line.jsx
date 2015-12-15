@@ -8,6 +8,7 @@ import GridLayout from '../../gridlayout/gridlayout';
 import './Line.css';
 import { viewLineNextTrips, realTimeStateDisplay } from '../../actions/actions.js';
 import FontAwesome from 'react-fontawesome';
+import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 
 const Line = React.createClass({
   propTypes: {
@@ -31,17 +32,19 @@ const Line = React.createClass({
   },
 
   render() {
+    const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
     const rows = (() => {
       let date;
-      return this.props.viewTrip.line.trips.reduce((rows, e, index) => {
+
+      return viewTrip.line.getTrips().reduce((rows, e, index) => {
         if (date !== e.date) {
           date = e.date;
           rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
         }
 
         const trip = SNCFData.getTripById(e.trip);
-        const tripState = this.props.viewTrip.tripsStates && this.props.viewTrip.tripsStates[e.trip];
-        let stopStopTime = tripState.state && tripState.state.stopTime || SNCFData.getTripFirstStopTime(trip);
+        const tripState = viewTrip.states.getTripState(e.trip, e.date.getTime());
+        let stopStopTime = tripState && tripState.state && tripState.state.stopTime || SNCFData.getTripFirstStopTime(trip);
         let tripStopTime = SNCFData.getStopStopTimeByTrip(SNCFData.getStopTimeStop(stopStopTime), trip);
 
         rows.push(<StopTimeRow key={index}
@@ -59,7 +62,7 @@ const Line = React.createClass({
     return (
       <div data-g-layout-container='' className="line-frame">
         <div data-g-layout-item='"row": 0'>
-          <div className="line-header">{SNCFData.getStopName(SNCFData.getStopById(this.props.viewTrip.line.departureStop))}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{SNCFData.getStopName(SNCFData.getStopById(this.props.viewTrip.line.arrivalStop))}</div>
+          <div className="line-header">{SNCFData.getStopName(viewTrip.line.getDepartureStop())}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{SNCFData.getStopName(viewTrip.line.getArrivalStop())}</div>
         </div>
         <div className="line-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
           <Infinite elementHeight={50}
