@@ -1,4 +1,4 @@
-﻿import SNCFData from '../SNCFData.js'
+﻿import SNCFData from '../SNCFData.js';
 
 export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
   function* tripsGenerator() {
@@ -44,7 +44,7 @@ export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
 
       // use startCursor to prevent infinite cycling
 
-      for (let startCursor = cursor ;; ) {
+      for (let startCursor = cursor; true;) {
         if (cursor === trips.length) {
           cursor = 0;
           date = new Date(date.getTime());
@@ -68,11 +68,13 @@ export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
 
   return (count) => {
     const trips = [];
-    for (const t of tripsGenerator()) {
+    for (let t of tripsGenerator()) {
       trips.push(t);
-      if (--count <= 0) break;
+      if (--count <= 0) {
+        break;
+      }
     }
 
     return trips;
-  }
+  };
 }
