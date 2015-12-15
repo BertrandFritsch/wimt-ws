@@ -16,7 +16,9 @@ const Trip = React.createClass({
   },
 
   getInitialState() {
-    return { initialTrainPosition: true };
+    return {
+      showTrainPosition: 0
+    };
   },
 
   componentWillMount() {
@@ -24,7 +26,7 @@ const Trip = React.createClass({
   },
 
   componentWillUnmount() {
-    this.cancelSecondTrainPosition = true;
+    this.cancelTrainPosition = true;
     GridLayout.resizeListeners.remove(this.onResize);
   },
 
@@ -77,28 +79,33 @@ const Trip = React.createClass({
                 let delayed = isRunning ? tripState.state.delayed : 0;
                 let tripTrainStyles = null;
                 let hasTrainPosition = hasTripState && (isRunning || tripState.state.type === DELAYED_TRIP);
-                if (hasTrainPosition) {
-                  let stopTimeTime = SNCFData.getStopTimeTime(tripState.state.stopTime) + delayed - stopTimeTime0;
-                  let stopTimePosition = stopTimeTime * PIXELS_PER_MINUTE;
-                  let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
-                  let nowPosition = now * PIXELS_PER_MINUTE;
-                  //let trainPosition = (this.state.trainPosition || 0) * PIXELS_PER_MINUTE;
-                  //if (trainPosition > 0 && this.initialTrainPositionning && this.refs.tripScrollEl) {
-                  //  $(this.refs.tripScrollEl).animate({ scrollTop: `${trainPosition}px` }, 2000);
-                  //}
+                if (this.state.showTrainPosition) {
+                  if (hasTrainPosition) {
+                    let stopTimeTime = SNCFData.getStopTimeTime(tripState.state.stopTime) + delayed - stopTimeTime0;
+                    let stopTimePosition = stopTimeTime * PIXELS_PER_MINUTE;
+                    let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
+                    let nowPosition = now * PIXELS_PER_MINUTE;
+                    //let trainPosition = (this.state.trainPosition || 0) * PIXELS_PER_MINUTE;
+                    //if (trainPosition > 0 && this.initialTrainPositionning && this.refs.tripScrollEl) {
+                    //  $(this.refs.tripScrollEl).animate({ scrollTop: `${trainPosition}px` }, 2000);
+                    //}
 
 
-                  if (this.state.initialTrainPosition) {
-                    this.registerInitialTrainPosition(2000);
+                    if (this.state.showTrainPosition === 1) {
+                      this.registerInitialTrainPosition(2000).then(() => this.setState({ showTrainPosition: 2 }));
+                    }
+
+                    tripTrainStyles = {
+                      transitionDuration: `${this.state.showTrainPosition === 1 ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000}ms`,
+                      transform: `translateY(${this.state.showTrainPosition === 1 ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition}px)`
+                    };
                   }
-
-                  tripTrainStyles = {
-                    transitionDuration: `${this.state.initialTrainPosition ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000}ms`,
-                    transform: `translateY(${this.state.initialTrainPosition ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition}px)`
-                  };
+                }
+                else {
+                  this.registerInitialTrainPosition(10).then(() => this.setState({ showTrainPosition: 1 }));
                 }
 
-                let tripClasses = [ 'trip-train-frame', hasTrainPosition ? this.state.initialTrainPosition ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation' : '' ].join(' ');
+                let tripClasses = [ 'trip-train-frame', hasTrainPosition ? this.state.showTrainPosition === 1 ? 'trip-train-position-initial-animation' : 'trip-train-position-progression-animation' : '' ].join(' ');
                 let trainClasses = hasTrainPosition ? 'trip-train-position' : null;
 
                 return (
@@ -125,12 +132,16 @@ const Trip = React.createClass({
   },
 
   registerInitialTrainPosition(timeout) {
-    setTimeout(() => {
-      if (!this.cancelSecondTrainPosition) {
-        this.setState({ initialTrainPosition: false });
-      }
-    }, timeout);
-    this.cancelSecondTrainPosition = false;
+    let promise = new Promise(resolve => {
+      setTimeout(() => {
+        if (!this.cancelTrainPosition) {
+          resolve();
+        }
+      }, timeout);
+    });
+
+    this.cancelTrainPosition = false;
+    return promise;
   }
 });
 

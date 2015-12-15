@@ -1,6 +1,7 @@
 ﻿import SNCFData from '../SNCFData.js';
 import { tripStateSetUp } from './tripState.js';
 import { lineTripsGenerator } from './lineState.js';
+import { ViewTripAccessor } from '../reducers/viewTrip.js';
 
 /*
  * action types
@@ -111,7 +112,7 @@ function unviewTripAction() {
  */
 export function viewTrip(trip, date) {
   return (dispatch, getState) => {
-    dispatch(viewTripAction(trip, tripStateSetUp(trip, date, dispatch, getState)));
+    dispatch(viewTripAction(trip, ViewTripAccessor.create(getState()).states.getTripState(trip) || tripStateSetUp(trip, date, dispatch, getState)));
   };
 }
 

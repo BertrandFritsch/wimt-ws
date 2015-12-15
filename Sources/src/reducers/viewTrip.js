@@ -26,6 +26,42 @@ import SNCFData from '../SNCFData.js';
  * }
  */
 
+export let ViewTripAccessor = {
+  create(state) {
+    return {
+      trip: {
+        getTrip() {
+          return SNCFData.getTripById(state.viewTrip.trip);
+        }
+      },
+
+      line: {
+        getLineDepartureStop() {
+          return SNCFData.getStopById(state.viewTrip.line.departureStop);
+        },
+
+        getLineArrivalStop() {
+          return SNCFData.getStopById(state.viewTrip.line.arrivalStop);
+        },
+
+        getLineGenerator() {
+          return state.viewTrip.line.generator;
+        },
+
+        getLineTrips() {
+          return state.viewTrip.line.trips;
+        }
+      },
+
+      states: {
+        getTripState(trip) {
+          return state.viewTrip.tripsStates && state.viewTrip.tripsStates[trip];
+        }
+      }
+    };
+  }
+};
+
 function reduceByTripState(state, trip, tripState) {
   return Object.assign({}, state, {
     tripsStates: Object.assign({}, state.tripsStates, {
@@ -42,10 +78,10 @@ export function viewTrip(state = {}, action = {}) {
       return Object.assign({}, state, {
         trip: SNCFData.getTripById(action.data.trip),
         tripsStates: Object.assign({}, state.tripsStates, {
-          [action.data.trip]: {
+          [action.data.trip]: Object.assign({}, state.tripsStates && state.tripsStates[action.data.trip], {
             refs: (state.tripsStates && state.tripsStates[action.data.trip] && state.tripsStates[action.data.trip].refs || 0) + 1,
             endTripNotifier: action.data.endTripNotifier
-          }
+          })
         })
       });
 
@@ -137,4 +173,3 @@ export function viewTrip(state = {}, action = {}) {
       return state;
   }
 }
-
