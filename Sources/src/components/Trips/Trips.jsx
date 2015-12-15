@@ -2,30 +2,33 @@
 import AutoCompleteSelector from './../AutoCompleteSelector/AutoCompleteSelector';
 import SelectedTrips from './../SelectedTrips/SelectedTrips';
 import SNCFData from './../../SNCFData';
-import theme from './Trips.css';
+import './Trips.css';
 
-class Trips extends React.Component {
-  constructor(props) { super(props); }
+let Trips = React.createClass({
+  propTypes: {
+    stops: React.PropTypes.arrayOf(React.PropTypes.array).isRequired,
+    departureStop: React.PropTypes.array,
+    arrivalStop: React.PropTypes.array,
+    onStopTimeSelected: React.PropTypes.func
+  },
 
-  render = () => {
-    var departureStops = this.props.stops,
-        arrivalStops,
-        startStopTimes;
+  render() {
+    var departureStops = this.props.stops;
 
     let onStopChange = (stop, eventToCall) => {
-      var index;
-
       //TODO: ensure the name has been found
       this.props[eventToCall](stop);
-    }
+    };
 
     let onDepartureStopChange = (stop) => {
       onStopChange(stop, 'onDepartureStopChange');
-    }
+    };
 
     let onArrivalStopChange = (stop) => {
       onStopChange(stop, 'onArrivalStopChange');
-    }
+    };
+
+    let arrivalStops, startStopTimes;
 
     if (this.props.departureStop) {
       // filter the possible arrival stops
@@ -38,13 +41,11 @@ class Trips extends React.Component {
             }
 
             return res;
-          }, res)
+          }, res);
         }, {});
 
         // use the initial stops list to keep the arrival stop list sorted
-        return departureStops.filter(function (stop) {
-          return stopsMap[SNCFData.getStopUICCode(stop)] !== undefined;
-        });
+        return departureStops.filter(stop => stopsMap[SNCFData.getStopUICCode(stop)] !== undefined);
       })();
 
       startStopTimes = SNCFData.getStopTrips(this.props.departureStop);
@@ -62,28 +63,28 @@ class Trips extends React.Component {
     }
 
     return (
-        <div data-g-layout-container='' className="trips-frame">
-          <div data-g-layout-item='"row": 0'>
-            <AutoCompleteSelector placeholder="De..."
-                                  data={departureStops}
-                                  value={this.props.departureStop}
-                                  onStopChange={onDepartureStopChange} />
-          </div>
-          <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
-            <SelectedTrips departureStop={this.props.departureStop}
-                           startStopTimes={startStopTimes}
-                           arrivalStop={this.props.arrivalStop}
-                           onStopTimeSelected={this.props.onStopTimeSelected}/>
-          </div>
-          <div data-g-layout-item='"row": 2'>
-            <AutoCompleteSelector placeholder="Vers..."
-                                  data={arrivalStops}
-                                  value={this.props.arrivalStop}
-                                  onStopChange={onArrivalStopChange} />
-          </div>
+      <div data-g-layout-container='' className="trips-frame">
+        <div data-g-layout-item='"row": 0'>
+          <AutoCompleteSelector placeholder="De..."
+                                data={departureStops}
+                                value={this.props.departureStop}
+                                onStopChange={onDepartureStopChange}/>
         </div>
-      )
+        <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
+          <SelectedTrips departureStop={this.props.departureStop}
+                         startStopTimes={startStopTimes}
+                         arrivalStop={this.props.arrivalStop}
+                         onStopTimeSelected={this.props.onStopTimeSelected}/>
+        </div>
+        <div data-g-layout-item='"row": 2'>
+          <AutoCompleteSelector placeholder="Vers..."
+                                data={arrivalStops}
+                                value={this.props.arrivalStop}
+                                onStopChange={onArrivalStopChange}/>
+        </div>
+      </div>
+    );
   }
-}
+});
 
 export default Trips;
