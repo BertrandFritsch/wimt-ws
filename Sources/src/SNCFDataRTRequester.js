@@ -3,7 +3,7 @@ import assert from 'assert';
 
 //TODO: clean the cache periodically by removing the entries that have not been requested after N mn
 
-const freshingDelay = 10 * 1000; // 10 s
+const freshingDelay = 30 * 1000; // 30 s
 const Requests = {};
 
 function parseRealTime(time) {
