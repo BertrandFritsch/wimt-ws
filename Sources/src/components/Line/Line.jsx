@@ -62,7 +62,7 @@ const Line = React.createClass({
     return (
       <div data-g-layout-container='' className="line-frame">
         <div data-g-layout-item='"row": 0'>
-          <div className="line-header">{SNCFData.getStopName(viewTrip.line.getDepartureStop())}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{SNCFData.getStopName(viewTrip.line.getArrivalStop())}</div>
+          <div className="line-header">{viewTrip.line.getDepartureStop() && SNCFData.getStopName(viewTrip.line.getDepartureStop())}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{viewTrip.line.getArrivalStop() && SNCFData.getStopName(viewTrip.line.getArrivalStop())}</div>
         </div>
         <div className="line-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
           <Infinite elementHeight={50}
