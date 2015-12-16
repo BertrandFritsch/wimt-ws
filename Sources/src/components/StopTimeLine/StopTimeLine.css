@@ -1,0 +1,74 @@
+﻿
+.stop-time-line {
+  position: relative;
+  display: block;
+  height: 50px;
+}
+
+.stop-time-line:hover {
+  background-color: silver;
+}
+
+.stop-time-line-timeline {
+  position: absolute;
+  top: 40px;
+  width: 100%;
+  height: 1px;
+  background-color: rgb(204, 204, 204);
+}
+
+.stop-time-line-stop-container {
+  position: relative;
+  height: 100%;
+  margin: 0 10px;
+}
+
+.stop-time-line-stop {
+  position: absolute;
+  display: block;
+  top: -2.5px;
+  left: -2.5px;
+  width: 5px;
+  height: 5px;
+  background-color: rgb(200, 200, 200);
+}
+
+.stop-time-line-train-position {
+  position: absolute;
+  top: -2.5px;
+  left: -2.5px;
+  width: 5px;
+  height: 5px;
+  background-color: red;
+}
+
+.stop-time-line-train-position-initial-animation {
+  transition-timing-function: ease-out;
+}
+
+.stop-time-line-train-position-progression-animation {
+  transition-timing-function: linear;
+}
+
+.stop-time-line-text-container {
+  display: table;
+  width: 100%;
+  height: 50px;
+}
+
+.stop-time-line-text-container > * {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.stop-time-line-container {
+  white-space: nowrap;
+  font-size: 9pt;
+}
+
+.stop-time-line-state {
+  width: 100%;
+  white-space: nowrap;
+  text-align: right;
+  padding-right: 5px;
+}
