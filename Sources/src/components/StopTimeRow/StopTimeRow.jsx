@@ -47,8 +47,7 @@ const StopTimeRow = React.createClass({
            onClick={() => this.props.onStopTimeSelected(this.props.stopTime, this.props.date)}>
         <span className="stop-time-row-time">{hours}:{minutes}</span>
         <span className="stop-time-row-time-separator"/>
-      <span
-        className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getTrip(SNCFData.getStopTimeTrip(this.props.stopTime)))} - {SNCFData.getTripNumber(SNCFData.getTrip(SNCFData.getStopTimeTrip(this.props.stopTime)))} - {displayStop}</span>
+        <span className="stop-time-row-container">{SNCFData.getTripMission(SNCFData.getTrip(SNCFData.getStopTimeTrip(this.props.stopTime)))} - {SNCFData.getTripNumber(SNCFData.getTrip(SNCFData.getStopTimeTrip(this.props.stopTime)))} - {displayStop}</span>
         <span className="stop-time-row-state">{this.props.realTimeState}</span>
       </div>
     );

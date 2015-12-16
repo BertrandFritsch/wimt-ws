@@ -56,7 +56,7 @@ const Main = React.createClass({
                     <LayoutContainer>
                       <Line actionDispatcher={this.props.dispatch}
                             viewTrip={this.props.viewTrip}
-                            onStopTimeSelected={(stopTime, date) => this.onStopTimeSelected(SNCFData.getTripId(SNCFData.getTrip(SNCFData.getStopTimeTrip(stopTime))), date)}/>
+                            onStopTimeSelected={(trip, date) => this.onStopTimeSelected(trip, date)}/>
                     </LayoutContainer>
                   );
                 }

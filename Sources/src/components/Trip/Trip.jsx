@@ -1,8 +1,6 @@
 ﻿import React from 'react';
-import ReactDOM from 'react-dom';
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
-import GridLayout from '../../gridlayout/gridlayout';
 import SNCFData from '../../SNCFData.js';
 //import { updateDebuggingInfo } from '../../actions/actions.js';
 import { realTimeStateDisplay, DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
@@ -22,13 +20,8 @@ const Trip = React.createClass({
     };
   },
 
-  componentWillMount() {
-    GridLayout.resizeListeners.add(this.onResize);
-  },
-
   componentWillUnmount() {
     this.cancelTrainPosition = true;
-    GridLayout.resizeListeners.remove(this.onResize);
   },
 
   render() {
@@ -45,7 +38,7 @@ const Trip = React.createClass({
 
       return {
         trainHasPassedBy: false && !stopTimeReached,
-        delayedMinutes: stopTimeReached ? (tripState.state.delayed || 0) : 0,
+        delayedMinutes: stopTimeReached && this.state.showTrainPosition > 0 ? (tripState.state.delayed || 0) : 0,
         delayed: stopTimeReached ? tripState.state.delayed !== 0 : false
       };
     });
@@ -94,7 +87,7 @@ const Trip = React.createClass({
                     //}
 
 
-                    if (this.state.showTrainPosition === 1) {
+                    if (this.state.showTrainPosition === 1 && !this.initialTrainPositionPromise) {
                       this.registerInitialTrainPosition(2000).then(() => this.setState({ showTrainPosition: 2 }));
                     }
 
@@ -102,9 +95,10 @@ const Trip = React.createClass({
                       transitionDuration: `${this.state.showTrainPosition === 1 ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000}ms`,
                       transform: `translateY(${this.state.showTrainPosition === 1 ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition}px)`
                     };
+                    console.log('showTrainPosition: ', this.state.showTrainPosition, ' - ', this.state.showTrainPosition === 1 ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition);
                   }
                 }
-                else {
+                else if (!this.initialTrainPositionPromise) {
                   this.registerInitialTrainPosition(10).then(() => this.setState({ showTrainPosition: 1 }));
                 }
 
@@ -128,23 +122,18 @@ const Trip = React.createClass({
     );
   },
 
-  onResize() {
-    this.setState({
-      containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
-    });
-  },
-
   registerInitialTrainPosition(timeout) {
-    let promise = new Promise(resolve => {
+    console.log('showTrainPosition: ', this.state.showTrainPosition, ' - ', 'timeout: ', timeout);
+    this.initialTrainPositionPromise = new Promise(resolve => {
       setTimeout(() => {
+        delete this.initialTrainPositionPromise;
         if (!this.cancelTrainPosition) {
           resolve();
         }
       }, timeout);
     });
-
     this.cancelTrainPosition = false;
-    return promise;
+    return this.initialTrainPositionPromise;
   }
 });
 

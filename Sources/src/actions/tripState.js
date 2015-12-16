@@ -30,8 +30,8 @@ class RealTimeTrainState {
   }
 
   transition(event, param1, param2) {
-    console.group("RealTimeTrainState.transition");
-    console.log(`%c State: ${this.state} - Event: ${event}`, "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#8A0000" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
+    //console.group("RealTimeTrainState.transition");
+    //console.log(`%c State: ${this.state} - Event: ${event}`, "color: " + (event === RealTimeTrainState.Events.TIMEOUT ? "#8A0000" : "#03A9F4") + "; font-weight: bold", { param1, param2 });
     switch (this.state) {
       case RealTimeTrainState.States.INITIAL_STATE:
         switch (event) {
@@ -228,8 +228,8 @@ class RealTimeTrainState {
       default:
         this.invalidTransitionEvent(event);
     }
-    console.log(`State: ${this.state}`);
-    console.groupEnd();
+    //console.log(`State: ${this.state}`);
+    //console.groupEnd();
   }
 
   invalidTransitionEvent(event) {
@@ -289,7 +289,7 @@ class RealTimeTrainState {
   }
 
   nextCheckAt(duration, stopTime) {
-    console.log(`%c Next RT check in ${duration}ms, at ${new Date(Date.now() + duration).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`, "color: #8A0000; font-weight: bold");
+    //console.log(`%c Next RT check in ${duration}ms, at ${new Date(Date.now() + duration).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`, "color: #8A0000; font-weight: bold");
     this.timeoutId = setTimeout(() => {
       this.timeoutId = 0;
       this.transition(RealTimeTrainState.Events.TIMEOUT, stopTime, duration);

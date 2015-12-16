@@ -1,12 +1,12 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
 import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
-import StopTimeRow from './../StopTimeRow/StopTimeRow';
+import StopTimeLine from './../StopTimeLine/StopTimeLine';
 import Infinite from 'react-infinite';
 import SNCFData from './../../SNCFData.js';
 import GridLayout from '../../gridlayout/gridlayout';
 import './Line.css';
-import { viewLineNextTrips, realTimeStateDisplay } from '../../actions/actions.js';
+import { viewLineNextTrips } from '../../actions/actions.js';
 import FontAwesome from 'react-fontawesome';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 
@@ -42,17 +42,11 @@ const Line = React.createClass({
           rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
         }
 
-        const trip = SNCFData.getTripById(e.trip);
-        const tripState = viewTrip.states.getTripState(e.trip, e.date.getTime());
-        let stopStopTime = tripState && tripState.state && tripState.state.stopTime || SNCFData.getTripFirstStopTime(trip);
-        let tripStopTime = SNCFData.getStopStopTimeByTrip(SNCFData.getStopTimeStop(stopStopTime), trip);
-
-        rows.push(<StopTimeRow key={index}
-                               displayStopTime={stopStopTime}
-                               stopTime={tripStopTime}
-                               realTimeState={tripState && tripState.state && realTimeStateDisplay(tripState.state, true) || ''}
-                               date={SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopStopTime), e.date)}
-                               onStopTimeSelected={this.props.onStopTimeSelected}/>);
+        rows.push(<StopTimeLine key={index}
+                                trip={e.trip}
+                                date={e.date}
+                                tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
+                                onStopTimeSelected={this.props.onStopTimeSelected}/>);
 
         return rows;
       }, []);
@@ -77,9 +71,12 @@ const Line = React.createClass({
   },
 
   onResize() {
-    this.setState({
-      containerHeight: ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height
-    });
+    const containerHeight = ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height;
+    if (this.state.containerHeight !== containerHeight) {
+      this.setState({
+        containerHeight: containerHeight
+      });
+    }
   }
 });
 
