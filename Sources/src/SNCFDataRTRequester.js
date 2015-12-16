@@ -1,6 +1,3 @@
-/**
- * Created by b.fritsch on 09/12/2015.
- */
 import axios from 'axios';
 import assert from 'assert';
 
@@ -23,9 +20,7 @@ function isRequesting(url) {
 }
 
 function dispatch(data, listeners) {
-  listeners.forEach(listener => {
-    listener(data);
-  })
+  listeners.forEach(listener => listener(data));
 }
 
 function requesting(url) {
@@ -49,7 +44,7 @@ function requesting(url) {
           time: parseRealTime(train.getElementsByTagName('date')[0].textContent),
           mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
           state: train.getElementsByTagName('etat').length ? train.getElementsByTagName('etat')[0].textContent : ''
-        }
+        };
       });
       request.fetchTime = Date.now();
       request.requesting = false;
@@ -57,7 +52,7 @@ function requesting(url) {
       dispatch(request.data, request.listeners);
       request.listeners.empty();
     })
-    .catch(response => {
+    .catch(() => {
       request.requesting = false;
       // in case of error, dispatch the previous data if any
       dispatch(request.data || [], request.listeners);
@@ -95,9 +90,7 @@ function get(departureStop, arrivalStop, result) {
   }
   else {
     // defer the call to accommodate the caller
-    setTimeout(_ => {
-      dispatch(Requests[url].data, [result]);
-    }, 1);
+    setTimeout(() => dispatch(Requests[url].data, [ result ]), 1);
   }
 }
 
