@@ -71,7 +71,7 @@ export let ViewTripAccessor = {
           return state.tripsStates && state.tripsStates[makeTripStateIndex(trip, time)];
         },
         getEndTripNotifier(trip, time) {
-          return state.tripsStates && state.tripsStates[makeTripStateIndex(trip, time)] && state.tripsStates[makeTripStateIndex(trip, time)].endTripNodifier;
+          return state.tripsStates && state.tripsStates[makeTripStateIndex(trip, time)] && state.tripsStates[makeTripStateIndex(trip, time)].endTripNotifier;
         }
       }
     };
@@ -110,21 +110,20 @@ export function viewTrip(state = {}, action = {}) {
 
     case UNVIEW_TRIP:
       return (() => {
-        const trip = state.trip.trip;
-        const time = state.trip.time;
+        const tripStateIndex = makeTripStateIndex(state.trip.trip, state.trip.time);
         const tripState = ViewTripAccessor.create(state).trip.getState();
         const newState = Object.assign({}, state, {
           tripsStates: Object.assign({}, state.tripsStates, {
-            [makeTripStateIndex(trip, time)]: {
-              refs: tripState.refs - 1,
-              ...tripState
+            [tripStateIndex]: {
+              ...tripState,
+              refs: tripState.refs - 1
             }
           }) });
 
         delete newState.trip;
 
         if (tripState.refs === 1) {
-          delete newState.tripsStates[trip];
+          delete newState.tripsStates[tripStateIndex];
         }
 
         return newState;
@@ -187,9 +186,9 @@ export function viewTrip(state = {}, action = {}) {
         }),
         tripsStates: (() => {
           return action.data.states.reduce((r, s, index) => {
-            const tripId = action.data.trips[index].trip;
-            r[tripId] = {
-              refs: (r[tripId] && r[tripId].refs || 0) + 1,
+            const tripStateIndex = makeTripStateIndex(action.data.trips[index].trip, action.data.trips[index].date.getTime());
+            r[tripStateIndex] = {
+              refs: (r[tripStateIndex] && r[tripStateIndex].refs || 0) + 1,
               endTripNotifier: s
             };
 
