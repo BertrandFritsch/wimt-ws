@@ -56,19 +56,19 @@ export let ViewTripAccessor = {
 
       stop: {
         getDepartureStop() {
-          return state.stop.departureStop && SNCFData.getStopById(state.stop.departureStop);
+          return state.stop && state.stop.departureStop && SNCFData.getStopById(state.stop.departureStop);
         },
 
         getArrivalStop() {
-          return state.stop.arrivalStop && SNCFData.getStopById(state.stop.arrivalStop);
+          return state.stop && state.stop.arrivalStop && SNCFData.getStopById(state.stop.arrivalStop);
         },
 
         getGenerator() {
-          return state.stop.generator;
+          return state.stop && state.stop.generator;
         },
 
         getTrips() {
-          return state.stop.trips;
+          return state.Stop && state.stop.trips || [];
         }
       },
 

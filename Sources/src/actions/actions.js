@@ -235,7 +235,7 @@ export function viewLine(departureStopLine, arrivalStopLine) {
 function viewNextTrips(count, action, propName) {
   return (dispatch, getState) => {
     const viewTrip = ViewTripAccessor.create(getState().viewTrip);
-    const trips = viewTrip[propName].getGenerator()(count);
+    const trips = viewTrip[propName].getGenerator() && viewTrip[propName].getGenerator()(count) || [];
 
     dispatch({ type: action, data: {
       trips: trips.map(e => ({

@@ -1,35 +1,20 @@
 ﻿import React from 'react';
-import ReactDOM from 'react-dom';
 import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
-import SNCFData from './../../SNCFData.js';
-import RealTimeRequester from './../../SNCFDataRTRequester.js';
-import GridLayout from '../../gridlayout/gridlayout';
-import theme from './SelectedTrips.css';
+import './SelectedTrips.css';
 import { viewStopNextTrips } from '../../actions/actions.js';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
+import { connectToLayoutObserver } from '../LayoutContainer/LayoutObserver.jsx';
 
-class SelectedTrips extends React.Component {
-  constructor(props) {
-    super(props);
+const InfiniteComponent = connectToLayoutObserver(Infinite, 'height', 250, 'containerHeight');
 
-    GridLayout.resizeListeners.add(this.onResize);
-
-    this.state = {
-      containerHeight: 250
-    };
-  }
-
-  //static propTypes: {
-  //  viewTrip: React.PropTypes.any,
-  //  onStopTimeSelected: React.PropTypes.func,
-  //  actionDispatcher: React.PropTypes.func
-  //},
-
-  componentWillUnmount() {
-    GridLayout.resizeListeners.remove(this.onResize);
-  }
+const SelectedTrips = React.createClass({
+  propTypes: {
+    viewTrip: React.PropTypes.any,
+    onStopTimeSelected: React.PropTypes.func,
+    actionDispatcher: React.PropTypes.func
+  },
 
   render() {
     const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
@@ -54,23 +39,13 @@ class SelectedTrips extends React.Component {
     })();
 
     return (
-      <Infinite elementHeight={50}
-                containerHeight={this.state.containerHeight}
+      <InfiniteComponent elementHeight={50}
                 infiniteLoadBeginEdgeOffset={200}
                 onInfiniteLoad={() => this.props.actionDispatcher(viewStopNextTrips(40))}>
         {rows}
-      </Infinite>
-    )
+      </InfiniteComponent>
+    );
   }
-
-  onResize = () => {
-    const containerHeight = ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect().height;
-    if (this.state.containerHeight !== containerHeight) {
-      this.setState({
-        containerHeight: containerHeight
-      });
-    }
-  }
-};
+});
 
 export default SelectedTrips;
