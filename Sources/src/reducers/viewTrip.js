@@ -117,7 +117,7 @@ function reduceByTripState(state, trip, time, tripState) {
 function reduceTrips(state, propName, trips, states) {
   return Object.assign({}, state, {
     [propName]: Object.assign({}, state[propName], {
-      trips: [ ...state[propName].trips, ...trips ]
+      trips: [ ...(state[propName] && state[propName].trips || []), ...trips ]
     }),
     tripsStates: (() => {
       return states.reduce((r, s, index) => {
