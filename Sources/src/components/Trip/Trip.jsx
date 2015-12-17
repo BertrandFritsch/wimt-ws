@@ -95,7 +95,6 @@ const Trip = React.createClass({
                       transitionDuration: `${this.state.showTrainPosition === 1 ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000}ms`,
                       transform: `translateY(${this.state.showTrainPosition === 1 ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition}px)`
                     };
-                    console.log('showTrainPosition: ', this.state.showTrainPosition, ' - ', this.state.showTrainPosition === 1 ? Math.min(Math.max(0, nowPosition), stopTimePosition) : stopTimePosition);
                   }
                 }
                 else if (!this.initialTrainPositionPromise) {
@@ -123,7 +122,6 @@ const Trip = React.createClass({
   },
 
   registerInitialTrainPosition(timeout) {
-    console.log('showTrainPosition: ', this.state.showTrainPosition, ' - ', 'timeout: ', timeout);
     this.initialTrainPositionPromise = new Promise(resolve => {
       setTimeout(() => {
         delete this.initialTrainPositionPromise;

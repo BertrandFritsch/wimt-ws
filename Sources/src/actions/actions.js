@@ -1,6 +1,6 @@
 ﻿import SNCFData from '../SNCFData.js';
 import { tripStateSetUp } from './tripState.js';
-import { lineTripsGenerator } from './lineState.js';
+import { tripsGenerator } from './tripsGenerator.js';
 import { ViewTripAccessor } from '../reducers/viewTrip.js';
 
 /*
@@ -22,6 +22,7 @@ export const VIEW_LINE = 'VIEW_LINE';
 export const VIEW_LINE_NEXT_TRIPS = 'VIEW_LINE_NEXT_TRIPS';
 
 export const VIEW_STOP = 'VIEW_STOP';
+export const VIEW_STOP_NEXT_TRIPS = 'VIEW_STOP_NEXT_TRIPS';
 
 /*
  * real time status
@@ -146,6 +147,7 @@ export function plannedTrip(trip, date) {
 /**
  * The trip is no longer planned
  * @param {string} trip trip id
+ * @param {date} date the date the trip is planned
  * @returns {object} The NOT_PLANNED_TRIP action
  */
 export function notPlannedTrip(trip, date) {
@@ -155,6 +157,7 @@ export function notPlannedTrip(trip, date) {
 /**
  * The trip has been cancelled
  * @param {string} trip trip id
+ * @param {date} date the date the trip is cancelled
  * @returns {object} The CANCELLED_TRIP action
  */
 export function cancelledTrip(trip, date) {
@@ -164,6 +167,7 @@ export function cancelledTrip(trip, date) {
 /**
  * The trip has been delayed
  * @param {string} trip trip id
+ * @param {date} date the date the trip is delayed
  * @param {Array} stopTime The next stop the train has to reach
  * @returns {object} The DELAYED_TRIP action
  */
@@ -174,6 +178,7 @@ export function delayedTrip(trip, date, stopTime) {
 /**
  * the trip is running, it may not has been started yet, or it may have been arrived
  * @param {string} trip the trip id
+ * @param {date} date the date the trip is running
  * @param {stopTime} stopTime the next stop to reach
  * @param {number} time the delayed time in mn
  * @returns {object} The RUNNING_TRIP action
@@ -185,6 +190,7 @@ export function runningTrip(trip, date, stopTime, time) {
 /**
  * The trip has arrived
  * @param {string} trip the trip id
+ * @param {date} date the date the trip is arrived
  * @param {stopTime} stopTime the last stop
  * @param {number} time the delayed time in mn
  * @returns {object} The ARRIVED_TRIP action
@@ -196,6 +202,7 @@ export function arrivedTrip(trip, date, stopTime, time) {
 /**
  * Update the real time status
  * @param {string} trip the trip id
+ * @param {date} date the date the real time stands for
  * @param {string} status the real time status
  * @returns {object} The REAL_TIME_TRIP action
  */
@@ -207,10 +214,6 @@ function viewLineAction(departureStopLine, arrivalStopLine, tripsGenerator) {
   return { type: VIEW_LINE, data: { departureStopLine, arrivalStopLine, tripsGenerator } };
 }
 
-function viewLineNextTripsAction(trips, states) {
-  return { type: VIEW_LINE_NEXT_TRIPS, data: { trips, states } };
-}
-
 /**
  * View line status
  *
@@ -219,26 +222,38 @@ function viewLineNextTripsAction(trips, states) {
  * @returns {object} The VIEW_LINE action
  */
 export function viewLine(departureStopLine, arrivalStopLine) {
-  return viewLineAction(departureStopLine, arrivalStopLine, lineTripsGenerator(departureStopLine, arrivalStopLine));
+  return viewLineAction(departureStopLine, arrivalStopLine, tripsGenerator(departureStopLine, arrivalStopLine));
 }
 
 /**
- * View next line trips
+ * View next trips
  * @param {number} count expected count of trips
+ * @param {string} action the action to dispatch
+ * @param {string} propName line or stop
  * @returns {Function} internal redux function
  */
-export function viewLineNextTrips(count) {
+function viewNextTrips(count, action, propName) {
   return (dispatch, getState) => {
     const viewTrip = ViewTripAccessor.create(getState().viewTrip);
-    const trips = viewTrip.line.getGenerator()(count);
+    const trips = viewTrip[propName].getGenerator()(count);
 
-    dispatch(viewLineNextTripsAction(trips.map(e => ({
-      trip: SNCFData.getTripId(e.trip),
-      date: e.date
-    })), trips.map(e => {
-      return viewTrip.states.getEndTripNotifier(SNCFData.getTripId(e.trip), e.date.getTime()) || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
-    })));
+    dispatch({ type: action, data: {
+      trips: trips.map(e => ({
+        trip: SNCFData.getTripId(e.trip),
+        date: e.date
+      })),
+      states: trips.map(e => {
+        return viewTrip.states.getEndTripNotifier(SNCFData.getTripId(e.trip), e.date.getTime()) || tripStateSetUp(SNCFData.getTripId(e.trip), e.date, dispatch, getState);
+      })
+    } });
   };
+}
+export function viewLineNextTrips(count) {
+  return viewNextTrips(count, VIEW_LINE_NEXT_TRIPS, 'line');
+}
+
+function viewStopAction(departureStop, arrivalStop, tripsGenerator) {
+  return { type: VIEW_STOP, data: { departureStop, arrivalStop, tripsGenerator } };
 }
 
 /**
@@ -249,5 +264,9 @@ export function viewLineNextTrips(count) {
  * @returns {object} The VIEW_STOP action
  */
 export function viewStop(departureStop, arrivalStop) {
-  return { type: VIEW_STOP, data: { departureStop, arrivalStop } };
+  return viewStopAction(departureStop, arrivalStop, tripsGenerator(departureStop, arrivalStop));
+}
+
+export function viewStopNextTrips(count) {
+  return viewNextTrips(count, VIEW_STOP_NEXT_TRIPS, 'stop');
 }

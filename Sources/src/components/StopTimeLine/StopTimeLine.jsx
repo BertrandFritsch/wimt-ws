@@ -9,7 +9,7 @@ const StopTimeLine = React.createClass({
     date: React.PropTypes.instanceOf(Date).isRequired,
     trip: React.PropTypes.string.isRequired,
     tripState: React.PropTypes.any,
-    onStopTimeSelected: React.PropTypes.func
+    onStopTimeSelected: React.PropTypes.func.isRequired
   },
 
   getInitialState() {

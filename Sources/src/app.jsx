@@ -35,8 +35,8 @@ function parseQueryString(store) {
   }, {}) : {};
 
   let departureStop = hs.departureStop && (_ => {
-      let stop = SNCFData.getStopById(parseInt(hs.departureStop));
-      if (!stop) {
+      let stop = parseInt(hs.departureStop);
+      if (!SNCFData.getStopById(stop)) {
         console.warn(`The stop id '${hs.departureStop}' is invalid!`);
       }
       else {
@@ -44,8 +44,8 @@ function parseQueryString(store) {
       }
     })();
   let arrivalStop = hs.arrivalStop && (_ => {
-      let stop = SNCFData.getStopById(parseInt(hs.arrivalStop));
-      if (!stop) {
+      let stop = parseInt(hs.arrivalStop);
+      if (!SNCFData.getStopById(stop)) {
         console.warn(`The stop id '${hs.arrivalStop}' is invalid!`);
       }
       else {

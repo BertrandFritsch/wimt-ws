@@ -1,6 +1,6 @@
 ﻿import SNCFData from '../SNCFData.js';
 
-export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
+export function tripsGenerator(departureStop, arrivalStop) {
   let tripsGenerator = (function* () {
     const minutesPerDay = 24 * 60;
     let trips = [];
@@ -9,17 +9,17 @@ export function lineTripsGenerator(departureStopLine, arrivalStopLine) {
 
     date = SNCFData.getDateByMinutes(0, date);
 
-    if (!departureStopLine) {
-      departureStopLine = arrivalStopLine;
-      arrivalStopLine = null;
+    if (!departureStop) {
+      departureStop = arrivalStop;
+      arrivalStop = null;
     }
 
-    if (departureStopLine) {
-      trips = SNCFData.getStopTrips(SNCFData.getStopById(departureStopLine));
+    if (departureStop) {
+      trips = SNCFData.getStopTrips(SNCFData.getStopById(departureStop));
 
-      if (arrivalStopLine) {
+      if (arrivalStop) {
         // filter trips that pass by the arrival stop too
-        const arrivalTrips = SNCFData.getStopTrips(SNCFData.getStopById(arrivalStopLine));
+        const arrivalTrips = SNCFData.getStopTrips(SNCFData.getStopById(arrivalStop));
         trips = trips.filter(departureStopTime => {
           const trip = SNCFData.getStopTimeTrip(departureStopTime);
           const arrivalTrip = arrivalTrips.find(arrivalStopTime => SNCFData.getStopTimeTrip(arrivalStopTime) === trip);

@@ -7,9 +7,11 @@ import './Trips.css';
 let Trips = React.createClass({
   propTypes: {
     stops: React.PropTypes.arrayOf(React.PropTypes.array).isRequired,
+    viewTrip: React.PropTypes.any,
     departureStop: React.PropTypes.array,
     arrivalStop: React.PropTypes.array,
-    onStopTimeSelected: React.PropTypes.func
+    onStopTimeSelected: React.PropTypes.func,
+    actionDispatcher: React.PropTypes.func
   },
 
   render() {
@@ -71,9 +73,8 @@ let Trips = React.createClass({
                                 onStopChange={onDepartureStopChange}/>
         </div>
         <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
-          <SelectedTrips departureStop={this.props.departureStop}
-                         startStopTimes={startStopTimes}
-                         arrivalStop={this.props.arrivalStop}
+          <SelectedTrips actionDispatcher={this.props.actionDispatcher}
+                         viewTrip={this.props.viewTrip}
                          onStopTimeSelected={this.props.onStopTimeSelected}/>
         </div>
         <div data-g-layout-item='"row": 2'>

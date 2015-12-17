@@ -1,10 +1,16 @@
-﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS } from '../actions/actions.js';
+﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS, VIEW_STOP, VIEW_STOP_NEXT_TRIPS } from '../actions/actions.js';
 import SNCFData from '../SNCFData.js';
 
 /**
  * viewTrip structure
  *
  * {
+ *   stop: {
+ *     departureStop: <stop-id>,     // the departure stop
+ *     arrivalStop: <stop-id>,       // the arrival stop
+ *     generator: <stop-trips-generator>,
+ *     trips: [{ trip-id, time }, ...]
+ *   },
  *   trip: {
  *     trip: <trip-id>,        // the current viewed trip details
  *     time: <trip time>       // the date when the trip is planned
@@ -13,7 +19,7 @@ import SNCFData from '../SNCFData.js';
  *     departureStop: <stop-id>,
  *     arrivalStop: <stop-id>,
  *     generator: <line-trips-generator>,
- *     trips: [trip-id, ...]
+ *     trips: [{ trip-id, time }, ...]
  *   },
  *   tripsStates: {          // the set of watched trips
  *     <trip-id>: {
@@ -45,6 +51,24 @@ export let ViewTripAccessor = {
         },
         getState() {
           return ViewTripAccessor.create(state).states.getTripState(state.trip.trip, state.trip.time);
+        }
+      },
+
+      stop: {
+        getDepartureStop() {
+          return state.stop.departureStop && SNCFData.getStopById(state.stop.departureStop);
+        },
+
+        getArrivalStop() {
+          return state.stop.arrivalStop && SNCFData.getStopById(state.stop.arrivalStop);
+        },
+
+        getGenerator() {
+          return state.stop.generator;
+        },
+
+        getTrips() {
+          return state.stop.trips;
         }
       },
 
@@ -87,6 +111,25 @@ function reduceByTripState(state, trip, time, tripState) {
         state: tripState
       })
     })
+  });
+}
+
+function reduceTrips(state, propName, trips, states) {
+  return Object.assign({}, state, {
+    [propName]: Object.assign({}, state[propName], {
+      trips: [ ...state[propName].trips, ...trips ]
+    }),
+    tripsStates: (() => {
+      return states.reduce((r, s, index) => {
+        const tripStateIndex = makeTripStateIndex(trips[index].trip, trips[index].date.getTime());
+        r[tripStateIndex] = {
+          refs: (r[tripStateIndex] && r[tripStateIndex].refs || 0) + 1,
+          endTripNotifier: s
+        };
+
+        return r;
+      }, state.tripsStates || {});
+    })()
   });
 }
 
@@ -168,7 +211,6 @@ export function viewTrip(state = {}, action = {}) {
         });
       })();
 
-
     case VIEW_LINE:
       return {
         line: {
@@ -180,22 +222,20 @@ export function viewTrip(state = {}, action = {}) {
       };
 
     case VIEW_LINE_NEXT_TRIPS:
-      return Object.assign({}, state, {
-        line: Object.assign({}, state.line, {
-          trips: [ ...state.line.trips, ...action.data.trips ]
-        }),
-        tripsStates: (() => {
-          return action.data.states.reduce((r, s, index) => {
-            const tripStateIndex = makeTripStateIndex(action.data.trips[index].trip, action.data.trips[index].date.getTime());
-            r[tripStateIndex] = {
-              refs: (r[tripStateIndex] && r[tripStateIndex].refs || 0) + 1,
-              endTripNotifier: s
-            };
+      return reduceTrips(state, 'line', action.data.trips, action.data.states);
 
-            return r;
-          }, state.tripsStates || {});
-        })()
-      });
+    case VIEW_STOP:
+      return {
+        stop: {
+          departureStop: action.data.departureStop,
+          arrivalStop: action.data.arrivalStop,
+          generator: action.data.tripsGenerator,
+          trips: []
+        }, ...state
+      };
+
+    case VIEW_STOP_NEXT_TRIPS:
+      return reduceTrips(state, 'stop', action.data.trips, action.data.states);
 
     default:
       return state;
