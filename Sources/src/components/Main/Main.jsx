@@ -7,7 +7,7 @@ import LayoutContainer from './../LayoutContainer/LayoutContainer.jsx';
 import DebuggingRow from './../DebuggingRow/DebuggingRow.jsx';
 import './Main.css';
 import { connect } from 'react-redux';
-import { viewTrip, unviewTrip, viewStop } from '../../actions/actions.js';
+import { viewTrip, unviewTrip, viewStop, unviewStop } from '../../actions/actions.js';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 
 const Main = React.createClass({
@@ -24,6 +24,12 @@ const Main = React.createClass({
 
   render() {
     const stops = SNCFData.getStopsArray();
+    const state = ViewTripAccessor.create(this.props.viewTrip);
+
+    let replaceViewStop = (departureStop, arrivalStop) => {
+      this.props.dispatch(unviewStop());
+      this.props.dispatch(viewStop(departureStop, arrivalStop));
+    };
 
     return (
       <div className="root-container">
@@ -33,16 +39,12 @@ const Main = React.createClass({
                data-g-layout-policy='"widthPolicy": "Fixed", "widthHint": "*"'>
             <div data-g-layout-container='"horizontalBubbling": false, "verticalBubbling": false'>
               {(() => {
-                const stopState = ViewTripAccessor.create(this.props.viewTrip).stop;
-
                 return (
                   <LayoutContainer>
                     <Trips actionDispatcher={this.props.dispatch}
                            stops={stops}
-                           departureStop={stopState.getDepartureStop()}
-                           arrivalStop={stopState.getArrivalStop()}
-                           onDepartureStopChange={stop => this.props.dispatch(viewStop(stop, stopState.getDepartureStop()))}
-                           onArrivalStopChange={stop => this.props.dispatch(viewStop(stopState.getArrivalStop(), stop))}
+                           onDepartureStopChange={stop => replaceViewStop(stop, state.stop.getArrivalStop())}
+                           onArrivalStopChange={stop => replaceViewStop(state.stop.getDepartureStop(), stop)}
                            actionDispatcher={this.props.dispatch}
                            viewTrip={this.props.viewTrip}
                            onStopTimeSelected={(trip, date) => this.onStopTimeSelected(trip, date)}/>
@@ -50,7 +52,7 @@ const Main = React.createClass({
                 );
               })()}
               {(() => {
-                if (this.props.viewTrip.line) {
+                if (state.line.hasLine()) {
                   return (
                     <LayoutContainer>
                       <Line actionDispatcher={this.props.dispatch}
@@ -61,7 +63,7 @@ const Main = React.createClass({
                 }
               })()}
               {(() => {
-                if (this.props.viewTrip && this.props.viewTrip.trip) {
+                if (state.trip.hasTrip()) {
                   return (
                     <LayoutContainer>
                       <Trip actionDispatcher={this.props.dispatch} viewTrip={this.props.viewTrip} />

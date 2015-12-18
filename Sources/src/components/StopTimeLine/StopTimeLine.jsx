@@ -28,8 +28,8 @@ const StopTimeLine = React.createClass({
 
   render() {
     const trip = SNCFData.getTripById(this.props.trip);
-    const stopTime = this.props.tripState && this.props.tripState.state && this.props.tripState.state.stopTime;
-    const delayed = this.props.tripState && this.props.tripState.state && this.props.tripState.state.delayed || 0;
+    const stopTime = this.props.tripState && this.props.tripState.stopTime;
+    const delayed = this.props.tripState && this.props.tripState.delayed || 0;
     const firstStopTime = SNCFData.getTripFirstStopTime(trip);
     const firstStopTimeTime = SNCFData.getStopTimeTime(firstStopTime);
     const totalTripTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(trip)) + delayed - firstStopTimeTime;
@@ -56,7 +56,7 @@ const StopTimeLine = React.createClass({
           } - {
             SNCFData.getStopName(SNCFData.getStopTimeStop(stopTime || firstStopTime))
           }</span>
-          <span className="stop-time-line-state">{realTimeStateDisplay(this.props.tripState && this.props.tripState.state, false)}</span>
+          <span className="stop-time-line-state">{realTimeStateDisplay(this.props.tripState, false)}</span>
         </div>
         <div className="stop-time-line-timeline">
           <div ref="stopsContainer" className="stop-time-line-stop-container">

@@ -41,7 +41,7 @@ const SelectedTrips = React.createClass({
     return (
       <InfiniteComponent elementHeight={50}
                 infiniteLoadBeginEdgeOffset={200}
-                onInfiniteLoad={() => this.props.actionDispatcher(viewStopNextTrips(40))}>
+                onInfiniteLoad={() => this.props.actionDispatcher(viewStopNextTrips(20))}>
         {rows}
       </InfiniteComponent>
     );

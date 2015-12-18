@@ -47,7 +47,7 @@ const Line = React.createClass({
         <div ref="line-container" className="line-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
           <InfiniteComponent elementHeight={50}
                              infiniteLoadBeginEdgeOffset={200}
-                             onInfiniteLoad={() => this.props.actionDispatcher(viewLineNextTrips(40))}>
+                             onInfiniteLoad={() => this.props.actionDispatcher(viewLineNextTrips(20))}>
             {rows}
           </InfiniteComponent>
         </div>

@@ -1,6 +1,7 @@
 ﻿import SNCFData from '../SNCFData.js';
 import RealTimeRequester from '../SNCFDataRTRequester.js';
 import { RealTimeStatus, plannedTrip, notPlannedTrip, runningTrip, arrivedTrip, delayedTrip, cancelledTrip, newTripRealTimeState } from './actions.js';
+import { ViewTripAccessor } from '../reducers/viewTrip.js';
 import assert from 'assert';
 
 const _2H = 2 * 60 * 60 * 1000;
@@ -42,7 +43,7 @@ class RealTimeTrainState {
           case RealTimeTrainState.Events.TRIP_PLANNED:
             // the train is not running but is planned for a further trip
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(param1, true), SNCFData.getTripFirstStopTime(this.trip));
-            this.dispatch(plannedTrip(SNCFData.getTripId(this.trip), param1));
+            this.dispatch(plannedTrip(SNCFData.getTripId(this.trip), SNCFData.getDateByMinutes(0, param1), param1));
             this.state = RealTimeTrainState.States.TRIP_PLANNED;
             break;
 
@@ -370,7 +371,7 @@ class RealTimeTrainState {
   }
 
   getCurrentDelay() {
-    let state = this.getState().viewTrip.tripsStates[SNCFData.getTripId(this.trip)];
+    let state = ViewTripAccessor.create(this.getState().viewTrip).states.getTripState(SNCFData.getTripId(this.trip), this.date.getTime());
     return state && state.delayed || 0;
   }
 

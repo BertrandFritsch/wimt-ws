@@ -23,6 +23,7 @@ export const VIEW_LINE_NEXT_TRIPS = 'VIEW_LINE_NEXT_TRIPS';
 
 export const VIEW_STOP = 'VIEW_STOP';
 export const VIEW_STOP_NEXT_TRIPS = 'VIEW_STOP_NEXT_TRIPS';
+export const UNVIEW_STOP = 'UNVIEW_STOP';
 
 /*
  * real time status
@@ -137,11 +138,12 @@ export function unviewTrip() {
 /**
  * The trip is planned
  * @param {string} trip trip id
- * @param {Date} date The next time the trip will run
+ * @param {Date} date the day the trip is planned
+ * @param {Date} plannedDate The next time the trip will run
  * @returns {object} The PLANNED_TRIP action
  */
-export function plannedTrip(trip, date) {
-  return { type: PLANNED_TRIP, data: { trip, date } };
+export function plannedTrip(trip, date, plannedDate) {
+  return { type: PLANNED_TRIP, data: { trip, date, plannedDate } };
 }
 
 /**
@@ -248,6 +250,30 @@ function viewNextTrips(count, action, propName) {
     } });
   };
 }
+
+/**
+ * Unview the trips bound to a specific view -- line or stop
+ * @param {string} action the action to dispatch
+ * @param {string} propName line or stop
+ * @returns {Function} internal redux function
+ */
+function unviewTrips(action, propName) {
+  return (dispatch, getState) => {
+    const viewTrip = ViewTripAccessor.create(getState().viewTrip);
+
+    viewTrip[propName].getTrips().forEach(e => {
+      // stop the trip state machine if no component does reference it anymore
+      let tripState = ViewTripAccessor.create(getState().viewTrip).states.getState(e.trip, e.date.getTime());
+
+      if (tripState.refs === 1) {
+        tripState.endTripNotifier();
+      }
+    });
+
+    dispatch({ type: action });
+  };
+}
+
 export function viewLineNextTrips(count) {
   return viewNextTrips(count, VIEW_LINE_NEXT_TRIPS, 'line');
 }
@@ -269,4 +295,8 @@ export function viewStop(departureStop, arrivalStop) {
 
 export function viewStopNextTrips(count) {
   return viewNextTrips(count, VIEW_STOP_NEXT_TRIPS, 'stop');
+}
+
+export function unviewStop() {
+  return unviewTrips(UNVIEW_STOP, 'stop');
 }
