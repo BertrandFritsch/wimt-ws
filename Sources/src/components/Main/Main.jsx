@@ -28,7 +28,10 @@ const Main = React.createClass({
 
     let replaceViewStop = (departureStop, arrivalStop) => {
       this.props.dispatch(unviewStop());
-      this.props.dispatch(viewStop(departureStop, arrivalStop));
+
+      if (departureStop || arrivalStop) {
+        this.props.dispatch(viewStop(departureStop && SNCFData.getStopId(departureStop), arrivalStop && SNCFData.getStopId(arrivalStop)));
+      }
     };
 
     return (

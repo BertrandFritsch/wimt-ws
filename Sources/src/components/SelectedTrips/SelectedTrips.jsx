@@ -16,6 +16,18 @@ const SelectedTrips = React.createClass({
     actionDispatcher: React.PropTypes.func
   },
 
+  componentWillReceiveProps(nextProps) {
+    const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
+    const nextViewTrip = ViewTripAccessor.create(nextProps.viewTrip);
+
+    if ((viewTrip.stop.getDepartureStop() !== nextViewTrip.stop.getDepartureStop()
+        || viewTrip.stop.getArrivalStop() !== nextViewTrip.stop.getArrivalStop())
+    && (nextViewTrip.stop.getDepartureStop()
+        || nextViewTrip.stop.getArrivalStop())) {
+      this.props.actionDispatcher(viewStopNextTrips(20));
+    }
+  },
+
   render() {
     const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
     const rows = (() => {

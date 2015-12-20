@@ -78,6 +78,10 @@ function getStopName(stop) {
   return stop[1];
 }
 
+function getStopId(stop) {
+  return stop[0];
+}
+
 function getStopUICCode(stop) {
   return stop[0];
 }
@@ -252,6 +256,7 @@ export default {
   getStopsArray: getStopsArray,
   getStop: getStop,
   getStopById: getStopById,
+  getStopId: getStopId,
   getStopName: getStopName,
   getStopUICCode: getStopUICCode,
   getStopTrips: getStopTrips,

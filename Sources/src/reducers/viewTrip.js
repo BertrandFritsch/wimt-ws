@@ -120,12 +120,12 @@ export let ViewTripAccessor = {
 
       states: {
         getState(trip, time) {
-          return state.getIn([ 'tripsStates', makeTripStateIndex(trip, time) ]);
+          return state.getIn([ 'tripsStates', makeTripStateIndex(trip, time) ]).toJS();
         },
 
         getTripState(trip, time) {
-          let tripState, innerState;
-          return (tripState = state.getIn([ 'tripsStates', makeTripStateIndex(trip, time) ])) && (innerState = tripState.get('state')) && innerState.toJS();
+          let tripState;
+          return (tripState = state.getIn([ 'tripsStates', makeTripStateIndex(trip, time) ])) && tripState.get('state');
         },
 
         getEndTripNotifier(trip, time) {
@@ -148,45 +148,18 @@ function reduceViewTrips(state, propName, trips, tripsEndNotifiers) {
         });
       });
     }, tripsStates));
-  //return Object.assign({}, state, {
-  //  [propName]: Object.assign({}, state[propName], {
-  //    trips: [ ...(state[propName] && state[propName].trips || []), ...trips ]
-  //  }),
-  //  tripsStates: (() => {
-  //    return tripsStates.reduce((r, s, index) => {
-  //      const tripStateIndex = makeTripStateIndex(trips[index].trip, trips[index].date.getTime());
-  //      r[tripStateIndex] = {
-  //        refs: (r[tripStateIndex] && r[tripStateIndex].refs || 0) + 1,
-  //        endTripNotifier: s
-  //      };
-  //
-  //      return r;
-  //    }, state.tripsStates || {});
-  //  })()
-  //});
 }
 
 function reduceUnviewTrips(state, propName) {
-  const trips = state[propName] && state[propName].trips || [];
-  const newState = {
-    ...state,
-    tripsStates: (() => {
-      const tripsStates = Object.assign({}, state.tripsStates);
-
-      trips.forEach(e => {
-        const tripStateIndex = makeTripStateIndex(e.trip, e.date.getTime());
-
-        if (--tripsStates[tripStateIndex].refs === 0) {
-          delete tripsStates[tripStateIndex];
-        }
-      });
-
-      return tripsStates;
-    })()
-  };
-
-  delete newState[propName];
-  return newState;
+  if (state.get(propName) && state.get(propName).get('trips')) {
+    return state
+        .update('tripsStates', tripsStates => state.getIn([ propName, 'trips' ]).reduce((tripsStates, e) => tripsStates.update(makeTripStateIndex(e.trip, e.date.getTime()), tripState => tripState.set('refs', tripState.get('refs') - 1)), tripsStates))
+        .update('tripsStates', tripsStates => tripsStates.filter(tripState => tripState.get('refs') > 0))
+        .delete(propName);
+  }
+  else {
+    return state;
+  }
 }
 
 export function viewTrip(state = emptyMap, action = {}) {
@@ -201,55 +174,40 @@ export function viewTrip(state = emptyMap, action = {}) {
           });
         });
 
-    //case UNVIEW_TRIP:
-    //  return (() => {
-    //    const tripStateIndex = makeTripStateIndex(state.trip.trip, state.trip.time);
-    //    const tripState = ViewTripAccessor.create(state).trip.getState();
-    //    const newState = Object.assign({}, state, {
-    //      tripsStates: Object.assign({}, state.tripsStates, {
-    //        [tripStateIndex]: {
-    //          ...tripState,
-    //          refs: tripState.refs - 1
-    //        }
-    //      }) });
-    //
-    //    delete newState.trip;
-    //
-    //    if (tripState.refs === 1) {
-    //      delete newState.tripsStates[tripStateIndex];
-    //    }
-    //
-    //    return newState;
-    //  })();
+    case UNVIEW_TRIP:
+      return state
+          .updateIn([ 'tripsStates', makeTripStateIndex(state.get('trip').trip, state.get('trip').time) ], tripState => tripState.set('refs', tripState.get('refs') - 1))
+          .update('tripsStates', tripsStates => tripsStates.filter(tripState => tripState.get('refs') > 0))
+          .delete('trip');
 
     case PLANNED_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: { type: PLANNED_TRIP, time: action.data.plannedDate.getTime() } });
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], { type: PLANNED_TRIP, time: action.data.plannedDate.getTime() });
 
     case NOT_PLANNED_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: { type: NOT_PLANNED_TRIP } });
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], { type: NOT_PLANNED_TRIP });
 
     case CANCELLED_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: { type: CANCELLED_TRIP } });
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], { type: CANCELLED_TRIP });
 
     case DELAYED_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: { type: DELAYED_TRIP, stopTime: action.data.stopTime } });
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], { type: DELAYED_TRIP, stopTime: action.data.stopTime });
 
     case RUNNING_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: {
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], {
         type: RUNNING_TRIP,
         stopTime: action.data.stopTime,
         delayed: action.data.time
-      } });
+      });
 
     case ARRIVED_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { state: {
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'state' ], {
         type: ARRIVED_TRIP,
         stopTime: action.data.stopTime,
         delayed: action.data.time
-      } });
+      });
 
     case REAL_TIME_TRIP:
-      return state.mergeIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()) ], { realTimeStatus: action.data.status });
+      return state.setIn([ 'tripsStates', makeTripStateIndex(action.data.trip, action.data.date.getTime()), 'realTimeStatus' ], action.data.status);
 
     case VIEW_LINE:
       return state.set('line', Immutable.Map({
@@ -263,16 +221,16 @@ export function viewTrip(state = emptyMap, action = {}) {
 
     case VIEW_STOP:
       return state.set('stop', Immutable.Map({
-        departureStop: action.data.departureStopLine,
-        arrivalStop: action.data.arrivalStopLine,
+        departureStop: action.data.departureStop,
+        arrivalStop: action.data.arrivalStop,
         generator: action.data.tripsGenerator
       }));
 
     case VIEW_STOP_NEXT_TRIPS:
       return reduceViewTrips(state, 'stop', action.data.trips, action.data.states);
 
-    //case UNVIEW_STOP:
-    //  return reduceUnviewTrips(state, 'stop');
+    case UNVIEW_STOP:
+      return reduceUnviewTrips(state, 'stop');
 
     default:
       return state;
