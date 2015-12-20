@@ -3,6 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="BadExpressionStatementJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CallerJS" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="CheckEmptyScriptTag" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="CommaExpressionJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="ConstantConditionalExpressionJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="ConstantIfStatementJS" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -15,6 +16,14 @@
     <inspection_tool class="Eslint" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="ExceptionCaughtLocallyJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="FallThroughInSwitchStatementJS" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="HtmlUnknownAttribute" enabled="false" level="WARNING" enabled_by_default="false">
+      <option name="myValues">
+        <value>
+          <list size="0" />
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
     <inspection_tool class="IncompatibleMaskJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="InfiniteLoopJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="InfiniteRecursionJS" enabled="false" level="WARNING" enabled_by_default="false" />
