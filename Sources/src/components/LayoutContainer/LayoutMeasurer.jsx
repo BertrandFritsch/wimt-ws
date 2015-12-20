@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import GridLayout from '../../gridlayout/gridlayout';
 
-export function connectToLayoutObserver(Component, axe, initialSize, propName) {
+export function connectToLayoutMeasurer(Component, axe, initialSize, propName) {
   return React.createClass({
     propTypes: {
       //initialSize: React.PropTypes.number.isRequired,
@@ -24,15 +24,26 @@ export function connectToLayoutObserver(Component, axe, initialSize, propName) {
 
     render() {
       return (
-        // assume the node can stretch inside its container
-        <div ref="containerNode" style={{ width: '100%', height: '100%' }}>
-          <Component {...this.props} {...this.state} />
-        </div>
+        <Component {...this.props} {...this.state} onLayoutElementAdded={element => this.onLayoutElementAdded(element)} onLayoutElementRemoved={element => this.onLayoutElementRemoved(element)}  />
       );
     },
 
+    layoutElement: null,
+
+    onLayoutElementAdded(element) {
+      if (!this.layoutElement) {
+        this.layoutElement = element;
+      }
+    },
+
+    onLayoutElementRemoved(element) {
+      if (this.layoutElement === element) {
+        this.layoutElement = null;
+      }
+    },
+
     onResize() {
-      const size = this.refs.containerNode.getBoundingClientRect()[axe];
+      const size = this.layoutElement ? this.layoutElement.getBoundingClientRect()[axe] : initialSize;
       if (this.state[propName] !== size) {
         this.setState({
           [propName]: size

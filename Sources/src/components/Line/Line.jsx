@@ -7,9 +7,11 @@ import './Line.css';
 import { viewLineNextTrips } from '../../actions/actions.js';
 import FontAwesome from 'react-fontawesome';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
-import { connectToLayoutObserver } from '../LayoutContainer/LayoutObserver.jsx';
+import { connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
+import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 
-const InfiniteComponent = connectToLayoutObserver(Infinite, 'height', 250, 'containerHeight');
+const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), 'height', 250, 'containerHeight');
+const DecoratedStopTimeLine = connectToLayoutMeasurer(StopTimeLine, 'width', 0, 'stopsContainerWidth');
 
 const Line = React.createClass({
   propTypes: {
@@ -29,11 +31,11 @@ const Line = React.createClass({
           rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
         }
 
-        rows.push(<StopTimeLine key={index}
-                                trip={e.trip}
-                                date={e.date}
-                                tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
-                                onStopTimeSelected={this.props.onStopTimeSelected}/>);
+        rows.push(<DecoratedStopTimeLine key={index}
+                                         trip={e.trip}
+                                         date={e.date}
+                                         tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
+                                         onStopTimeSelected={this.props.onStopTimeSelected}/>);
 
         return rows;
       }, []);
@@ -45,11 +47,11 @@ const Line = React.createClass({
           <div className="line-header">{viewTrip.line.getDepartureStop() && SNCFData.getStopName(viewTrip.line.getDepartureStop())}<FontAwesome className="line-header-separator" name="arrow-circle-o-right" size="lg" />{viewTrip.line.getArrivalStop() && SNCFData.getStopName(viewTrip.line.getArrivalStop())}</div>
         </div>
         <div ref="line-container" className="line-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
-          <InfiniteComponent elementHeight={50}
+          <DecoratedInfinite elementHeight={50}
                              infiniteLoadBeginEdgeOffset={200}
                              onInfiniteLoad={() => this.props.actionDispatcher(viewLineNextTrips(20))}>
             {rows}
-          </InfiniteComponent>
+          </DecoratedInfinite>
         </div>
       </div>
     );

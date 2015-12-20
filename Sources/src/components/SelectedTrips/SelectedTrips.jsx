@@ -5,9 +5,10 @@ import Infinite from 'react-infinite';
 import './SelectedTrips.css';
 import { viewStopNextTrips } from '../../actions/actions.js';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
-import { connectToLayoutObserver } from '../LayoutContainer/LayoutObserver.jsx';
+import { connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
+import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 
-const InfiniteComponent = connectToLayoutObserver(Infinite, 'height', 250, 'containerHeight');
+const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), 'height', 250, 'containerHeight');
 
 const SelectedTrips = React.createClass({
   propTypes: {
@@ -51,11 +52,11 @@ const SelectedTrips = React.createClass({
     })();
 
     return (
-      <InfiniteComponent elementHeight={50}
+      <DecoratedInfinite elementHeight={50}
                 infiniteLoadBeginEdgeOffset={200}
                 onInfiniteLoad={() => this.props.actionDispatcher(viewStopNextTrips(20))}>
         {rows}
-      </InfiniteComponent>
+      </DecoratedInfinite>
     );
   }
 });

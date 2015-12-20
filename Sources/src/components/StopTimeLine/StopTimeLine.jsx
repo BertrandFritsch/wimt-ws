@@ -1,6 +1,5 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
-import GridLayout from '../../gridlayout/gridlayout';
 import { realTimeStateDisplay } from '../../actions/actions.js';
 import './StopTimeLine.css';
 
@@ -9,21 +8,18 @@ const StopTimeLine = React.createClass({
     date: React.PropTypes.instanceOf(Date).isRequired,
     trip: React.PropTypes.string.isRequired,
     tripState: React.PropTypes.any,
-    onStopTimeSelected: React.PropTypes.func.isRequired
-  },
-
-  getInitialState() {
-    return {
-      stopsContainerWidth: 0
-    };
+    stopsContainerWidth: React.PropTypes.number.isRequired,
+    onStopTimeSelected: React.PropTypes.func.isRequired,
+    onLayoutElementAdded: React.PropTypes.func.isRequired,
+    onLayoutElementRemoved: React.PropTypes.func.isRequired
   },
 
   componentDidMount() {
-    GridLayout.resizeListeners.add(this.onResize);
+    this.props.onLayoutElementAdded(this.refs.stopsContainer);
   },
 
   componentWillUnmount() {
-    GridLayout.resizeListeners.remove(this.onResize);
+    this.props.onLayoutElementRemoved(this.refs.stopsContainer);
   },
 
   render() {
@@ -38,7 +34,7 @@ const StopTimeLine = React.createClass({
       return SNCFData.getTripStopTimes(trip).map(s => {
         stopTimeReached = stopTimeReached || s === stopTime;
         return {
-          position: (SNCFData.getStopTimeTime(s) + (stopTimeReached && delayed || 0) - firstStopTimeTime) * this.state.stopsContainerWidth / totalTripTime
+          position: (SNCFData.getStopTimeTime(s) + (stopTimeReached && delayed || 0) - firstStopTimeTime) * this.props.stopsContainerWidth / totalTripTime
         };
       });
     })();
@@ -68,7 +64,7 @@ const StopTimeLine = React.createClass({
             {(() => {
               if (stopTime) {
                 const now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000));
-                const trainPosition = Math.max(0, now - firstStopTimeTime) * this.state.stopsContainerWidth / totalTripTime || 0;
+                const trainPosition = Math.max(0, now - firstStopTimeTime) * this.props.stopsContainerWidth / totalTripTime || 0;
                 return (<div key="trainPosition" className="stop-time-line-train-position" style={{ transform: `translateX(${trainPosition}px)` }}/>);
               }
             })()}
@@ -76,15 +72,6 @@ const StopTimeLine = React.createClass({
         </div>
       </div>
     );
-  },
-
-  onResize() {
-    const stopsContainerWidth = this.refs.stopsContainer.getBoundingClientRect().width;
-    if (this.state.stopsContainerWidth !== stopsContainerWidth) {
-      this.setState({
-        stopsContainerWidth: stopsContainerWidth
-      });
-    }
   }
 });
 
