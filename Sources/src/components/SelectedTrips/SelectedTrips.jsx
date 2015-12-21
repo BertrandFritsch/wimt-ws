@@ -5,10 +5,10 @@ import Infinite from 'react-infinite';
 import './SelectedTrips.css';
 import { viewStopNextTrips } from '../../actions/actions.js';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
-import { connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
+import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 
-const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), 'height', 250, 'containerHeight');
+const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');
 
 const SelectedTrips = React.createClass({
   propTypes: {

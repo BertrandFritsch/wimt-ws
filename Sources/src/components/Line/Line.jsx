@@ -7,11 +7,11 @@ import './Line.css';
 import { viewLineNextTrips } from '../../actions/actions.js';
 import FontAwesome from 'react-fontawesome';
 import { ViewTripAccessor } from '../../reducers/viewTrip.js';
-import { connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
+import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 
-const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), 'height', 250, 'containerHeight');
-const DecoratedStopTimeLine = connectToLayoutMeasurer(StopTimeLine, 'width', 0, 'stopsContainerWidth');
+const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');
+const DecoratedStopTimeLine = connectToLayoutMeasurer(StopTimeLine, createMeasurer('width', 0), 'stopsContainerWidth');
 
 const Line = React.createClass({
   propTypes: {
