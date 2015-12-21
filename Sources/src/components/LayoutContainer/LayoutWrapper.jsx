@@ -1,10 +1,13 @@
 ﻿import React from 'react';
 
+/**
+ * Connects a React component to transparently watch a dimension of the root element of a React component.
+ * @param {ReactClass} Component The wrapped component.
+ * @returns {ReactClass} A React class.
+ */
 export function connectToLayoutWrapper(Component) {
   return React.createClass({
     propTypes: {
-      //initialSize: React.PropTypes.number.isRequired,
-      //axe: React.PropTypes.string.isRequired
       onLayoutElementAdded: React.PropTypes.func.isRequired,
       onLayoutElementRemoved: React.PropTypes.func.isRequired
     },
@@ -18,7 +21,7 @@ export function connectToLayoutWrapper(Component) {
     },
 
     render() {
-      const { onLayoutElementAdded, onLayoutElementRemoved, ...props } = this.props;
+      const { onLayoutElementAdded, onLayoutElementRemoved, ...props } = this.props; //eslint-disable-line no-unused-vars
       return (
         // assume the node can stretch inside its container
         <div ref="containerNode" style={{ width: '100%', height: '100%' }}>
