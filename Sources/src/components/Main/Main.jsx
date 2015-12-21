@@ -48,7 +48,6 @@ const Main = React.createClass({
                            stops={stops}
                            onDepartureStopChange={stop => replaceViewStop(stop, state.stop.getArrivalStop())}
                            onArrivalStopChange={stop => replaceViewStop(state.stop.getDepartureStop(), stop)}
-                           actionDispatcher={this.props.dispatch}
                            viewTrip={this.props.viewTrip}
                            onStopTimeSelected={(trip, date) => this.onStopTimeSelected(trip, date)}/>
                   </LayoutContainer>

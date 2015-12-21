@@ -15,9 +15,12 @@ const DecoratedStopTimeLine = connectToLayoutMeasurer(StopTimeLine, createMeasur
 
 const Line = React.createClass({
   propTypes: {
-    viewTrip: React.PropTypes.any,
+    // invariants -- known at construction time
     onStopTimeSelected: React.PropTypes.func,
-    actionDispatcher: React.PropTypes.func
+    actionDispatcher: React.PropTypes.func,
+
+    // dynamic state
+    viewTrip: React.PropTypes.any
   },
 
   render() {

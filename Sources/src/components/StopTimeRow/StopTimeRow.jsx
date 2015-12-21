@@ -21,7 +21,7 @@ const StopTimeRow = React.createClass({
         <span className="stop-time-row-time">{(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getStopStopTimeByTrip(this.props.stop, trip)), this.props.date)).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
         <span className="stop-time-row-time-separator"/>
         <span className="stop-time-row-container">{SNCFData.getTripMission(trip)} - {SNCFData.getTripNumber(trip)} - {SNCFData.getStopName(SNCFData.getStopTimeStop(SNCFData.getTripLastStopTime(trip)))}</span>
-        <span className="stop-time-row-state">{realTimeStateDisplay(this.props.tripState)}</span>
+        <span className="stop-time-row-state">{realTimeStateDisplay(this.props.tripState, false, false)}</span>
       </div>
     );
   }

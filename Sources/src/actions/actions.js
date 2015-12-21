@@ -64,11 +64,11 @@ function formatDate(date) {
   //}
 }
 
-export function realTimeStateDisplay(state, showAtTime = true) {
+export function realTimeStateDisplay(state, showAtTime = true, showPlannedTrip = true) {
   if (state) {
     switch (state.type) {
       case PLANNED_TRIP:
-        return formatDate(new Date(state.time));
+        return showPlannedTrip ? formatDate(new Date(state.time)) : '';
 
       case NOT_PLANNED_TRIP:
         return "Non planifié !";

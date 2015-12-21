@@ -5,13 +5,16 @@ import './StopTimeLine.css';
 
 const StopTimeLine = React.createClass({
   propTypes: {
+    // invariants -- known at construction time
     date: React.PropTypes.instanceOf(Date).isRequired,
     trip: React.PropTypes.string.isRequired,
-    tripState: React.PropTypes.any,
     stopsContainerWidth: React.PropTypes.number.isRequired,
     onStopTimeSelected: React.PropTypes.func.isRequired,
     onLayoutElementAdded: React.PropTypes.func.isRequired,
-    onLayoutElementRemoved: React.PropTypes.func.isRequired
+    onLayoutElementRemoved: React.PropTypes.func.isRequired,
+
+    // dynamic state
+    tripState: React.PropTypes.any
   },
 
   componentDidMount() {
@@ -20,6 +23,10 @@ const StopTimeLine = React.createClass({
 
   componentWillUnmount() {
     this.props.onLayoutElementRemoved(this.refs.stopsContainer);
+  },
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.tripState !== nextProps.tripState;
   },
 
   render() {
@@ -52,7 +59,7 @@ const StopTimeLine = React.createClass({
           } - {
             SNCFData.getStopName(SNCFData.getStopTimeStop(stopTime || firstStopTime))
           }</span>
-          <span className="stop-time-line-state">{realTimeStateDisplay(this.props.tripState, false)}</span>
+          <span className="stop-time-line-state">{realTimeStateDisplay(this.props.tripState, false, false)}</span>
         </div>
         <div className="stop-time-line-timeline">
           <div ref="stopsContainer" className="stop-time-line-stop-container">
