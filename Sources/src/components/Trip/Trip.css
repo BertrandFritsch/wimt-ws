@@ -48,10 +48,10 @@
   height: 0px;
 }
 
-.trip-train-position-initial-animation {
+.train-position-initial-animation {
   transition-timing-function: ease-out;
 }
 
-.trip-train-position-progression-animation {
+.train-position-progression-animation {
   transition-timing-function: linear;
 }

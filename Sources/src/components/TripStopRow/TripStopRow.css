@@ -10,10 +10,6 @@
   transition-timing-function: ease-out;
 }
 
-.trip-time-row-passed {
-  color: #aaaaaa;
-}
-
 .trip-time-row-time {
   width: 30px;
   font-size: 9pt;
