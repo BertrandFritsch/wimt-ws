@@ -5,13 +5,16 @@ import SNCFData from '../../SNCFData.js';
 //import { updateDebuggingInfo } from '../../actions/actions.js';
 import { realTimeStateDisplay, DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
 import './Trip.css';
-import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 
 const PIXELS_PER_MINUTE = 15;
 
 const Trip = React.createClass({
   propTypes: {
-    viewTrip: React.PropTypes.any
+    // invariants -- known at construction time
+    trip: React.PropTypes.array.isRequired,
+
+    // dynamic state
+    tripState: React.PropTypes.any
   },
 
   getInitialState() {
@@ -25,35 +28,32 @@ const Trip = React.createClass({
   },
 
   render() {
-    const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
-    const tripState = viewTrip.trip.getState();
-    const trip = viewTrip.trip.getTrip();
-    const hasTripState = !!(tripState && tripState.state);
-    const isRunning = hasTripState && (tripState.state.type === RUNNING_TRIP || tripState.state.type === ARRIVED_TRIP);
+    const hasTripState = !!(this.props.tripState && this.props.tripState.state);
+    const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);
     let stopTimeReached = false;
-    const rows = SNCFData.getTripStopTimes(trip).map(stopTime => {
-      if (!stopTimeReached && isRunning && stopTime === tripState.state.stopTime) {
+    const rows = SNCFData.getTripStopTimes(this.props.trip).map(stopTime => {
+      if (!stopTimeReached && isRunning && stopTime === this.props.tripState.state.stopTime) {
         stopTimeReached = true;
       }
 
       return {
         trainHasPassedBy: false && !stopTimeReached,
-        delayedMinutes: stopTimeReached && this.state.showTrainPosition > 0 ? (tripState.state.delayed || 0) : 0,
-        delayed: stopTimeReached ? tripState.state.delayed !== 0 : false
+        delayedMinutes: stopTimeReached && this.state.showTrainPosition > 0 ? (this.props.tripState.state.delayed || 0) : 0,
+        delayed: stopTimeReached ? this.props.tripState.state.delayed !== 0 : false
       };
     });
 
-    const stopTimeTime0 = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(trip));
+    const stopTimeTime0 = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.props.trip));
     const tripContainerStyles = {
-      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(trip)) + (isRunning && tripState.state.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
+      height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.trip)) + (isRunning && this.props.tripState.state.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
     };
 
     return (
       <div data-g-layout-container='' className="trip-frame">
         <div data-g-layout-item='"row": 0'>
-          <TripHeaderRow trip={trip}
-                         state={hasTripState && realTimeStateDisplay(tripState.state)}
-                         status={hasTripState && tripState.realTimeStatus}/>
+          <TripHeaderRow trip={this.props.trip}
+                         state={hasTripState && realTimeStateDisplay(this.props.tripState.state)}
+                         status={hasTripState && this.props.tripState.realTimeStatus}/>
 
           <div className="trip-frame-top-space"/>
         </div>
@@ -63,7 +63,7 @@ const Trip = React.createClass({
             <div className="trip-timeline"/>
             <div className="trip-container" style={tripContainerStyles}>
               {
-                SNCFData.getTripStopTimes(trip).map((stopTime, index) => {
+                SNCFData.getTripStopTimes(this.props.trip).map((stopTime, index) => {
                   let gap = SNCFData.getStopTimeTime(stopTime) + rows[index].delayedMinutes - stopTimeTime0;
                   return (<TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={stopTime}
                                       delayedMinutes={rows[index].delayedMinutes}
@@ -72,12 +72,12 @@ const Trip = React.createClass({
                 })
               }
               {(() => {
-                let delayed = isRunning ? tripState.state.delayed : 0;
+                let delayed = isRunning ? this.props.tripState.state.delayed : 0;
                 let tripTrainStyles = null;
-                let hasTrainPosition = hasTripState && (isRunning || tripState.state.type === DELAYED_TRIP);
+                let hasTrainPosition = hasTripState && (isRunning || this.props.tripState.state.type === DELAYED_TRIP);
                 if (this.state.showTrainPosition) {
                   if (hasTrainPosition) {
-                    let stopTimeTime = SNCFData.getStopTimeTime(tripState.state.stopTime) + delayed - stopTimeTime0;
+                    let stopTimeTime = SNCFData.getStopTimeTime(this.props.tripState.state.stopTime) + delayed - stopTimeTime0;
                     let stopTimePosition = stopTimeTime * PIXELS_PER_MINUTE;
                     let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
                     let nowPosition = now * PIXELS_PER_MINUTE;

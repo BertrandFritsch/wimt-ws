@@ -24,7 +24,7 @@ const Main = React.createClass({
 
   render() {
     const stops = SNCFData.getStopsArray();
-    const state = ViewTripAccessor.create(this.props.viewTrip);
+    const viewTrip = ViewTripAccessor.create(this.props.viewTrip);
 
     let replaceViewStop = (departureStop, arrivalStop) => {
       this.props.dispatch(unviewStop());
@@ -46,15 +46,15 @@ const Main = React.createClass({
                   <LayoutContainer>
                     <Trips actionDispatcher={this.props.dispatch}
                            stops={stops}
-                           onDepartureStopChange={stop => replaceViewStop(stop, state.stop.getArrivalStop())}
-                           onArrivalStopChange={stop => replaceViewStop(state.stop.getDepartureStop(), stop)}
+                           onDepartureStopChange={stop => replaceViewStop(stop, viewTrip.stop.getArrivalStop())}
+                           onArrivalStopChange={stop => replaceViewStop(viewTrip.stop.getDepartureStop(), stop)}
                            viewTrip={this.props.viewTrip}
                            onStopTimeSelected={(trip, date) => this.onStopTimeSelected(trip, date)}/>
                   </LayoutContainer>
                 );
               })()}
               {(() => {
-                if (state.line.hasLine()) {
+                if (viewTrip.line.hasLine()) {
                   return (
                     <LayoutContainer>
                       <Line actionDispatcher={this.props.dispatch}
@@ -65,10 +65,10 @@ const Main = React.createClass({
                 }
               })()}
               {(() => {
-                if (state.trip.hasTrip()) {
+                if (viewTrip.trip.hasTrip()) {
                   return (
                     <LayoutContainer>
-                      <Trip actionDispatcher={this.props.dispatch} viewTrip={this.props.viewTrip} />
+                      <Trip trip={viewTrip.trip.getTrip()} tripState={viewTrip.trip.getState()} />
                     </LayoutContainer>
                   );
                 }
