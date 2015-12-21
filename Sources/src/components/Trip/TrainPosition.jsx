@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { PLANNED_TRIP, DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
+import { DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
 
 export function connectToTrainPosition(Component) {
   return React.createClass({
@@ -30,7 +30,7 @@ export function connectToTrainPosition(Component) {
         const stopTimeTime0 = SNCFData.getStopTimeTime(firstStopTime);
         const hasTripState = !!(this.props.tripState && this.props.tripState.state);
         const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);
-        let hasTrainPosition = hasTripState && (isRunning || this.props.tripState.state.type === DELAYED_TRIP || this.props.tripState.state.type === PLANNED_TRIP);
+        let hasTrainPosition = hasTripState && (isRunning || this.props.tripState.state.type === DELAYED_TRIP);
 
         if (this.state.showTrainPosition) {
           if (hasTrainPosition) {
@@ -42,7 +42,7 @@ export function connectToTrainPosition(Component) {
             }
 
             return {
-              trainPositionDuration: this.state.showTrainPosition === 1 ? 2000 : Math.max(0, stopTimeTime - now) * 60 * 1000,
+              trainPositionDuration: this.state.showTrainPosition === 1 ? 2000 : now < stopTimeTime0 ? 0 : Math.max(0, stopTimeTime - now) * 60 * 1000,
               trainPosition: this.state.showTrainPosition === 1 ? Math.min(Math.max(0, now), stopTimeTime) : stopTimeTime,
               trainAnimationClass: this.state.showTrainPosition === 1 ? 'train-position-initial-animation' : 'train-position-progression-animation'
             };

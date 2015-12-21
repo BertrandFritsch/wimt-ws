@@ -28,7 +28,7 @@ export const UNVIEW_STOP = 'UNVIEW_STOP';
 /*
  * real time status
  */
-export var RealTimeStatus = {
+export const RealTimeStatus = {
   OFFLINE: "OFFLINE",
   ONLINE: "ONLINE",
   CHECKING: "CHECKING"

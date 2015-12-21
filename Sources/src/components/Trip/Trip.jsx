@@ -64,7 +64,7 @@ const Trip = connectToTrainPosition(React.createClass({
                     transitionDuration: `${this.props.trainPositionDuration}ms`,
                     transform: `translateY(${this.props.trainPosition * PIXELS_PER_MINUTE}px)`
                   } || null}>
-                    <div className={this.props.trainPosition && 'trip-train-position'}/>
+                    <div className={this.props.trainPosition !== undefined && 'trip-train-position'}/>
                   </div>
                 );
               })()
