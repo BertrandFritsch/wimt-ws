@@ -5,11 +5,18 @@ import './StopTimeRow.css';
 
 const StopTimeRow = React.createClass({
   propTypes: {
+    // invariants -- known at construction time
     date: React.PropTypes.instanceOf(Date).isRequired,
     trip: React.PropTypes.string.isRequired,
     stop: React.PropTypes.array.isRequired,
-    tripState: React.PropTypes.any,
-    onStopTimeSelected: React.PropTypes.func.isRequired
+    onStopTimeSelected: React.PropTypes.func.isRequired,
+
+    // dynamic state
+    tripState: React.PropTypes.any
+  },
+
+  shouldComponentUpdate(nextProps) {
+    return this.props.tripState !== nextProps.tripState;
   },
 
   render() {
