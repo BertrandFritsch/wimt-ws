@@ -20,7 +20,7 @@ const TripStopRow = React.createClass({
     let top = { transform: `translateY(${this.props.top}px)` };
     return (
         <div className={rowClasses} style={top}>
-          <span className={classes}>{(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime) + (this.props.delayedMinutes || 0))).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+          <span className={classes}>{(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(this.props.stopTime) + (!this.props.trainHasPassedBy ? this.props.delayedMinutes : 0))).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
           <span className="trip-time-row-time-separator"/>
           <span className="trip-time-row-container">{SNCFData.getStopUICCode(SNCFData.getStopTimeStop(this.props.stopTime))} - {SNCFData.getStopName(SNCFData.getStopTimeStop(this.props.stopTime))}</span>
         </div>

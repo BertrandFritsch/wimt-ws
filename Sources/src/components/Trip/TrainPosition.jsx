@@ -42,7 +42,7 @@ export function connectToTrainPosition(Component) {
             }
 
             return {
-              trainPositionDuration: this.state.showTrainPosition === 1 ? 2000 : now < stopTimeTime0 ? 0 : Math.max(0, stopTimeTime - now) * 60 * 1000,
+              trainPositionDuration: this.state.showTrainPosition === 1 ? 2000 : now < 0 ? 0 : Math.max(0, stopTimeTime - now) * 60 * 1000,
               trainPosition: this.state.showTrainPosition === 1 ? Math.min(Math.max(0, now), stopTimeTime) : stopTimeTime,
               trainAnimationClass: this.state.showTrainPosition === 1 ? 'train-position-initial-animation' : 'train-position-progression-animation'
             };
