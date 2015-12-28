@@ -2,7 +2,13 @@
 import SNCFData from '../../SNCFData.js';
 import { DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
 
-export function connectToTrainPosition(Component) {
+/**
+ * Connects a component to the computing of the position of a train.
+ * @param {ReactClass} Component The component to wrap.
+ * @param {function} showTrainPositionTransformer A delegate function to determine the new status of the train position.
+ * @returns {ReactClass} The wrapped component.
+ */
+export function connectToTrainPosition(Component, showTrainPositionTransformer) {
   return React.createClass({
     displayName: 'TrainPosition',
 
@@ -22,6 +28,16 @@ export function connectToTrainPosition(Component) {
 
     componentWillUnmount() {
       this.cancelTrainPosition = true;
+    },
+
+    shouldComponentUpdate(nextProps) {
+      // cancel the updating if the position of the train should change
+      if (this.state.showTrainPosition === 2 && showTrainPositionTransformer && showTrainPositionTransformer(this.props, nextProps)) {
+        this.registerInitialTrainPosition(10).then(() => this.setState({ showTrainPosition: 1 }));
+        return false;
+      }
+
+      return true;
     },
 
     render() {

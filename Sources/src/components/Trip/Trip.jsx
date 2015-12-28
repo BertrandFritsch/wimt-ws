@@ -15,8 +15,8 @@ const Trip = connectToTrainPosition(React.createClass({
     trip: React.PropTypes.array.isRequired,
 
     // dynamic state
-    showTrainPosition: React.PropTypes.number.isRequired,
     tripState: React.PropTypes.any,
+    showTrainPosition: React.PropTypes.number.isRequired,
     trainPosition: React.PropTypes.number,
     trainPositionDuration: React.PropTypes.number,
     trainAnimationClass: React.PropTypes.string
@@ -60,10 +60,11 @@ const Trip = connectToTrainPosition(React.createClass({
               })()}
               {(() => {
                 return (
-                  <div className={[ 'trip-train-frame', this.props.trainAnimationClass || '' ].join(' ')} style={this.props.trainPosition && {
-                    transitionDuration: `${this.props.trainPositionDuration}ms`,
-                    transform: `translateY(${this.props.trainPosition * PIXELS_PER_MINUTE}px)`
-                  } || null}>
+                  <div className={[ 'trip-train-frame', this.props.trainAnimationClass || '' ].join(' ')}
+                       style={this.props.trainPosition && {
+                         transitionDuration: `${this.props.trainPositionDuration}ms`,
+                         transform: `translateY(${this.props.trainPosition * PIXELS_PER_MINUTE}px)`
+                       } || null}>
                     <div className={this.props.trainPosition !== undefined && 'trip-train-position'}/>
                   </div>
                 );

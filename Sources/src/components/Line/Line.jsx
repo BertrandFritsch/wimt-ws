@@ -35,9 +35,9 @@ const Line = React.createClass({
         }
 
         rows.push(<DecoratedStopTimeLine key={index}
-                                         trip={e.trip}
+                                         trip={SNCFData.getTripById(e.trip)}
                                          date={e.date}
-                                         tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
+                                         tripState={viewTrip.states.getState(e.trip, e.date.getTime())}
                                          onStopTimeSelected={this.props.onStopTimeSelected}/>);
 
         return rows;
