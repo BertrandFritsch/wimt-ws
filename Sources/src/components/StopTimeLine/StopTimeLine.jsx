@@ -8,13 +8,13 @@ const StopTimeLine = React.createClass({
     // invariants -- known at construction time
     date: React.PropTypes.instanceOf(Date).isRequired,
     trip: React.PropTypes.string.isRequired,
-    stopsContainerWidth: React.PropTypes.number.isRequired,
     onStopTimeSelected: React.PropTypes.func.isRequired,
     onLayoutElementAdded: React.PropTypes.func.isRequired,
     onLayoutElementRemoved: React.PropTypes.func.isRequired,
 
     // dynamic state
-    tripState: React.PropTypes.any
+    tripState: React.PropTypes.any,
+    stopsContainerWidth: React.PropTypes.number.isRequired
   },
 
   componentDidMount() {
@@ -26,7 +26,7 @@ const StopTimeLine = React.createClass({
   },
 
   shouldComponentUpdate(nextProps) {
-    return this.props.tripState !== nextProps.tripState;
+    return this.props.tripState !== nextProps.tripState || this.props.stopsContainerWidth !== nextProps.stopsContainerWidth;
   },
 
   render() {
