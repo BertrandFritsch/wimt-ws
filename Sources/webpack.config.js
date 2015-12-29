@@ -15,8 +15,10 @@ module.exports = {
     'webpack/hot/dev-server',
     'webpack-dev-server/client?http://localhost:83',
     'font-awesome/css/font-awesome.min.css',
-    path.resolve(__dirname, 'src/app.jsx'),
-    //path.resolve(__dirname, 'src/index.html')
+    path.resolve(__dirname, 'src/extendedArray.js'),
+    path.resolve(__dirname, 'src/extendedElement.js'),
+    'babel-polyfill',
+    path.resolve(__dirname, 'src/app.jsx')
   ],
   output: {
     path: __dirname + '/build',
@@ -24,10 +26,10 @@ module.exports = {
     filename: 'index.js'
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: [ '', '.js', '.jsx' ]
   },
   module: {
-    loaders:[
+    loaders: [
       { test: /\.css$/, loader: 'style-loader!css-loader' },
       { test: /\.png$/, loader: "url-loader?limit=100000" },
       { test: /\.(otf|eot|svg|ttf|woff|woff2)(\?.+)?$/, loader: 'url-loader?limit=8192' },
@@ -35,7 +37,7 @@ module.exports = {
       //{ test: require.resolve(path.resolve(__dirname, 'src/assets/SNCFData.min.js')), loader: "scripts" },
       //{ test: /\.html$/, loader: "html-loader" },
       { test: /\.js[x]?$/, include: path.resolve(__dirname, 'src'), exclude: /node_modules/, loader: 'babel-loader' }
-    ],
+    ]
     //noParse: new RegExp(path.resolve(__dirname, 'src/assets/SNCFData.min.js'))
   },
   plugins: [

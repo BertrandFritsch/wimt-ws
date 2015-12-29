@@ -1,15 +1,12 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
-import ExtendedArray from './extendedArray';
-import ExtendedElement from './extendedElement';
 import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
-import BabelPolyfill from 'babel-polyfill';
-import thunkMiddleware from 'redux-thunk'
-import createLogger from 'redux-logger'
-import { createStore, applyMiddleware } from 'redux'
+import thunkMiddleware from 'redux-thunk';
+import createLogger from 'redux-logger';
+import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import reducers from './reducers/reducers.js'
+import reducers from './reducers/reducers.js';
 import SNCFData from './SNCFData';
 import { viewStop, viewTrip, viewLine } from './actions/actions.js';
 
