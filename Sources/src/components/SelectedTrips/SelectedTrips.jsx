@@ -3,8 +3,6 @@ import DayHeaderRow from './../DayHeaderRow/DayHeaderRow';
 import StopTimeRow from './../StopTimeRow/StopTimeRow';
 import Infinite from 'react-infinite';
 import './SelectedTrips.css';
-import { viewStopNextTrips } from '../../actions/actions.js';
-import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 
@@ -12,9 +10,12 @@ const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinit
 
 const SelectedTrips = React.createClass({
   propTypes: {
-    viewTrip: React.PropTypes.any,
-    onStopTimeSelected: React.PropTypes.func,
-    actionDispatcher: React.PropTypes.func
+    // invariants -- known at construction time
+    onStopTimeSelected: React.PropTypes.func.isRequired,
+
+    // dynamic state
+    departureStop: React.PropTypes.number,
+    tripStates: React.PropTypes.object
   },
 
   componentWillReceiveProps(nextProps) {
@@ -43,7 +44,7 @@ const SelectedTrips = React.createClass({
         rows.push(<StopTimeRow key={index}
                                trip={e.trip}
                                date={e.date}
-                               stop={viewTrip.stop.getDepartureStop()}
+                               stop={this.props.departureStop && SNCFData.getStopById(this.props.departureStop)}
                                tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
                                onStopTimeSelected={this.props.onStopTimeSelected}/>);
 

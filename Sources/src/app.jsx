@@ -9,91 +9,12 @@ import { Provider } from 'react-redux';
 import reducers from './reducers/reducers.js';
 import SNCFData from './SNCFData';
 import { viewStop, viewTrip, viewLine } from './actions/actions.js';
-
-function parseQueryString(store) {
-  let hs = document.location.hash ? document.location.hash.substr(1).split('&').reduce((r, t) => {
-    let q = t.split('=');
-    r[q[0]] = q[1];
-    return r;
-  }, {}) : {};
-
-  let departureStop = hs.departureStop && (() => {
-    let stop = parseInt(hs.departureStop);
-    if (!SNCFData.getStopById(stop)) {
-      console.warn(`The stop id '${hs.departureStop}' is invalid!`);
-    }
-    else {
-      return stop;
-    }
-  })();
-  let arrivalStop = hs.arrivalStop && (() => {
-    let stop = parseInt(hs.arrivalStop);
-    if (!SNCFData.getStopById(stop)) {
-      console.warn(`The stop id '${hs.arrivalStop}' is invalid!`);
-    }
-    else {
-      return stop;
-    }
-  })();
-
-  if (departureStop && arrivalStop) {
-    store.dispatch(viewStop(departureStop, arrivalStop));
-  }
-  else if (departureStop) {
-    store.dispatch(viewStop(departureStop));
-  }
-  else if (arrivalStop) {
-    store.dispatch(viewStop(null, arrivalStop));
-  }
-
-  let departureStopLine = hs.departureStopLine && (() => {
-    let stop = parseInt(hs.departureStopLine);
-    if (!SNCFData.getStopById(stop)) {
-      console.warn(`The stop id '${hs.departureStopLine}' is invalid!`);
-    }
-    else {
-      return stop;
-    }
-  })();
-  let arrivalStopLine = hs.arrivalStopLine && (() => {
-    let stop = parseInt(hs.arrivalStopLine);
-    if (!SNCFData.getStopById(stop)) {
-      console.warn(`The stop id '${hs.arrivalStopLine}' is invalid!`);
-    }
-    else {
-      return stop;
-    }
-  })();
-
-  if (departureStopLine && arrivalStopLine) {
-    store.dispatch(viewLine(departureStopLine, arrivalStopLine));
-  }
-  else if (departureStopLine) {
-    store.dispatch(viewLine(departureStopLine));
-  }
-  else if (arrivalStopLine) {
-    store.dispatch(viewLine(null, arrivalStopLine));
-  }
-
-  if (hs.trip) {
-    if (SNCFData.getTripById(hs.trip)) {
-      let date = new Date();
-      if (hs.date) {
-        let date2 = new Date(parseInt(hs.date));
-        if (!isNaN(date2.getTime())) {
-          date = date2;
-        }
-        else {
-          console.warn(`The date '${hs.date}' is invalid!`);
-        }
-      }
-      store.dispatch(viewTrip(hs.trip, date));
-    }
-    else {
-      console.warn(`The trip id '${hs.trip}' is invalid!`);
-    }
-  }
-}
+import createHistory from 'history/lib/createBrowserHistory';
+import { syncReduxAndRouter } from 'redux-simple-router';
+import { hashHistory, Router, IndexRoute, Route } from 'react-router';
+import Trips from './components/Trips/Trips';
+import Line from './components/Line/Line';
+import Trip from './components/Trip/Trip';
 
 const loggerMiddleware = createLogger();
 
@@ -103,8 +24,24 @@ const createStoreWithMiddleware = applyMiddleware(
 )(createStore);
 
 const store = createStoreWithMiddleware(reducers);
+const history = createHistory();
+syncReduxAndRouter(history, store);
 
-parseQueryString(store);
+function toTrips(nextState, replaceState) {
+  var debug = true;
+}
 
-ReactDOM.render(<Provider store={store}><Main /></Provider>, document.getElementById('main-container'));
+ReactDOM.render(
+  <Provider store={store}>
+    <Router history={hashHistory}>
+      <Route path="/" component={Main}>
+        <IndexRoute component={Trips} />
+        <Route path="stop/:departureStop(/arrival/:arrivalStop)" component={Trips} onEnter={toTrips} />
+        <Route path="line" component={Line} />
+        <Route path="trip" component={Trip} />
+      </Route>
+    </Router>
+  </Provider>,
+  document.getElementById('main-container')
+);
 GridLayout.initialize();
