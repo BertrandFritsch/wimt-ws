@@ -11,7 +11,7 @@ import SNCFData from './SNCFData';
 import { viewStop, viewTrip, viewLine } from './actions/actions.js';
 import createHistory from 'history/lib/createBrowserHistory';
 import { syncReduxAndRouter } from 'redux-simple-router';
-import { hashHistory, Router, IndexRoute, Route } from 'react-router';
+import { Router, IndexRoute, Route } from 'react-router';
 import Trips from './components/Trips/Trips';
 import Line from './components/Line/Line';
 import Trip from './components/Trip/Trip';
@@ -27,18 +27,22 @@ const store = createStoreWithMiddleware(reducers);
 const history = createHistory();
 syncReduxAndRouter(history, store);
 
-function toTrips(nextState, replaceState) {
+function enterTrips(nextState) {
+  var debug = true;
+}
+
+function leaveTrips() {
   var debug = true;
 }
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={hashHistory}>
+    <Router>
       <Route path="/" component={Main}>
-        <IndexRoute component={Trips} />
-        <Route path="stop/:departureStop(/arrival/:arrivalStop)" component={Trips} onEnter={toTrips} />
+        <Route path="stop/:departureStop(/arrival/:arrivalStop)" component={Trips} onEnter={enterTrips} onLeave={leaveTrips} />
         <Route path="line" component={Line} />
         <Route path="trip" component={Trip} />
+        <IndexRoute component={Trips} onEnter={enterTrips} onLeave={leaveTrips} />
       </Route>
     </Router>
   </Provider>,
