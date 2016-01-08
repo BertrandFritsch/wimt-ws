@@ -4,7 +4,7 @@
 //import Routes from '../SNCFData/routes.js'
 //import Services from '../SNCFData/routes.js'
 //import Stops from '../SNCFData/stops.js'
-//import Trips from '../SNCFData/trips.js'
+//import Trips from '../SNCFData/stop.js'
 
 /**
  * Data structures:

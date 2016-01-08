@@ -1,5 +1,5 @@
 ﻿import { VIEW_TRIP, UNVIEW_TRIP, PLANNED_TRIP, NOT_PLANNED_TRIP, CANCELLED_TRIP, DELAYED_TRIP, REAL_TIME_TRIP, RUNNING_TRIP, ARRIVED_TRIP, VIEW_LINE, VIEW_LINE_NEXT_TRIPS, VIEW_STOP, VIEW_STOP_NEXT_TRIPS, UNVIEW_STOP } from '../actions/actions.js';
-import SNCFData from '../SNCFData.js';
+import SNCFData from '../../SNCFData.js';
 import Immutable from 'immutable';
 import assert from 'assert';
 

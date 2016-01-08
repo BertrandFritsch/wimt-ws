@@ -1,4 +1,4 @@
-﻿import SNCFData from '../SNCFData.js';
+﻿import SNCFData from '../../SNCFData.js';
 import { tripStateSetUp } from './tripState.js';
 import { tripsGenerator } from './tripsGenerator.js';
 import { ViewTripAccessor } from '../reducers/viewTrip.js';
@@ -278,8 +278,8 @@ export function viewLineNextTrips(count) {
   return viewNextTrips(count, VIEW_LINE_NEXT_TRIPS, 'line');
 }
 
-function viewStopAction(departureStop, arrivalStop, tripsGenerator) {
-  return { type: VIEW_STOP, data: { departureStop, arrivalStop, tripsGenerator } };
+function viewStopAction(departureStop, arrivalStop, time, tripsGenerator) {
+  return { type: VIEW_STOP, data: { departureStop, arrivalStop, time, tripsGenerator } };
 }
 
 /**
@@ -289,8 +289,8 @@ function viewStopAction(departureStop, arrivalStop, tripsGenerator) {
  * @param {number} arrivalStop stop id
  * @returns {object} The VIEW_STOP action
  */
-export function viewStop(departureStop, arrivalStop) {
-  return viewStopAction(departureStop, arrivalStop, tripsGenerator(departureStop, arrivalStop));
+export function viewStop(departureStop, arrivalStop, date = new Date()) {
+  return viewStopAction(departureStop, arrivalStop, date.getTime(), tripsGenerator(departureStop, arrivalStop, date));
 }
 
 export function viewStopNextTrips(count) {

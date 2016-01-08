@@ -1,10 +1,9 @@
-﻿import SNCFData from '../SNCFData.js';
+﻿import SNCFData from '../../SNCFData.js';
 
-export function tripsGenerator(departureStop, arrivalStop) {
+export function tripsGenerator(departureStop, arrivalStop, date) {
   let tripsGenerator = (function* () {
     const minutesPerDay = 24 * 60;
     let trips = [];
-    let date = new Date();
     const now = (date.getTime() - SNCFData.getDateByMinutes(0).getTime()) / 1000 / 60;
 
     date = SNCFData.getDateByMinutes(0, date);

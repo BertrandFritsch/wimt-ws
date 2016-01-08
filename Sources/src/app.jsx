@@ -6,15 +6,15 @@ import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import reducers from './reducers/reducers.js';
-import SNCFData from './SNCFData';
-import { viewStop, viewTrip, viewLine } from './actions/actions.js';
-import createHistory from 'history/lib/createBrowserHistory';
-import { syncReduxAndRouter } from 'redux-simple-router';
-import { Router, IndexRoute, Route } from 'react-router';
+import reducers from './store/reducers.js';
+import { hashHistory, Router, IndexRoute, Route } from 'react-router';
 import Trips from './components/Trips/Trips';
 import Line from './components/Line/Line';
 import Trip from './components/Trip/Trip';
+import { connectTrips, commands as stopCommands } from './store/stop.js';
+import { commands as historyCommands } from './store/history.js';
+import { commands as tripsStatesCommands } from './store/tripsStates.js';
+import SNCFData from './SNCFData.js';
 
 const loggerMiddleware = createLogger();
 
@@ -24,28 +24,44 @@ const createStoreWithMiddleware = applyMiddleware(
 )(createStore);
 
 const store = createStoreWithMiddleware(reducers);
-const history = createHistory();
-syncReduxAndRouter(history, store);
 
-function enterTrips(nextState) {
-  var debug = true;
+// initialize domain modules
+historyCommands.initializeModule(store);
+stopCommands.initializeModule(store);
+tripsStatesCommands.initializeModule(store);
+
+// connect containers
+const ConnectedTrips = connectTrips(Trips);
+
+function checkValidStop(stopStr) {
+  const stop = parseInt(stopStr);
+  if (!SNCFData.getStopById(stop)) {
+    console.warn(`The stop id '${stopStr}' is invalid!`);
+  }
+  else {
+    return stop;
+  }
 }
 
-function leaveTrips() {
-  var debug = true;
+function navigateToStop(nextState) {
+  let departureStop = nextState.params.departureStop && checkValidStop(nextState.params.departureStop),
+      arrivalStop = nextState.params.arrivalStop && checkValidStop(nextState.params.arrivalStop);
+
+  historyCommands.navigateTo(nextState.location.key, stopCommands.viewStop(departureStop, arrivalStop));
 }
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router>
+    <Router history={hashHistory}>
       <Route path="/" component={Main}>
-        <Route path="stop/:departureStop(/arrival/:arrivalStop)" component={Trips} onEnter={enterTrips} onLeave={leaveTrips} />
+        <Route path="/stop/:departureStop(/arrival/:arrivalStop)" component={ConnectedTrips} onEnter={navigateToStop} />
         <Route path="line" component={Line} />
         <Route path="trip" component={Trip} />
-        <IndexRoute component={Trips} onEnter={enterTrips} onLeave={leaveTrips} />
+        <IndexRoute component={Trips} />
       </Route>
     </Router>
   </Provider>,
   document.getElementById('main-container')
 );
+
 GridLayout.initialize();

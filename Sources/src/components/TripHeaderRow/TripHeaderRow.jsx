@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { RealTimeStatus } from '../../actions/actions.js'
+import { RealTimeStatus } from '../../store/actions/actions.js'
 import theme from './TripHeaderRow.css';
 
 class TripHeaderRow extends React.Component {

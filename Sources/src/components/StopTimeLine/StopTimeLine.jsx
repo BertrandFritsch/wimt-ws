@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
 import { connectToTrainPosition } from '../Trip/TrainPosition';
-import { realTimeStateDisplay, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
+import { realTimeStateDisplay, RUNNING_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
 import './StopTimeLine.css';
 
 const StopTimeLine = connectToTrainPosition(React.createClass({

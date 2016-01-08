@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../actions/actions.js';
+import { DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
 
 /**
  * Connects a component to the computing of the position of a train.

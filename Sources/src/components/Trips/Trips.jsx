@@ -2,12 +2,8 @@
 import AutoCompleteSelector from './../AutoCompleteSelector/AutoCompleteSelector';
 import Infinite from 'react-infinite';
 import SNCFData from './../../SNCFData';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
-import { viewStopNextTrips } from '../../actions/actions.js';
-import { ViewTripAccessor } from '../../reducers/viewTrip.js';
 import './Trips.css';
 
 const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');
@@ -16,10 +12,8 @@ let Trips = React.createClass({
   propTypes: {
     // invariants -- known at construction time
     stops: React.PropTypes.arrayOf(React.PropTypes.array).isRequired,
-    actions: React.PropTypes.shape({
-      onStopTimeSelected: React.PropTypes.func.isRequired,
-      viewStopNextTrips: React.PropTypes.func.isRequired
-    }).isRequired,
+    onStopTimeSelected: React.PropTypes.func.isRequired,
+    generateNextTrips: React.PropTypes.func.isRequired,
 
     // dynamic state
     departureStop: React.PropTypes.array,
@@ -41,13 +35,12 @@ let Trips = React.createClass({
 
   componentWillMount() {
     if (this.props.departureStop || this.props.arrivalStop) {
-      this.props.actions.viewStopNextTrips()
+      this.props.generateNextTrips(20);
     }
 
     this.setState({
       departureStop: this.props.departureStop,
-      arrivalStop: this.props.arrivalStop,
-
+      arrivalStop: this.props.arrivalStop
     });
   },
 
@@ -55,7 +48,7 @@ let Trips = React.createClass({
     if ((this.state.departureStop !== nextState.departureStop
       || this.state.arrivalStop !== nextState.arrivalStop)
     && (nextState.departureStop || nextState.arrivalStop)) {
-      this.props.viewStopNextTrips(20);
+      this.props.generateNextTrips(20);
     }
   },
 
@@ -125,7 +118,7 @@ let Trips = React.createClass({
         <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
           <DecoratedInfinite elementHeight={50}
                              infiniteLoadBeginEdgeOffset={200}
-                             onInfiniteLoad={() => this.props.actions.viewStopNextTrips(20)}>
+                             onInfiniteLoad={() => this.props.generateNextTrips(20)}>
             {rows}
           </DecoratedInfinite>
         </div>
@@ -140,31 +133,4 @@ let Trips = React.createClass({
   }
 });
 
-function checkValidStop(stopStr) {
-  let stop = parseInt(stopStr);
-  if (!(stop = SNCFData.getStopById(stop))) {
-    console.warn(`The stop id '${stopStr}' is invalid!`);
-  }
-  else {
-    return stop;
-  }
-}
-
-function mapStateToProps(state, ownProps) {
-  return {
-    departureStop: ownProps.routeParams.departureStop && checkValidStop(ownProps.routeParams.departureStop),
-    arrivalStop: ownProps.routeParams.arrivalStop && checkValidStop(ownProps.routeParams.arrivalStop)
-  };
-}
-
-function onStopTimeSelected() {
-  var debug = true;
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators({ onStopTimeSelected, viewStopNextTrips }, dispatch)
-  };
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Trips);
+export default Trips;
