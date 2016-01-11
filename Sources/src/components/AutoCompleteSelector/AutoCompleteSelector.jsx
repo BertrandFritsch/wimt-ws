@@ -1,14 +1,23 @@
 ﻿import React from 'react';
 import Autosuggest from 'react-autosuggest';
 import SNCFData from '../../SNCFData.js';
-import theme from './AutoCompleteSelector.css';
+import './AutoCompleteSelector.css';
 
-class AutoCompleteSelector extends React.Component {
-  static defaultProps = {
-    placeholder: '',
-    data: [],
-    value: null
-  }
+const AutoCompleteSelector = React.createClass({
+  propTypes: {
+    data: React.PropTypes.array,
+    onStopChange: React.PropTypes.func,
+    placeholder: React.PropTypes.string,
+    value: React.PropTypes.string
+  },
+
+  getDefaultProps() {
+    return {
+      placeholder: '',
+      data: [],
+      value: null
+    };
+  },
 
   //componentDidMount = () => {
   //  $(React.findDOMNode(this)).kendoAutoComplete({
@@ -38,11 +47,11 @@ class AutoCompleteSelector extends React.Component {
       setTimeout(() => {
         input = input.toUpperCase();
 
-        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).toUpperCase().indexOf(input) > -1))
+        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).toUpperCase().indexOf(input) > -1));
       }, 1);
     };
 
-    let suggestionRenderer = (suggestion, input) => {
+    let suggestionRenderer = (suggestion /*, input */) => {
       return SNCFData.getStopName(suggestion);
     };
 
@@ -61,17 +70,17 @@ class AutoCompleteSelector extends React.Component {
       }
     };
 
-    return <Autosuggest id={this.props.placeholder}
-                        value={this.props.value && SNCFData.getStopName(this.props.value) || ''}
-                        inputAttributes={{
-                          placeholder: this.props.placeholder,
-                          onChange: onInputChange
-                        }}
-                        suggestions={getSuggestions}
-                        suggestionRenderer={suggestionRenderer}
-                        suggestionValue={suggestionValue}
-                        onSuggestionSelected={onSuggestionSelected} />;
+    return (<Autosuggest id={this.props.placeholder}
+                         value={this.props.value && SNCFData.getStopName(this.props.value) || ''}
+                         inputAttributes={{
+                           placeholder: this.props.placeholder,
+                           onChange: onInputChange
+                         }}
+                         suggestions={getSuggestions}
+                         suggestionRenderer={suggestionRenderer}
+                         suggestionValue={suggestionValue}
+                         onSuggestionSelected={onSuggestionSelected} />);
   }
-}
+});
 
 export default AutoCompleteSelector;

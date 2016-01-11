@@ -1,13 +1,17 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { RealTimeStatus } from '../../store/actions/actions.js'
-import theme from './TripHeaderRow.css';
+import { RealTimeStatus } from '../../store/actions/actions.js';
+import './TripHeaderRow.css';
 
-class TripHeaderRow extends React.Component {
-  constructor(props) { super(props); }
+const TripHeaderRow = React.createClass({
+  propTypes: {
+    status: React.PropTypes.any,
+    state: React.PropTypes.string,
+    trip: React.PropTypes.array
+  },
 
-  render = () => {
-    let tripHeaderRowClasses = ['trip-header-row', this.props.status === RealTimeStatus.ONLINE ? 'trip-real-time' : this.props.status === RealTimeStatus.CHECKING ? 'trip-real-time-checking' : 'trip-no-real-time'].join(' ');
+  render() {
+    let tripHeaderRowClasses = [ 'trip-header-row', this.props.status === RealTimeStatus.ONLINE ? 'trip-real-time' : this.props.status === RealTimeStatus.CHECKING ? 'trip-real-time-checking' : 'trip-no-real-time' ].join(' ');
 
     return (
       <div className={tripHeaderRowClasses}>
@@ -15,8 +19,8 @@ class TripHeaderRow extends React.Component {
         <span className="trip-header-row-state">{this.props.state}</span>
         <span className="trip-header-row-arrow" />
       </div>
-    )
+    );
   }
-}
+});
 
 export default TripHeaderRow;
