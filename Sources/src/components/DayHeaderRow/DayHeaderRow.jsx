@@ -3,7 +3,7 @@ import './DayHeaderRow.css';
 
 const DayHeaderRow = React.createClass({
   propTypes: {
-    date: React.PropTypes.date
+    date: React.PropTypes.object
   },
 
   render() {
