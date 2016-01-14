@@ -4,6 +4,9 @@ import Infinite from 'react-infinite';
 import SNCFData from './../../SNCFData';
 import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
+import DayHeaderRow from '../DayHeaderRow/DayHeaderRow.jsx';
+import StopTimeRow from '../StopTimeRow/StopTimeRow.jsx';
+import { connectWithTripState } from '../../store/stop.js';
 import './Trips.css';
 
 const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');
@@ -17,7 +20,8 @@ let Trips = React.createClass({
 
     // dynamic state
     departureStop: React.PropTypes.array,
-    arrivalStop: React.PropTypes.array
+    arrivalStop: React.PropTypes.array,
+    trips: React.PropTypes.array
   },
 
   getDefaultProps() {
@@ -26,35 +30,18 @@ let Trips = React.createClass({
     };
   },
 
-  getInitialState() {
-    return {
-      departureStop: null,
-      arrivalStop: null
-    };
-  },
-
   componentWillMount() {
     if (this.props.departureStop || this.props.arrivalStop) {
       this.props.generateNextTrips(20);
     }
-
-    this.setState({
-      departureStop: this.props.departureStop,
-      arrivalStop: this.props.arrivalStop
-    });
   },
 
-  componentWillReceiveProps(nextProps, nextState) {
-    if ((this.state.departureStop !== nextState.departureStop
-      || this.state.arrivalStop !== nextState.arrivalStop)
-    && (nextState.departureStop || nextState.arrivalStop)) {
-      this.props.generateNextTrips(20);
+  componentWillReceiveProps(nextProps) {
+    if ((this.props.departureStop !== nextProps.departureStop
+      || this.props.arrivalStop !== nextProps.arrivalStop)
+    && (nextProps.departureStop || nextProps.arrivalStop)) {
+      nextProps.generateNextTrips(20);
     }
-  },
-
-  shouldComponentUpdate(nextProps, nextState) {
-    return this.state.departureStop !== nextState.departureStop
-        || this.state.arrivalStop !== nextState.arrivalStop;
   },
 
   render() {
@@ -62,8 +49,9 @@ let Trips = React.createClass({
 
     const departureStop = this.props.departureStop;
     const arrivalStop = this.props.arrivalStop;
-    let arrivalStops;
+    const trips = this.props.trips || [];
 
+    let arrivalStops;
     if (departureStop) {
       // filter the possible arrival stops
       arrivalStops = (() => {
@@ -86,26 +74,25 @@ let Trips = React.createClass({
       arrivalStops = departureStops;
     }
 
-    //const rows = (() => {
-    //  let date;
-    //
-    //  return viewTrip.stop.getTrips().reduce((rows, e, index) => {
-    //    if (date !== e.date) {
-    //      date = e.date;
-    //      rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
-    //    }
-    //
-    //    rows.push(<StopTimeRow key={index}
-    //                           trip={e.trip}
-    //                           date={e.date}
-    //                           stop={departureStop}
-    //                           tripState={viewTrip.states.getTripState(e.trip, e.date.getTime())}
-    //                           onStopTimeSelected={this.props.onStopTimeSelected}/>);
-    //
-    //    return rows;
-    //  }, []);
-    //})();
-    const rows = [];
+    const rows = (() => {
+      let date;
+
+      return trips.reduce((rows, e, index) => {
+        if (date !== e.date) {
+          date = e.date;
+          rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
+        }
+
+        const ConnectedStopTimeRow = connectWithTripState(StopTimeRow);
+        rows.push(<ConnectedStopTimeRow key={index}
+                                        trip={e.trip}
+                                        date={e.date}
+                                        stop={departureStop}
+                                        onStopTimeSelected={this.props.onStopTimeSelected}/>);
+
+        return rows;
+      }, []);
+    })();
 
     return (
       <div data-g-layout-container='' className="trips-frame">

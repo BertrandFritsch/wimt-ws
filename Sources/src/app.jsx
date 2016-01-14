@@ -1,8 +1,8 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
+import saga from 'redux-saga';
 import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
-import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
@@ -11,24 +11,18 @@ import { hashHistory, Router, IndexRoute, Route } from 'react-router';
 import Trips from './components/Trips/Trips';
 import Line from './components/Line/Line';
 import Trip from './components/Trip/Trip';
-import { connectTrips, commands as stopCommands } from './store/stop.js';
-import { commands as historyCommands } from './store/history.js';
-import { commands as tripsStatesCommands } from './store/tripsStates.js';
+import { connectTrips, sagas as stopSagas, actions as stopActions } from './store/stop.js';
+import { actions as historyActions, sagas as historySagas } from './store/history.js';
 import SNCFData from './SNCFData.js';
 
 const loggerMiddleware = createLogger();
 
 const createStoreWithMiddleware = applyMiddleware(
-  thunkMiddleware, // lets us dispatch() functions
+  saga(historySagas, stopSagas), // lets run sagas
   loggerMiddleware // neat middleware that logs actions
 )(createStore);
 
-const store = createStoreWithMiddleware(reducers);
-
-// initialize domain modules
-historyCommands.initializeModule(store);
-stopCommands.initializeModule(store);
-tripsStatesCommands.initializeModule(store);
+const store = window.store = createStoreWithMiddleware(reducers);
 
 // connect containers
 const ConnectedTrips = connectTrips(Trips);
@@ -47,7 +41,7 @@ function navigateToStop(nextState) {
   let departureStop = nextState.params.departureStop && checkValidStop(nextState.params.departureStop),
       arrivalStop = nextState.params.arrivalStop && checkValidStop(nextState.params.arrivalStop);
 
-  historyCommands.navigateTo(nextState.location.key, stopCommands.viewStop(departureStop, arrivalStop));
+  store.dispatch(stopActions.navigateToStop(departureStop, arrivalStop, new Date(), historyActions.navigateTo(nextState.location.key)));
 }
 
 ReactDOM.render(
