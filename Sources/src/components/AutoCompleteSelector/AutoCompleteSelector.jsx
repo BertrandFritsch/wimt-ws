@@ -8,7 +8,7 @@ const AutoCompleteSelector = React.createClass({
     data: React.PropTypes.array,
     onStopChange: React.PropTypes.func,
     placeholder: React.PropTypes.string,
-    value: React.PropTypes.string
+    value: React.PropTypes.array
   },
 
   getDefaultProps() {
@@ -19,67 +19,55 @@ const AutoCompleteSelector = React.createClass({
     };
   },
 
-  //componentDidMount = () => {
-  //  $(React.findDOMNode(this)).kendoAutoComplete({
-  //    placeholder: this.props.placeholder,
-  //    dataSource: this.props.data,
-  //    value: this.props.value,
-  //    dataTextField: 'name',
-  //    filter: 'contains',
-  //    select: (e) => {
-  //      this.props.onStopChange(this.dataItem(e.item.index()));
-  //    }
-  //  });
-  //}
-  //
-  //componentWillReceiveProps = (nextProps) => {
-  //  if (nextProps.data !== this.props.data) {
-  //    $(React.findDOMNode(this)).data("kendoAutoComplete").dataSource.data(nextProps.data);
-  //  }
-  //
-  //  if (nextProps.value !== this.props.value) {
-  //    $(React.findDOMNode(this)).data("kendoAutoComplete").value(nextProps.value);
-  //  }
-  //}
+  getInitialState() {
+    return {
+      suggestions: [],
+      value: this.getSuggestionValue(this.props.value)
+    };
+  },
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.value !== nextProps.value) {
+      this.setState({ value: this.getSuggestionValue(nextProps.value) });
+    }
+  },
 
   render() {
-    let getSuggestions = (input, callback) => {
-      setTimeout(() => {
-        input = input.toUpperCase();
-
-        callback(null, this.props.data.filter(t => SNCFData.getStopName(t).toUpperCase().indexOf(input) > -1));
-      }, 1);
-    };
-
-    let suggestionRenderer = (suggestion /*, input */) => {
-      return SNCFData.getStopName(suggestion);
-    };
-
-    let suggestionValue = (suggestion) => {
-      return SNCFData.getStopName(suggestion);
-    };
-
-    let onSuggestionSelected = (suggestion, event) => {
-      event.preventDefault();
-      this.props.onStopChange(suggestion);
-    };
-
-    let onInputChange = (value) => {
-      if (value === '') {
-        this.props.onStopChange(null);
-      }
-    };
-
     return (<Autosuggest id={this.props.placeholder}
-                         value={this.props.value && SNCFData.getStopName(this.props.value) || ''}
-                         inputAttributes={{
+                         inputProps={{
                            placeholder: this.props.placeholder,
-                           onChange: onInputChange
+                           onChange: this.onInputChange,
+                           value: this.state.value
                          }}
-                         suggestions={getSuggestions}
-                         suggestionRenderer={suggestionRenderer}
-                         suggestionValue={suggestionValue}
-                         onSuggestionSelected={onSuggestionSelected} />);
+                         suggestions={this.state.suggestions}
+                         getSuggestionValue={this.getSuggestionValue}
+                         renderSuggestion={suggestion => <span>{SNCFData.getStopName(suggestion)}</span>}
+                         onSuggestionSelected={this.onSuggestionSelected}
+                         onSuggestionsUpdateRequested={this.onSuggestionsUpdateRequested} />);
+  },
+
+  getSuggestionValue(suggestion) {
+    return suggestion && SNCFData.getStopName(suggestion) || '';
+  },
+
+  onSuggestionSelected(event, { suggestion }) {
+    event.preventDefault();
+    this.props.onStopChange(suggestion);
+  },
+
+  onInputChange(event, { newValue }) {
+    this.setState({ value: newValue });
+    if (newValue === '') {
+      this.props.onStopChange(null);
+    }
+  },
+
+  onSuggestionsUpdateRequested({ value }) {
+    value = value.toUpperCase();
+
+    this.setState({
+      suggestions: this.props.data.filter(t => SNCFData.getStopName(t).toUpperCase().indexOf(value) > -1)
+    });
   }
 });
 

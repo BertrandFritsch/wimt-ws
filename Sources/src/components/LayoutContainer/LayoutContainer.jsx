@@ -1,13 +1,15 @@
 ﻿import React from 'react';
-import theme from './LayoutContainer.css';
+import './LayoutContainer.css';
 import GridLayout from '../../gridlayout/gridlayout';
 
-class LayoutContainer extends React.Component {
-  constructor(props) { super(props); }
+const LayoutContainer = React.createClass({
+  propTypes: {
+    children: React.PropTypes.any
+  },
 
-  domNode = null;
+  domNode: null,
 
-  render = () => {
+  render() {
     return (
       <div ref={c => {
         if (c !== null) {
@@ -21,8 +23,8 @@ class LayoutContainer extends React.Component {
           }
         }
       }}>{this.props.children}</div>
-    )
+    );
   }
-}
+});
 
 export default LayoutContainer;

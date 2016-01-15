@@ -2,50 +2,45 @@
 import { createSelector } from 'reselect';
 import { take, fork, put } from 'redux-saga';
 import Immutable from 'immutable';
-import { actions as historyActions } from './history.js';
-import { actions as tripsStatesActions, commands as tripsStatesCommands } from './tripsStates.js';
+import { actions as tripsStatesActions } from './tripsStates.js';
 import SNCFData from '../SNCFData.js';
 
 //************** constants
 
 const NAVIGATE_TO_STOP = 'NAVIGATE_TO_STOP';
-const VIEW_STOP = 'VIEW_STOP';
+const STOP_NAVIGATION_STEP_CREATED = 'STOP_NAVIGATION_STEP_CREATED';
+const STOP_NAVIGATION_STEP_UPDATED = 'STOP_NAVIGATION_STEP_UPDATED';
+const SELECT_STOPS = 'SELECT_STOPS';
 const GENERATE_NEXT_TRIPS = 'GENERATE_NEXT_TRIPS';
-const VIEW_NEXT_TRIPS = 'VIEW_NEXT_TRIPS';
 
 //************** reducers
 
 const emptyList = Immutable.List();
-const emptyMap = Immutable.Map();
 
-const reducers = {
-  [VIEW_STOP](state, departureStop, arrivalStop, time, tripsGenerator) {
-    return {
-      newState: state,
-      newValue: Immutable.Map({
-        departureStop,
-        arrivalStop,
-        time,
-        generator: tripsGenerator,
-        cleaner: () => {
-        }
-      })
-    };
-  },
-  [VIEW_NEXT_TRIPS](state, nextTrips) {
-    return state.update('trips', emptyList, trips => trips.concat(nextTrips));
-  }
-};
+export const creationEvent = STOP_NAVIGATION_STEP_CREATED;
+export const updateEvent = STOP_NAVIGATION_STEP_UPDATED;
 
 //************** actions
 
 export const actions = {
-  navigateToStop(departureStop, arrivalStop, date, history) {
-    return { type: NAVIGATE_TO_STOP, data: { departureStop, arrivalStop, date, history } };
+  navigateToStop(departureStop, arrivalStop, date, metaData) {
+    return { type: NAVIGATE_TO_STOP, data: { departureStop, arrivalStop, date, metaData } };
   },
 
-  generateNextTrips(count) {
-    return { type: GENERATE_NEXT_TRIPS, data: { count } };
+  stopNavigationStepCreated(step, metaData) {
+    return { type: STOP_NAVIGATION_STEP_CREATED, data: { step, metaData } };
+  },
+
+  stopNavigationStepUpdated(step) {
+    return { type: STOP_NAVIGATION_STEP_UPDATED, data: { step } };
+  },
+
+  selectStops(step, departureStop, arrivalStop, date) {
+    return { type: SELECT_STOPS, data: { step, departureStop, arrivalStop, date } };
+  },
+
+  generateNextTrips(step, count) {
+    return { type: GENERATE_NEXT_TRIPS, data: { step, count } };
   }
 };
 
@@ -53,58 +48,65 @@ export const actions = {
 
 function* navigateToStop() {
   while (true) {
-    const { data: { departureStop, arrivalStop, date, history: { type, data } } } = yield take(NAVIGATE_TO_STOP),
-          generator = tripsStatesActions.tripsGenerator(departureStop, arrivalStop, date);
+    const { data: { departureStop, arrivalStop, date, metaData } } = yield take(NAVIGATE_TO_STOP),
+          step = Immutable.Map({
+            departureStop,
+            arrivalStop,
+            time: date.getTime(),
+            generator: tripsStatesActions.tripsGenerator(departureStop, arrivalStop, date)
+          });
 
-    yield put({ type, data: { ...data, stepReducer: state => reducers[VIEW_STOP](state, departureStop, arrivalStop, date.getTime(), generator) } });
+    yield put(actions.stopNavigationStepCreated(step, metaData));
   }
 }
 
 function* generateNextTrips(getTripsStates) {
   while (true) {
-    const { data: { step, count, nextEvent: { type, data } } } = yield take(GENERATE_NEXT_TRIPS),
-          { trips, tripsStates } = tripsStatesActions.generateNextTrips(count, step.get('generator'), getTripsStates);
+    const { data: { step, count } } = yield take(GENERATE_NEXT_TRIPS),
+          { trips: nextTrips, tripsStates: tripsStatesSetAction } = tripsStatesActions.generateNextTrips(count, step.get('generator'), getTripsStates);
 
-    yield put({ type, data: { ...data, step, stepReducer: state => reducers[VIEW_NEXT_TRIPS](state, trips) } });
-    yield put(tripsStates);
+    yield put(tripsStatesSetAction);
+    yield put(actions.stopNavigationStepUpdated(step.update('trips', emptyList, trips => trips.concat(nextTrips))));
+  }
+}
+
+function* selectStops(getTripsStates) {
+  while (true) {
+    const { data: { step, departureStop, arrivalStop, date } } = yield take(SELECT_STOPS),
+          tripsStates = getTripsStates(),
+          trips = step.get('trips');
+
+    if (trips) {
+      yield put(tripsStatesActions.stopTripStates(tripsStates, trips));
+    }
+
+    yield put(actions.navigateToStop(departureStop, arrivalStop, date, { history: step.get('key') }));
   }
 }
 
 export function* sagas(getState) {
-  const getTripsStates = () => getState().history.get('tripsStates', emptyMap);
+  const getTripsStates = () => getState().tripsStates;
 
   yield fork(navigateToStop);
   yield fork(generateNextTrips, getTripsStates);
+  yield fork(selectStops, getTripsStates);
 }
 
 
 //************** Component interface
 
-const selectCurrentHistoryStep = () => createSelector(
-  state => state.history.get('history'),
-  state => state.history.get('current'),
-  (history, current) => {
-    return current > -1 ? history.get(current) : undefined;
-  }
-);
-
 const selectDepartureStop = () => createSelector(
-  selectCurrentHistoryStep(),
+  (_, props) => props.step,
   state => state && state.get('departureStop')
 );
 
 const selectArrivalStop = () => createSelector(
-  selectCurrentHistoryStep(),
+  (_, props) => props.step,
   state => state && state.get('arrivalStop')
 );
 
-const selectNavigationKey = () => createSelector(
-  selectCurrentHistoryStep(),
-  state => state && state.get('key')
-);
-
 const selectTrips = () => createSelector(
-  selectCurrentHistoryStep(),
+  (_, props) => props.step,
   state => state && state.get('trips')
 );
 
@@ -114,18 +116,18 @@ const selectArrayTrips = () => createSelector(
 );
 
 const selectStopProps = () => createSelector(
+  (_, props) => props.step,
   selectDepartureStop(),
   selectArrivalStop(),
   selectArrayTrips(),
-  selectNavigationKey(),
-  (departureStop, arrivalStop, trips, navigationKey) => {
+  (step, departureStop, arrivalStop, trips) => {
     return {
       data: {
         departureStop: departureStop && SNCFData.getStopById(departureStop),
         arrivalStop: arrivalStop && SNCFData.getStopById(arrivalStop),
         trips
       },
-      navigationKey
+      step
     };
   }
 );
@@ -138,11 +140,12 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mergeProps(stateProps, dispatchProps) {
-  const { data, navigationKey } = stateProps;
+  const { data, step } = stateProps;
 
   return {
     ...data,
-    generateNextTrips: count => window.store.dispatch(historyActions.applyEventToStep(navigationKey, actions.generateNextTrips(count))),
+    selectStops: (departureStop, arrivalStop) => window.store.dispatch(actions.selectStops(step, departureStop && SNCFData.getStopId(departureStop), arrivalStop && SNCFData.getStopId(arrivalStop), new Date())),
+    generateNextTrips: count => window.store.dispatch(actions.generateNextTrips(step, count)),
     ...dispatchProps
   };
 }
@@ -150,12 +153,3 @@ function mergeProps(stateProps, dispatchProps) {
 export function connectTrips(component) {
   return connect(selectStopProps(), mapDispatchToProps, mergeProps)(component);
 };
-
-//************** Trip State Component interface
-
-const selectTripState = (state, props) => tripsStatesCommands.getTripStateOf(state.tripsStates, props.trip, props.date);
-const mapTripStateToObject = tripState => ({ tripState: tripState && tripState.toJS() });
-
-export function connectWithTripState(component) {
-  return connect(createSelector(selectTripState, mapTripStateToObject))(component);
-}
