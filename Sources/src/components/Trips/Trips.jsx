@@ -6,13 +6,13 @@ import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/Layo
 import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 import DayHeaderRow from '../DayHeaderRow/DayHeaderRow.jsx';
 import StopTimeRow from '../StopTimeRow/StopTimeRow.jsx';
-import LayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
+import connectToLayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
 import { connectWithTripState } from '../../store/tripsStates.js';
 import './Trips.css';
 
 const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');
 
-let Trips = React.createClass({
+let Trips = connectToLayoutContainer(React.createClass({
   propTypes: {
     // invariants -- known at construction time
     stops: React.PropTypes.arrayOf(React.PropTypes.array).isRequired,
@@ -91,31 +91,29 @@ let Trips = React.createClass({
     })();
 
     return (
-      <LayoutContainer>
-        <div data-g-layout-container='' className="trips-frame">
-          <div data-g-layout-item='"row": 0'>
-            <AutoCompleteSelector placeholder="De..."
-                                  data={departureStops}
-                                  value={departureStop}
-                                  onStopChange={stop => this.props.selectStops(stop, this.props.arrivalStop)}/>
-          </div>
-          <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
-            <DecoratedInfinite elementHeight={50}
-                               infiniteLoadBeginEdgeOffset={200}
-                               onInfiniteLoad={() => this.props.generateNextTrips(20)}>
-              {rows}
-            </DecoratedInfinite>
-          </div>
-          <div data-g-layout-item='"row": 2'>
-            <AutoCompleteSelector placeholder="Vers..."
-                                  data={arrivalStops}
-                                  value={arrivalStop}
-                                  onStopChange={stop => this.props.selectStops(this.props.departureStop, stop)}/>
-          </div>
+      <div data-g-layout-container='' className="trips-frame">
+        <div data-g-layout-item='"row": 0'>
+          <AutoCompleteSelector placeholder="De..."
+                                data={departureStops}
+                                value={departureStop}
+                                onStopChange={stop => this.props.selectStops(stop, this.props.arrivalStop)}/>
         </div>
-      </LayoutContainer>
+        <div className="trips-container" data-g-layout-item='"row": 1, "isXSpacer": true, "isYSpacer": true'>
+          <DecoratedInfinite elementHeight={50}
+                             infiniteLoadBeginEdgeOffset={200}
+                             onInfiniteLoad={() => this.props.generateNextTrips(20)}>
+            {rows}
+          </DecoratedInfinite>
+        </div>
+        <div data-g-layout-item='"row": 2'>
+          <AutoCompleteSelector placeholder="Vers..."
+                                data={arrivalStops}
+                                value={arrivalStop}
+                                onStopChange={stop => this.props.selectStops(this.props.departureStop, stop)}/>
+        </div>
+      </div>
     );
   }
-});
+}));
 
 export default Trips;

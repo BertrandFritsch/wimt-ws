@@ -2,29 +2,29 @@
 import './LayoutContainer.css';
 import GridLayout from '../../gridlayout/gridlayout';
 
-const LayoutContainer = React.createClass({
-  propTypes: {
-    children: React.PropTypes.any
-  },
+export default function connectToLayoutContainer(Component) {
+  return React.createClass({
+    propTypes: {
+      children: React.PropTypes.any
+    },
 
-  domNode: null,
+    domNode: null,
 
-  render() {
-    return (
-      <div ref={c => {
-        if (c !== null) {
-          if (c !== this.domNode) {
-            this.domNode = c;
-            GridLayout.updateLayoutOnInsertedElement(c);
-            GridLayout.updateLayoutOnDocumentUpdated(true, false, true);
+    render() {
+      return (
+        <div ref={c => {
+          if (c !== null) {
+            if (c !== this.domNode) {
+              this.domNode = c;
+              GridLayout.updateLayoutOnInsertedElement(c);
+              GridLayout.updateLayoutOnDocumentUpdated(true, false, true);
+            }
+            else {
+              GridLayout.invalidLayout(c, false, false);
+            }
           }
-          else {
-            GridLayout.invalidLayout(c, false, false);
-          }
-        }
-      }}>{this.props.children}</div>
-    );
-  }
-});
-
-export default LayoutContainer;
+        }}><Component {...this.props} /></div>
+      );
+    }
+  });
+}

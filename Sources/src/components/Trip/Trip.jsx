@@ -5,11 +5,12 @@ import SNCFData from '../../SNCFData.js';
 //import { updateDebuggingInfo } from '../../actions/actions.js';
 import { realTimeStateDisplay, RUNNING_TRIP, DELAYED_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
 import { connectToTrainPosition } from './TrainPosition';
+import connectToLayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
 import './Trip.css';
 
 const PIXELS_PER_MINUTE = 15;
 
-const Trip = connectToTrainPosition(React.createClass({
+const Trip = connectToTrainPosition(connectToLayoutContainer(React.createClass({
   propTypes: {
     // invariants -- known at construction time
     trip: React.PropTypes.array.isRequired,
@@ -34,7 +35,7 @@ const Trip = connectToTrainPosition(React.createClass({
       <div data-g-layout-container='' className="trip-frame">
         <div data-g-layout-item='"row": 0'>
           <TripHeaderRow trip={this.props.trip}
-                         state={hasTripState && realTimeStateDisplay(this.props.tripState.state)}
+                         state={hasTripState && realTimeStateDisplay(this.props.tripState.state) || null}
                          status={hasTripState && this.props.tripState.realTimeStatus}/>
 
           <div className="trip-frame-top-space"/>
@@ -79,6 +80,6 @@ const Trip = connectToTrainPosition(React.createClass({
       </div>
     );
   }
-}));
+})));
 
 export default Trip;

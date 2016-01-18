@@ -91,7 +91,6 @@ let reducers = {
 
 export function reducer(state = emptyMap, action = {}) {
   if (reducers[action.type]) {
-    window.currentActionTrip = action.data.tripStateId && action.data.tripStateId.substring(0, action.data.tripStateId.indexOf('-'));
     return reducers[action.type](state, action.data);
   }
   else {
@@ -133,23 +132,28 @@ const tripStateCommands = {
 
 //************** actions
 
+function getTripState(trip, getTripsStates) {
+  const tripStateId = makeTripStateIndex(trip.trip, trip.date.getTime());
+  return { tripStateId, endTripNotifier: getTripsStates().getIn([ tripStateId, 'endTripNotifier' ]) || tripStateSetUp(trip.trip, trip.date, tripStateCommands) };
+}
+
 export const actions = {
   tripsGenerator: tripsGenerator,
 
   generateNextTrips(count, generator, getTripsStates) {
     const trips = generator(count).map(e => ({
-            trip: SNCFData.getTripId(e.trip),
-            date: e.date
-          })),
-          tripsStates = getTripsStates();
+      trip: SNCFData.getTripId(e.trip),
+      date: e.date
+    }));
 
     return {
       trips: trips,
-      tripsStates: actions.setTripsStates(trips.map(e => {
-        const tripStateId = makeTripStateIndex(e.trip, e.date.getTime());
-        return { tripStateId, endTripNotifier: tripsStates.getIn([ tripStateId, 'endTripNotifier' ]) || tripStateSetUp(e.trip, e.date, tripStateCommands) };
-      }))
+      tripsStates: actions.setTripsStates(trips.map(e => getTripState(e, getTripsStates)))
     };
+  },
+
+  createTripState(trip, getTripsStates) {
+    return actions.setTripsStates([ getTripState(trip, getTripsStates) ]);
   },
 
   setTripsStates(tripsEndNotifiers) {
@@ -176,9 +180,16 @@ export const actions = {
 
 //************** Trip State Component interface
 
-const selectTripState = (state, props) => state.tripsStates.get(makeTripStateIndex(props.trip, props.date.getTime()));
-const mapTripStateToObject = tripState => ({ tripState: tripState && tripState.toJS() });
+const selectTripState = (state, props) => {
+  var debug = true;
+  const tripId = props.trip instanceof String ? props.trip : SNCFData.getTripId(props.trip);
+  return state.tripsStates.get(makeTripStateIndex(tripId, props.date.getTime()));
+};
+const mapTripStateToObject = tripState => {
+  var debug = true;
+  return ({ tripState: tripState && tripState.toJS() });
+};
 
 export function connectWithTripState(component) {
-  return connect(createSelector(selectTripState, mapTripStateToObject))(component);
+  return connect(createSelector(selectTripState, mapTripStateToObject), {})(component);
 }

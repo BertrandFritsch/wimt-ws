@@ -135,6 +135,7 @@ const selectStopProps = () => createSelector(
 function mapDispatchToProps(dispatch) {
   return {
     onStopTimeSelected: stopTime => {
+      var debug = true;
     }
   };
 }
