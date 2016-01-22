@@ -61,7 +61,7 @@ let reducers = {
   },
 
   [REAL_TIME_TRIP](state, { tripStateId, status }) {
-    return state.setIn([ tripStateId, 'status' ], status);
+    return state.setIn([ tripStateId, 'realTimeStatus' ], status);
   },
 
   [PLANNED_TRIP](state, { tripStateId, time }) {
@@ -180,15 +180,8 @@ export const actions = {
 
 //************** Trip State Component interface
 
-const selectTripState = (state, props) => {
-  var debug = true;
-  const tripId = props.trip instanceof String ? props.trip : SNCFData.getTripId(props.trip);
-  return state.tripsStates.get(makeTripStateIndex(tripId, props.date.getTime()));
-};
-const mapTripStateToObject = tripState => {
-  var debug = true;
-  return ({ tripState: tripState && tripState.toJS() });
-};
+const selectTripState = (state, props) => state.tripsStates.get(makeTripStateIndex(props.trip, props.date.getTime()));
+const mapTripStateToObject = tripState => ({ tripState: tripState && tripState.toJS() });
 
 export function connectWithTripState(component) {
   return connect(createSelector(selectTripState, mapTripStateToObject), {})(component);

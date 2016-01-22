@@ -1,4 +1,5 @@
 ﻿import Immutable from 'immutable';
+import { take, fork, put } from 'redux-saga';
 
 /**
  * history structure
@@ -13,6 +14,7 @@
 
 const __NAVIGATION_STEP_CREATED = '__NAVIGATION_STEP_CREATED';
 const __NAVIGATION_STEP_UPDATED = '__NAVIGATION_STEP_UPDATED';
+const NAVIGATE_TO = 'NAVIGATE_TO';
 
 //************** reducers
 
@@ -24,9 +26,9 @@ const emptyState = Immutable.Map({
 });
 
 let reducers = {
-  [__NAVIGATION_STEP_CREATED](state, { step, metaData: { history: key } }) {
+  [__NAVIGATION_STEP_CREATED](state, { step }) {
     const history = state.get('history'),
-          element = history.findIndex(value => value.get('key') === key);
+          element = -1;
 
     return state
       .update('history', history => {
@@ -34,7 +36,7 @@ let reducers = {
           return history.set(element, step);
         }
         else {
-          return history.push(step.set('key', key));
+          return history.push(step.set('key', history.size));
         }
       })
       .set('current', element > -1 ? element : history.size);
@@ -66,4 +68,31 @@ export function reducer(state = emptyState, action = {}) {
   else {
     return state;
   }
+}
+
+//************** actions
+
+export const actions = {
+  navigateTo(url) {
+    return { type: NAVIGATE_TO, data: { url } };
+  }
+};
+
+//************** sagas
+
+function* navigateTo() {
+  while (true) {
+    const { data: { url } } = yield take(NAVIGATE_TO);
+
+    var debug = true;
+
+    yield put(tripsStatesActions.createTripState({ trip, date: new Date(time) }, getTripsStates));
+    yield put(actions.tripNavigationStepCreated(step, metaData));
+  }
+}
+
+export function* sagas(getState) {
+  const getHistory = () => getState().history;
+
+  yield fork(navigateTo);
 }

@@ -14,7 +14,7 @@ export function connectToTrainPosition(Component, showTrainPositionTransformer) 
 
     propTypes: {
       // invariants -- known at construction time
-      trip: React.PropTypes.array.isRequired,
+      trip: React.PropTypes.string.isRequired,
 
       // dynamic state
       tripState: React.PropTypes.any
@@ -42,7 +42,7 @@ export function connectToTrainPosition(Component, showTrainPositionTransformer) 
 
     render() {
       const trainPosition = (() => {
-        const firstStopTime = SNCFData.getTripFirstStopTime(this.props.trip);
+        const firstStopTime = SNCFData.getTripFirstStopTime(SNCFData.getTripById(this.props.trip));
         const stopTimeTime0 = SNCFData.getStopTimeTime(firstStopTime);
         const hasTripState = !!(this.props.tripState && this.props.tripState.state);
         const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);

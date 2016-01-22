@@ -2,7 +2,6 @@
 import { createSelector } from 'reselect';
 import { take, fork, put } from 'redux-saga';
 import Immutable from 'immutable';
-import SNCFData from '../SNCFData.js';
 import { actions as tripsStatesActions } from './tripsStates';
 
 //************** constants
@@ -19,12 +18,12 @@ export const updateEvent = TRIP_NAVIGATION_STEP_UPDATED;
 //************** actions
 
 export const actions = {
-  navigateToTrip(trip, time, metaData) {
-    return { type: NAVIGATE_TO_TRIP, data: { trip, time, metaData } };
+  navigateToTrip(trip, time) {
+    return { type: NAVIGATE_TO_TRIP, data: { trip, time } };
   },
 
-  tripNavigationStepCreated(step, metaData) {
-    return { type: TRIP_NAVIGATION_STEP_CREATED, data: { step, metaData } };
+  tripNavigationStepCreated(step) {
+    return { type: TRIP_NAVIGATION_STEP_CREATED, data: { step } };
   },
 
   tripNavigationStepUpdated(step) {
@@ -36,11 +35,11 @@ export const actions = {
 
 function* navigateToTrip(getTripsStates) {
   while (true) {
-    const { data: { trip, time, metaData } } = yield take(NAVIGATE_TO_TRIP),
+    const { data: { trip, time } } = yield take(NAVIGATE_TO_TRIP),
           step = Immutable.Map({ trip, time });
 
-    yield put(tripsStatesActions.createTripState({ trip, date: SNCFData.getDateByMinutes(0, new Date(time)) }, getTripsStates));
-    yield put(actions.tripNavigationStepCreated(step, metaData));
+    yield put(tripsStatesActions.createTripState({ trip, date: new Date(time) }, getTripsStates));
+    yield put(actions.tripNavigationStepCreated(step));
   }
 }
 
@@ -50,7 +49,6 @@ export function* sagas(getState) {
   yield fork(navigateToTrip, getTripsStates);
 }
 
-
 //************** Component interface
 
 const selectTripProps = () => createSelector(
@@ -58,7 +56,7 @@ const selectTripProps = () => createSelector(
   step => {
     return {
       data: {
-        trip: SNCFData.getTripById(step.get('trip')),
+        trip: step.get('trip'),
         date: new Date(step.get('time'))
       },
       step

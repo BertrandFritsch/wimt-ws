@@ -23,12 +23,12 @@ export const updateEvent = STOP_NAVIGATION_STEP_UPDATED;
 //************** actions
 
 export const actions = {
-  navigateToStop(departureStop, arrivalStop, date, metaData) {
-    return { type: NAVIGATE_TO_STOP, data: { departureStop, arrivalStop, date, metaData } };
+  navigateToStop(departureStop, arrivalStop, date) {
+    return { type: NAVIGATE_TO_STOP, data: { departureStop, arrivalStop, date } };
   },
 
-  stopNavigationStepCreated(step, metaData) {
-    return { type: STOP_NAVIGATION_STEP_CREATED, data: { step, metaData } };
+  stopNavigationStepCreated(step) {
+    return { type: STOP_NAVIGATION_STEP_CREATED, data: { step } };
   },
 
   stopNavigationStepUpdated(step) {
@@ -48,7 +48,7 @@ export const actions = {
 
 function* navigateToStop() {
   while (true) {
-    const { data: { departureStop, arrivalStop, date, metaData } } = yield take(NAVIGATE_TO_STOP),
+    const { data: { departureStop, arrivalStop, date } } = yield take(NAVIGATE_TO_STOP),
           step = Immutable.Map({
             departureStop,
             arrivalStop,
@@ -56,7 +56,7 @@ function* navigateToStop() {
             generator: tripsStatesActions.tripsGenerator(departureStop, arrivalStop, date)
           });
 
-    yield put(actions.stopNavigationStepCreated(step, metaData));
+    yield put(actions.stopNavigationStepCreated(step));
   }
 }
 
@@ -105,6 +105,11 @@ const selectArrivalStop = () => createSelector(
   state => state && state.get('arrivalStop')
 );
 
+const selectTime = () => createSelector(
+  (_, props) => props.step,
+    state => state && state.get('time')
+);
+
 const selectTrips = () => createSelector(
   (_, props) => props.step,
   state => state && state.get('trips')
@@ -119,38 +124,34 @@ const selectStopProps = () => createSelector(
   (_, props) => props.step,
   selectDepartureStop(),
   selectArrivalStop(),
+  selectTime(),
   selectArrayTrips(),
-  (step, departureStop, arrivalStop, trips) => {
+  (_, props) => props.navigateToTrip,
+  (step, departureStop, arrivalStop, time, trips, navigateToTrip) => {
     return {
       data: {
         departureStop: departureStop && SNCFData.getStopById(departureStop),
         arrivalStop: arrivalStop && SNCFData.getStopById(arrivalStop),
-        trips
+        time,
+        trips,
+        onStopTimeSelected: navigateToTrip
       },
       step
     };
   }
 );
 
-function mapDispatchToProps(dispatch) {
-  return {
-    onStopTimeSelected: stopTime => {
-      var debug = true;
-    }
-  };
-}
-
 function mergeProps(stateProps, dispatchProps) {
   const { data, step } = stateProps;
 
   return {
     ...data,
-    selectStops: (departureStop, arrivalStop) => window.store.dispatch(actions.selectStops(step, departureStop && SNCFData.getStopId(departureStop), arrivalStop && SNCFData.getStopId(arrivalStop), new Date())),
+    selectStops: (departureStop, arrivalStop) => window.store.dispatch(actions.selectStops(step, departureStop && SNCFData.getStopId(departureStop), arrivalStop && SNCFData.getStopId(arrivalStop), new Date(data.time))),
     generateNextTrips: count => window.store.dispatch(actions.generateNextTrips(step, count)),
     ...dispatchProps
   };
 }
 
 export function connectTrips(component) {
-  return connect(selectStopProps(), mapDispatchToProps, mergeProps)(component);
+  return connect(selectStopProps(), null, mergeProps)(component);
 };
