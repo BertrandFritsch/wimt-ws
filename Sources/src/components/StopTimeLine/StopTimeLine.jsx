@@ -1,7 +1,8 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
 import { connectToTrainPosition } from '../Trip/TrainPosition';
-import { realTimeStateDisplay, RUNNING_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
+import { realTimeStateDisplay } from '../formatters.js';
+import { tripStates } from '../../store/tripsStates/states.js';
 import './StopTimeLine.css';
 
 const StopTimeLine = connectToTrainPosition(React.createClass({
@@ -36,7 +37,7 @@ const StopTimeLine = connectToTrainPosition(React.createClass({
 
   render() {
     const hasTripState = !!(this.props.tripState && this.props.tripState.state);
-    const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);
+    const isRunning = hasTripState && (this.props.tripState.state.type === tripStates.RUNNING_TRIP || this.props.tripState.state.type === tripStates.ARRIVED_TRIP);
     const stopTime0 = SNCFData.getTripFirstStopTime(this.props.trip);
     const stopTime = isRunning && this.props.tripState.state.stopTime || stopTime0;
     const delayed = isRunning && this.props.tripState.state.delayed || 0;

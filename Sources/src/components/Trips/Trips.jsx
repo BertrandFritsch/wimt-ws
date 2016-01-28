@@ -7,7 +7,7 @@ import { connectToLayoutWrapper } from '../LayoutContainer/LayoutWrapper.jsx';
 import DayHeaderRow from '../DayHeaderRow/DayHeaderRow.jsx';
 import StopTimeRow from '../StopTimeRow/StopTimeRow.jsx';
 import connectToLayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
-import { connectWithTripState } from '../../store/tripsStates.js';
+import { connectWithTripState } from '../../store/tripsStates/connect.js';
 import './Trips.css';
 
 const DecoratedInfinite = connectToLayoutMeasurer(connectToLayoutWrapper(Infinite), createMeasurer('height', 250), 'containerHeight');

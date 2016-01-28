@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { RealTimeStatus } from '../../store/actions/actions.js';
+import { RealTimeStatus } from '../../store/tripsStates/states.js';
 import './TripHeaderRow.css';
 
 const TripHeaderRow = React.createClass({

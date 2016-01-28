@@ -1,30 +1,34 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
-import saga from 'redux-saga';
+import { combineReducers } from 'redux';
 import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
-import createLogger from 'redux-logger';
-import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import reducers from './store/reducers.js';
+import { reducer as historyReducer } from './store/history/reducers.js';
+import { reducer as tripsStatesReducer } from './store/tripsStates/reducers.js';
 import RouteSelector from './components/RouteSelector/RouteSelector';
 import { connectWithRouteSelector } from './store/routeSelector.js';
 import Trips from './components/Trips/Trips';
 import Trip from './components/Trip/Trip';
-import { connectTrips, sagas as stopSagas, actions as stopActions, creationEvent as stopCreationEvent, updateEvent as stopUpdateEvent } from './store/stop.js';
-import { connectTrip, sagas as tripSagas, actions as tripActions, creationEvent as tripCreationEvent, updateEvent as tripUpdateEvent } from './store/trip.js';
-import { registerCreationEvents as registerHistoryCreationEvents, registerUpdateEvents as registerHistoryUpdateEvents, actions as historyActions, sagas as historySagas } from './store/history.js';
-import { connectWithTripState } from './store/tripsStates.js';
+import { actions as stopActions, creationEvent as stopCreationEvent, updateEvent as stopUpdateEvent } from './store/stop/aggregate.js';
+import { connectTrips } from './store/stop/connect.js';
+import './store/stop/processManager.js';
+import './store/history/processManager.js';
+import './store/tripsStates/processManager.js';
+import { connectTrip, actions as tripActions, creationEvent as tripCreationEvent, updateEvent as tripUpdateEvent } from './store/trip.js';
+import { registerCreationEvents as registerHistoryCreationEvents, registerUpdateEvents as registerHistoryUpdateEvents } from './store/history/aggregate.js';
+import { connectWithTripState } from './store/tripsStates/connect.js';
 import SNCFData from './SNCFData.js';
 
-const loggerMiddleware = createLogger();
+import { initializeStore } from './infrastructure/reduxActionBus.js';
+import { publish as publishEvent } from './infrastructure/eventBus.js';
+import { events } from './store/events.js';
 
-const createStoreWithMiddleware = applyMiddleware(
-  saga(historySagas, stopSagas, tripSagas), // lets run sagas
-  loggerMiddleware // neat middleware that logs actions
-)(createStore);
-
-const store = window.store = createStoreWithMiddleware(reducers);
+// store initialization
+const store = initializeStore(combineReducers({
+  history: historyReducer,
+  tripsStates: tripsStatesReducer
+}));
 
 // navigation creation events
 registerHistoryCreationEvents([ stopCreationEvent, tripCreationEvent ]);
@@ -33,16 +37,6 @@ registerHistoryUpdateEvents([ stopUpdateEvent, tripUpdateEvent ]);
 // connect containers
 const ConnectedTrips = connectTrips(Trips);
 const ConnectedTrip = connectTrip(connectWithTripState(Trip));
-
-function checkValidStop(stopStr) {
-  const stop = parseInt(stopStr);
-  if (!SNCFData.getStopById(stop)) {
-    console.warn(`The stop id '${stopStr}' is invalid!`);
-  }
-  else {
-    return stop;
-  }
-}
 
 function checkValidTrip(tripId) {
   if (!SNCFData.getTripById(tripId)) {
@@ -74,7 +68,6 @@ function parseValidTimeOrNow(timeStr) {
 const None = Symbol();
 const routeMappings = [
       {
-        regexUrl: /\/stop\/(\d+)(\/arrival\/(\d+))?/,
         navigateTo: ([ , departureStop, , arrivalStop ]) => store.dispatch(stopActions.navigateToStop(departureStop && checkValidStop(departureStop), arrivalStop && checkValidStop(arrivalStop), new Date())),
         test: step => step.get('departureStop', None) !== None || step.get('arrivalStop', None) !== None, // stop step detection
         component: ConnectedTrips
@@ -90,15 +83,7 @@ const routeMappings = [
 
 const ConnectedRouteSelector = connectWithRouteSelector(routeMappings, RouteSelector);
 
-// route detection
-const url = window.location.hash.substring(1);
-const route = routeMappings.find(route => route.regexUrl.test(url));
-if (route) {
-  store.dispatch(route.navigateTo(route.regexUrl.exec(url) || []));
-}
-else {
-  console.warn(`'${url}' does not match any route!`);
-}
+publishEvent({ type: events.INITIAL_NAVIGATION_COMPLETED, data: { url: window.location.href } });
 
 ReactDOM.render(
   <Provider store={store}>

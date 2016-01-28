@@ -2,8 +2,8 @@
 import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import SNCFData from '../../SNCFData.js';
-//import { updateDebuggingInfo } from '../../actions/actions.js';
-import { realTimeStateDisplay, RUNNING_TRIP, DELAYED_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
+import { realTimeStateDisplay } from '../formatters.js';
+import { tripStates } from '../../store/tripsStates/states.js';
 import { connectToTrainPosition } from './TrainPosition';
 import connectToLayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
 import './Trip.css';
@@ -26,7 +26,7 @@ const Trip = connectToTrainPosition(connectToLayoutContainer(React.createClass({
   render() {
     const trip = SNCFData.getTripById(this.props.trip);
     const hasTripState = this.props.tripState !== undefined && this.props.tripState.state !== undefined;
-    const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);
+    const isRunning = hasTripState && (this.props.tripState.state.type === tripStates.RUNNING_TRIP || this.props.tripState.state.type === tripStates.ARRIVED_TRIP);
     const stopTimeTime0 = SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(trip));
     const tripContainerStyles = {
       height: (SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(trip)) + (isRunning && this.props.showTrainPosition > 0 && this.props.tripState.state.delayed || 0) - stopTimeTime0) * PIXELS_PER_MINUTE
@@ -56,7 +56,7 @@ const Trip = connectToTrainPosition(connectToLayoutContainer(React.createClass({
 
                   return (<TripStopRow key={index} top={gap * PIXELS_PER_MINUTE} stopTime={st}
                                       delayedMinutes={delayed}
-                                      delayed={hasTripState && this.props.tripState.state.type === DELAYED_TRIP || false}
+                                      delayed={hasTripState && this.props.tripState.state.type === tripStates.DELAYED_TRIP || false}
                                       trainHasPassedBy={!stopTimeReached && st !== stopTime} />);
                 });
               })()}

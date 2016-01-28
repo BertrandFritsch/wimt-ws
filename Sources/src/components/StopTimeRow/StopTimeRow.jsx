@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
-import { realTimeStateDisplay } from '../../store/actions/actions.js';
+import { realTimeStateDisplay } from '../formatters.js';
 import './StopTimeRow.css';
 
 const StopTimeRow = React.createClass({

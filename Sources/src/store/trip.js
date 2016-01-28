@@ -2,7 +2,7 @@
 import { createSelector } from 'reselect';
 import { take, fork, put } from 'redux-saga';
 import Immutable from 'immutable';
-import { actions as tripsStatesActions } from './tripsStates';
+import { actions as tripsStatesActions } from './tripsStates/aggregate';
 
 //************** constants
 

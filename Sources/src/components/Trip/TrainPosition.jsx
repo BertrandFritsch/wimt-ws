@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { DELAYED_TRIP, RUNNING_TRIP, ARRIVED_TRIP } from '../../store/actions/actions.js';
+import { tripStates } from '../../store/tripsStates/states.js';
 
 /**
  * Connects a component to the computing of the position of a train.
@@ -45,8 +45,8 @@ export function connectToTrainPosition(Component, showTrainPositionTransformer) 
         const firstStopTime = SNCFData.getTripFirstStopTime(SNCFData.getTripById(this.props.trip));
         const stopTimeTime0 = SNCFData.getStopTimeTime(firstStopTime);
         const hasTripState = !!(this.props.tripState && this.props.tripState.state);
-        const isRunning = hasTripState && (this.props.tripState.state.type === RUNNING_TRIP || this.props.tripState.state.type === ARRIVED_TRIP);
-        let hasTrainPosition = hasTripState && (isRunning || this.props.tripState.state.type === DELAYED_TRIP);
+        const isRunning = hasTripState && (this.props.tripState.state.type === tripStates.RUNNING_TRIP || this.props.tripState.state.type === tripStates.ARRIVED_TRIP);
+        let hasTrainPosition = hasTripState && (isRunning || this.props.tripState.state.type === tripStates.DELAYED_TRIP);
 
         if (this.state.showTrainPosition) {
           if (hasTrainPosition) {

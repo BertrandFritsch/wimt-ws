@@ -1,7 +1,6 @@
 ﻿import { combineReducers } from 'redux';
-//import { UPDATE_DEBUGGING_INFO } from '../actions/actions.js';
-import { reducer as historyReducer } from './history.js';
-import { reducer as tripsStatesReducer } from './tripsStates.js';
+import { reducer as historyReducer } from './history/aggregate.js';
+import { reducer as tripsStatesReducer } from './tripsStates/aggregate.js';
 
 //function debuggingInfo(state = {}, action = {}) {
 //  switch (action.type) {

@@ -4,7 +4,7 @@ import StopTimeLine from './../StopTimeLine/StopTimeLine';
 import Infinite from 'react-infinite';
 import SNCFData from './../../SNCFData.js';
 import './Line.css';
-import { viewLineNextTrips } from '../../store/actions/actions.js';
+//import { viewLineNextTrips } from '../../store/actions/actions.js';
 import FontAwesome from 'react-fontawesome';
 import { ViewTripAccessor } from '../../store/reducers/viewTrip.js';
 import { createMeasurer, connectToLayoutMeasurer } from '../LayoutContainer/LayoutMeasurer.jsx';
