@@ -1,5 +1,6 @@
 ﻿import SNCFData from '../../SNCFData.js';
 import { publish as publishEvent, getEventBus } from '../../infrastructure/eventBus.js';
+import { events as stopEvents } from '../stop/events.js';
 import { events as globalEvents } from '../events.js';
 import { createTripViewer } from './aggregate.js';
 import { events as moduleEvents } from './events.js';
@@ -50,4 +51,15 @@ getEventBus()
   .subscribe(e => {
     const [ , tripId, , time ] = regexURL.exec(e.data.url);
     commands.createTripViewer(tripId && checkValidTrip(tripId), parseValidTimeOrNow(time));
+  });
+
+const eventCommands = {
+  [stopEvents.STOP_TRIP_SELECTED]: ({ trip, date }) => publishEvent({ type: moduleEvents.TRIP_NAVIGATION_CREATED, data: { title: `Trip`, url: `/trip/${trip}/date/${date.getTime()}` } })
+};
+
+getEventBus()
+  .subscribe(e => {
+    if (eventCommands[e.type]) {
+      eventCommands[e.type](e.data);
+    }
   });

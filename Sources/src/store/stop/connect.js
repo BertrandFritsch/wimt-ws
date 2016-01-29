@@ -2,6 +2,8 @@
 import { createSelector } from 'reselect';
 import SNCFData from '../../SNCFData.js';
 import { commands } from './processManager.js';
+import { events as moduleEvents } from './events.js';
+import { publish as publishEvent } from '../../infrastructure/eventBus.js';
 
 const selectDepartureStop = () => createSelector(
   (_, props) => props.step,
@@ -34,15 +36,14 @@ const selectStopProps = () => createSelector(
   selectArrivalStop(),
   selectTime(),
   selectArrayTrips(),
-  (_, props) => props.navigateToTrip,
-  (step, departureStop, arrivalStop, time, trips, navigateToTrip) => {
+  (step, departureStop, arrivalStop, time, trips) => {
     return {
       data: {
         departureStop: departureStop && SNCFData.getStopById(departureStop),
         arrivalStop: arrivalStop && SNCFData.getStopById(arrivalStop),
         time,
         trips,
-        onStopTimeSelected: navigateToTrip
+        onStopTimeSelected: (trip, date) => publishEvent({ type: moduleEvents.STOP_TRIP_SELECTED, data: { trip, date } })
       },
       step
     };
