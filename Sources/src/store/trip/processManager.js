@@ -8,6 +8,10 @@ export const commands = {
   createTripViewer(trip, time) {
     const tripViewer = createTripViewer(trip, time);
     publishEvent({ type: moduleEvents.TRIP_VIEWER_CREATED, data: { tripViewer } });
+  },
+
+  endTripViewer(trip, time) {
+    publishEvent({ type: moduleEvents.TRIP_VIEWER_ENDED, data: { trip, time } });
   }
 };
 
