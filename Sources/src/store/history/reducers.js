@@ -34,6 +34,14 @@ let reducers = {
         }
       })
       .set('current', element !== undefined ? element : history.size);
+  },
+
+  [events.SET_CURRENT_NAVIGATION_STEP](state, { key }) {
+    return state.set('current', key);
+  },
+
+  [events.CLEAN_AHEAD_NAVIGATION_STEPS](state) {
+    return state.set('history', state.get('history').slice(0, state.get('current') + 1));
   }
 };
 

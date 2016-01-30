@@ -5,9 +5,9 @@ import { createStopViewer, generateNextTrips, selectStops } from './aggregate.js
 import { events as moduleEvents } from './events.js';
 
 export const commands = {
-  createStopViewer(departureStop, arrivalStop, date) {
+  createStopViewer(departureStop, arrivalStop, date, url, internalNavigation) {
     const stopViewer = createStopViewer(departureStop, arrivalStop, date);
-    publishEvent({ type: moduleEvents.STOP_VIEWER_CREATED, data: { stopViewer } });
+    publishEvent({ type: moduleEvents.STOP_VIEWER_CREATED, data: { stopViewer, url, internalNavigation } });
   },
 
   generateNextTrips(stopViewer, count) {
@@ -40,5 +40,5 @@ getEventBus()
   .where(e => regexURL.test(e.data.url))
   .subscribe(e => {
     const [ , departureStop, , arrivalStop ] = regexURL.exec(e.data.url);
-    commands.createStopViewer(departureStop && checkValidStop(departureStop), arrivalStop && checkValidStop(arrivalStop), new Date());
+    commands.createStopViewer(departureStop && checkValidStop(departureStop), arrivalStop && checkValidStop(arrivalStop), new Date(), e.data.url, false);
   });

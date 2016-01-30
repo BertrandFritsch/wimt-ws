@@ -1,18 +1,19 @@
-﻿import SNCFData from '../../SNCFData.js';
+﻿import Immutable from 'immutable';
+import SNCFData from '../../SNCFData.js';
 import { publish as publishEvent, getEventBus } from '../../infrastructure/eventBus.js';
 import { events as stopEvents } from '../stop/events.js';
+import { events as historyEvents } from '../history/events.js';
 import { events as globalEvents } from '../events.js';
 import { createTripViewer } from './aggregate.js';
 import { events as moduleEvents } from './events.js';
 
 export const commands = {
-  createTripViewer(trip, time) {
-    const tripViewer = createTripViewer(trip, time);
-    publishEvent({ type: moduleEvents.TRIP_VIEWER_CREATED, data: { tripViewer } });
+  createTripViewer(trip, time, url, internalNavigation) {
+    publishEvent({ type: moduleEvents.TRIP_VIEWER_CREATED, data: { tripViewer: createTripViewer(trip, time), url, internalNavigation } });
   },
 
-  endTripViewer(trip, time) {
-    publishEvent({ type: moduleEvents.TRIP_VIEWER_ENDED, data: { trip, time } });
+  endTripViewer(tripViewer) {
+    publishEvent({ type: moduleEvents.TRIP_VIEWER_ENDED, data: { trips: Immutable.List([ { trip: tripViewer.get('trip'), date: new Date(tripViewer.get('time')) } ]) } });
   }
 };
 
@@ -50,11 +51,16 @@ getEventBus()
   .where(e => regexURL.test(e.data.url))
   .subscribe(e => {
     const [ , tripId, , time ] = regexURL.exec(e.data.url);
-    commands.createTripViewer(tripId && checkValidTrip(tripId), parseValidTimeOrNow(time));
+    commands.createTripViewer(tripId && checkValidTrip(tripId), parseValidTimeOrNow(time), e.data.url, false);
   });
 
 const eventCommands = {
-  [stopEvents.STOP_TRIP_SELECTED]: ({ trip, date }) => publishEvent({ type: moduleEvents.TRIP_NAVIGATION_CREATED, data: { title: `Trip`, url: `/trip/${trip}/date/${date.getTime()}` } })
+  [stopEvents.STOP_TRIP_SELECTED]: ({ trip, date }) => commands.createTripViewer(trip, date.getTime(), `/trip/${trip}/date/${date.getTime()}`, true),
+  [historyEvents.NAVIGATION_STEP_REMOVED]: ({ step }) => {
+    if (step.get('trip')) {
+      commands.endTripViewer(step);
+    }
+  }
 };
 
 getEventBus()

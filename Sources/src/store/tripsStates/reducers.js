@@ -32,7 +32,7 @@ let reducers = {
     }, map));
   },
 
-  [events.REAL_TIME_TRIP_CREATED](state, { tripStateId, status }) {
+  [events.REAL_TIME_TRIP_STATE_UPDATED](state, { tripStateId, status }) {
     return state.setIn([ tripStateId, 'realTimeStatus' ], status);
   },
 

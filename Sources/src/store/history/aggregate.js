@@ -1,6 +1,6 @@
 ﻿
 //************** aggregate-root API
 
-export function push(title, url) {
-  window.history.pushState({}, title, `#${url}`);
+export function push(title, url, key) {
+  window.history.pushState({ key: key }, title, `#${url}`);
 }

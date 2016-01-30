@@ -11,8 +11,8 @@ function getTripsStates() {
 }
 
 const tripStateNotifiers = {
-  newTripRealTimeState(trip, date, status) {
-    dispatchAction({ type: moduleEvents.REAL_TIME_TRIP_CREATED, data: { tripStateId: makeTripStateIndex(trip, date.getTime()), status } });
+  tripRealTimeState(trip, date, status) {
+    dispatchAction({ type: moduleEvents.REAL_TIME_TRIP_STATE_UPDATED, data: { tripStateId: makeTripStateIndex(trip, date.getTime()), status } });
   },
 
   plannedTrip(trip, date, plannedDate) {
