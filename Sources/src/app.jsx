@@ -4,24 +4,24 @@ import { combineReducers } from 'redux';
 import Main from './components/Main/Main';
 import GridLayout from './gridlayout/gridlayout';
 import { Provider } from 'react-redux';
-import { reducer as historyReducer } from './store/history/reducer.js';
-import { reducer as tripsStatesReducer } from './store/tripsStates/reducer.js';
+import { reducer as historyReducer } from './model/history/reducer.js';
+import { reducer as tripsStatesReducer } from './model/tripsStates/reducer.js';
 import RouteSelector from './components/RouteSelector/RouteSelector';
-import { connectWithRouteSelector } from './store/routeSelector.js';
+import { connectWithRouteSelector } from './model/routeSelector.js';
 import Trips from './components/Trips/Trips';
 import Line from './components/Line/Line.jsx';
 import Trip from './components/Trip/Trip';
-import { connectTrips } from './store/stop/connect.js';
-import './store/stop/processManager.js';
-import './store/trip/processManager.js';
-import './store/history/processManager.js';
-import './store/tripsStates/processManager.js';
-import { connectTrip } from './store/trip/connect.js';
-import { connectWithTripState } from './store/tripsStates/connect.js';
+import { connectTrips } from './model/stop/connect.js';
+import './model/stop/processManager.js';
+import './model/trip/processManager.js';
+import './model/history/processManager.js';
+import './model/tripsStates/processManager.js';
+import { connectTrip } from './model/trip/connect.js';
+import { connectWithTripState } from './model/tripsStates/connect.js';
 
 import { initializeStore } from './infrastructure/reduxActionBus.js';
 import { publish as publishEvent } from './infrastructure/eventBus.js';
-import { events } from './store/events.js';
+import { events } from './model/events.js';
 
 // store initialization
 const store = initializeStore(combineReducers({

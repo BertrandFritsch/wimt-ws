@@ -2,7 +2,7 @@
 import SNCFData from './../../SNCFData';
 import { connectToTrainPosition } from '../Trip/TrainPosition';
 import { realTimeStateDisplay } from '../formatters.js';
-import { tripStates } from '../../store/tripsStates/states.js';
+import { tripStates } from '../../model/tripsStates/states.js';
 import './StopTimeLine.css';
 
 const StopTimeLine = connectToTrainPosition(React.createClass({

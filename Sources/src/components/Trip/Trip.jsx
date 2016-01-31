@@ -3,7 +3,7 @@ import TripHeaderRow from './../TripHeaderRow/TripHeaderRow';
 import TripStopRow from './../TripStopRow/TripStopRow';
 import SNCFData from '../../SNCFData.js';
 import { realTimeStateDisplay } from '../formatters.js';
-import { tripStates } from '../../store/tripsStates/states.js';
+import { tripStates } from '../../model/tripsStates/states.js';
 import { connectToTrainPosition } from './TrainPosition';
 import connectToLayoutContainer from '../LayoutContainer/LayoutContainer.jsx';
 import './Trip.css';

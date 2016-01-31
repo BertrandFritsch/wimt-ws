@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
-import { tripStates } from '../../store/tripsStates/states.js';
+import { tripStates } from '../../model/tripsStates/states.js';
 
 /**
  * Connects a component to the computing of the position of a train.

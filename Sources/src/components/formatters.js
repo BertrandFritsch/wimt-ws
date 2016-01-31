@@ -1,4 +1,4 @@
-﻿import { tripStates } from '../store/tripsStates/states.js';
+﻿import { tripStates } from '../model/tripsStates/states.js';
 
 /**
  * Format the date
