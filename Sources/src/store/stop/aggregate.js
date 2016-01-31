@@ -1,6 +1,6 @@
 ﻿import Immutable from 'immutable';
 import SNCFData from '../../SNCFData.js';
-import { tripsGenerator } from '../actions/tripsGenerator.js';
+import { tripsGenerator } from '../tripsGenerator.js';
 
 const emptyList = Immutable.List();
 

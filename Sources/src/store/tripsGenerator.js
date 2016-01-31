@@ -1,4 +1,4 @@
-﻿import SNCFData from '../../SNCFData.js';
+﻿import SNCFData from '../SNCFData.js';
 
 export function tripsGenerator(departureStop, arrivalStop, date) {
   let tripsGenerator = (function* () {
