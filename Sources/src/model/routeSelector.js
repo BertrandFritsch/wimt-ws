@@ -1,8 +1,5 @@
 ﻿import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
-import createHistory from 'history/lib/createHashHistory';
-
-const history = createHistory();
 
 const selectCurrentHistoryStep = createSelector(
     state => state.history.get('history'),
@@ -29,18 +26,10 @@ const selectRoute = componentMappings => createSelector(
   }
 );
 
-function mapDispatchToProps(/* dispatch */) {
-  return {
-    navigateToTrip: (trip, date) => {
-      history.push(`/trip/${trip}/date/${date.getTime()}`);
-    }
-  };
-}
-
 function mergeProps(stateProps, dispatchProps) {
   return { ...stateProps, ...dispatchProps };
 }
 
 export function connectWithRouteSelector(componentMappings, component) {
-  return connect(selectRoute(componentMappings), mapDispatchToProps, mergeProps)(component);
+  return connect(selectRoute(componentMappings), null, mergeProps)(component);
 }
