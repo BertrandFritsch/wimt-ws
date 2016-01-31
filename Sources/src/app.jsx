@@ -9,6 +9,7 @@ import { reducer as tripsStatesReducer } from './store/tripsStates/reducer.js';
 import RouteSelector from './components/RouteSelector/RouteSelector';
 import { connectWithRouteSelector } from './store/routeSelector.js';
 import Trips from './components/Trips/Trips';
+import Line from './components/Line/Line.jsx';
 import Trip from './components/Trip/Trip';
 import { connectTrips } from './store/stop/connect.js';
 import './store/stop/processManager.js';
@@ -30,6 +31,7 @@ const store = initializeStore(combineReducers({
 
 // connect containers
 const ConnectedTrips = connectTrips(Trips);
+const ConnectedLine = connectTrips(Line);
 const ConnectedTrip = connectTrip(connectWithTripState(Trip));
 
 // routes
@@ -37,8 +39,13 @@ const ConnectedTrip = connectTrip(connectWithTripState(Trip));
 const None = Symbol();
 const routeMappings = [
       {
-        test: step => step.get('departureStop', None) !== None || step.get('arrivalStop', None) !== None, // stop step detection
+        test: step => step.get('viewType', None) === 'stop', // stop step detection
         component: ConnectedTrips
+      },
+
+      {
+        test: step => step.get('viewType', None) === 'line', // line step detection
+        component: ConnectedLine
       },
 
       {

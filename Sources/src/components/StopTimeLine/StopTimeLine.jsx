@@ -9,7 +9,7 @@ const StopTimeLine = connectToTrainPosition(React.createClass({
   propTypes: {
     // invariants -- known at construction time
     date: React.PropTypes.instanceOf(Date).isRequired,
-    trip: React.PropTypes.array.isRequired,
+    trip: React.PropTypes.string.isRequired,
     onStopTimeSelected: React.PropTypes.func.isRequired,
     onLayoutElementAdded: React.PropTypes.func.isRequired,
     onLayoutElementRemoved: React.PropTypes.func.isRequired,
@@ -36,24 +36,25 @@ const StopTimeLine = connectToTrainPosition(React.createClass({
   },
 
   render() {
-    const hasTripState = !!(this.props.tripState && this.props.tripState.state);
-    const isRunning = hasTripState && (this.props.tripState.state.type === tripStates.RUNNING_TRIP || this.props.tripState.state.type === tripStates.ARRIVED_TRIP);
-    const stopTime0 = SNCFData.getTripFirstStopTime(this.props.trip);
-    const stopTime = isRunning && this.props.tripState.state.stopTime || stopTime0;
-    const delayed = isRunning && this.props.tripState.state.delayed || 0;
-    const stopTimeTime0 = SNCFData.getStopTimeTime(stopTime0);
-    const totalTripTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(this.props.trip)) + delayed - stopTimeTime0;
+    const trip = SNCFData.getTripById(this.props.trip),
+          hasTripState = !!(this.props.tripState && this.props.tripState.state),
+          isRunning = hasTripState && (this.props.tripState.state.type === tripStates.RUNNING_TRIP || this.props.tripState.state.type === tripStates.ARRIVED_TRIP),
+          stopTime0 = SNCFData.getTripFirstStopTime(trip),
+          stopTime = isRunning && this.props.tripState.state.stopTime || stopTime0,
+          delayed = isRunning && this.props.tripState.state.delayed || 0,
+          stopTimeTime0 = SNCFData.getStopTimeTime(stopTime0),
+          totalTripTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(trip)) + delayed - stopTimeTime0;
 
     return (
       <div className="stop-time-line"
-           onClick={() => this.props.onStopTimeSelected(SNCFData.getTripId(this.props.trip), this.props.date)}>
+           onClick={() => this.props.onStopTimeSelected(SNCFData.getTripId(trip), this.props.date)}>
         <div className="stop-time-line-text-container">
           <span className="stop-time-line-container">{
             (SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delayed)).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })
           } - {
-            SNCFData.getTripMission(this.props.trip)
+            SNCFData.getTripMission(trip)
           } - {
-            SNCFData.getTripNumber(this.props.trip)
+            SNCFData.getTripNumber(trip)
           } - {
             SNCFData.getStopName(SNCFData.getStopTimeStop(stopTime))
           }</span>
@@ -64,7 +65,7 @@ const StopTimeLine = connectToTrainPosition(React.createClass({
             {(() => {
               let stopTimeReached = false;
 
-              return SNCFData.getTripStopTimes(this.props.trip).map((st, index) => {
+              return SNCFData.getTripStopTimes(trip).map((st, index) => {
                 stopTimeReached = stopTimeReached || st === stopTime;
                 const gap = (SNCFData.getStopTimeTime(st) + (stopTimeReached && this.props.showTrainPosition > 0 ? delayed : 0) - stopTimeTime0) * this.props.stopsContainerWidth / totalTripTime;
 

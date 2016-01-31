@@ -6,8 +6,9 @@ const emptyList = Immutable.List();
 
 //************** aggregate-root API
 
-export function createStopViewer(departureStop, arrivalStop, date) {
+export function createStopViewer(viewType, departureStop, arrivalStop, date) {
   return Immutable.Map({
+    viewType,
     departureStop,
     arrivalStop,
     time: date.getTime(),
@@ -29,6 +30,7 @@ export function generateNextTrips(stopViewer, count) {
 
 export function selectStops(stopViewer, departureStop, arrivalStop, date) {
   return stopViewer.merge({
+    viewType: stopViewer.get('viewType'),
     departureStop,
     arrivalStop,
     time: date.getTime(),
