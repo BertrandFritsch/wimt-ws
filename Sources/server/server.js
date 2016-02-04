@@ -4,7 +4,7 @@ var app = express();
 
 // SNCF data
 app.get(/^(\/gare\/.*)$/, function (req, res) {
-  console.log('^(\/gare\/.*)', ' -> ', req.url);
+  console.log('^(\/gare\/.*)$', ' -> ', req.url);
 
   var headers = {};
   headers['Authorization'] = req.get('Authorization');
