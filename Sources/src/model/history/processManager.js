@@ -4,7 +4,7 @@ import { dispatch as dispatchAction, getState } from '../../infrastructure/redux
 import { events as stopEvents } from '../stop/events.js';
 import { events as tripEvents } from '../trip/events.js';
 import { events as moduleEvents } from './events.js';
-import { push } from './aggregate.js';
+import { push, replace } from './aggregate.js';
 
 function getHistoryState() {
   return getState().history;
@@ -35,7 +35,10 @@ const commands = {
   [stopEvents.STOP_VIEWER_CREATED]: ({ stopViewer, url, internalNavigation }) => viewerCreated(stopViewer, url, internalNavigation),
   [tripEvents.TRIP_VIEWER_CREATED]: ({ tripViewer, url, internalNavigation }) => viewerCreated(tripViewer, url, internalNavigation),
 
-  [stopEvents.STOP_VIEWER_UPDATED]: ({ stopViewer }) => dispatchAction({ type: moduleEvents.SET_NAVIGATION_STEP, data: { step: stopViewer } }),
+  [stopEvents.STOP_VIEWER_UPDATED]: ({ stopViewer, url }) => {
+    dispatchAction({ type: moduleEvents.SET_NAVIGATION_STEP, data: { step: stopViewer } });
+    replace(null, url, stopViewer.get('key'));
+  },
   [stopEvents.STOP_VIEWER_TRIPS_GENERATED]: ({ stopViewer }) => dispatchAction({ type: moduleEvents.SET_NAVIGATION_STEP, data: { step: stopViewer } })
 };
 

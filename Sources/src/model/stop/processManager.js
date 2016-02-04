@@ -15,9 +15,26 @@ export const commands = {
     publishEvent({ type: moduleEvents.STOP_VIEWER_TRIPS_GENERATED, data: { stopViewer: newStopViewer, trips } });
   },
 
-  selectStops(stopViewer, ...params) {
+  selectStops(stopViewer, departureStop, arrivalStop, date) {
     publishEvent({ type: moduleEvents.STOP_VIEWER_TRIPS_ENDED, data: { stopViewer, trips: stopViewer.get('trips') } });
-    publishEvent({ type: moduleEvents.STOP_VIEWER_UPDATED, data: { stopViewer: selectStops(stopViewer, ...params) } });
+
+    let departureUrlPart = '',
+        arrivalUrlPart = '';
+
+    if (!departureStop) {
+      departureStop = arrivalStop;
+      arrivalStop = null;
+    }
+
+    if (departureStop) {
+      departureUrlPart = `/${departureStop}`;
+    }
+
+    if (arrivalStop) {
+      arrivalUrlPart = `/arrival/${arrivalStop}`;
+    }
+
+    publishEvent({ type: moduleEvents.STOP_VIEWER_UPDATED, data: { stopViewer: selectStops(stopViewer, departureStop, arrivalStop, date), url: `/stop${departureUrlPart}${arrivalUrlPart}` } });
   }
 };
 
