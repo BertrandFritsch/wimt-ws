@@ -9,11 +9,11 @@ module.exports = {
     inline: true,
     progress: true,
     contentBase: './src',
-    port: 83
+    port: 8083
   },
   entry: [
     'webpack/hot/dev-server',
-    'webpack-dev-server/client?http://localhost:83',
+    'webpack-dev-server/client?http://localhost:8083',
     'font-awesome/css/font-awesome.min.css',
     path.resolve(__dirname, 'src/extendedArray.js'),
     path.resolve(__dirname, 'src/extendedElement.js'),

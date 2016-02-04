@@ -76,7 +76,7 @@ function listening(url, listener) {
 function get(departureStop, arrivalStop, result) {
   assert(departureStop, "departureStop is required");
 
-  let url = `http://localhost:82/gare/${departureStop[0]}/depart/`;
+  let url = `http://localhost:8082/gare/${departureStop[0]}/depart/`;
   if (arrivalStop) {
     url = `${url}${arrivalStop[0]}/`;
   }
@@ -96,4 +96,4 @@ function get(departureStop, arrivalStop, result) {
 
 export default {
   get: get
-}
+};
