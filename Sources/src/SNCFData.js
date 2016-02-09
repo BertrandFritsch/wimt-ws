@@ -30,6 +30,11 @@
  */
 
 // utils
+
+const PARIS_TIMEZONE_OFFSET = 60;
+const PARIS_TIMEZONE_OFFSET_STR = '+01:00'; //FIXME: handle summer timezone
+const PARIS_JETLAG = new Date().getTimezoneOffset() + PARIS_TIMEZONE_OFFSET;
+
 // gets the number of days since 01/01/1970 in locale time
 function getDateAsDays(date) {
   return Math.floor((date.getTime() - (date.getTimezoneOffset() * 60 * 1000)) / 1000 / 60 / 60 / 24);
@@ -41,7 +46,12 @@ function getDateByDays(days) {
 }
 
 function getDateByMinutes(time, date = new Date()) {
-  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + (time * 60 * 1000));
+  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + ((time - PARIS_JETLAG) * 60 * 1000));
+}
+
+function parseParisLocalDate(time) {
+  let matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
+  return new Date(`${matches[3]}-${matches[2]}-${matches[1]}T${matches[4]}:${matches[5]}${PARIS_TIMEZONE_OFFSET_STR}`);
 }
 
 // SNCFData interface
@@ -283,5 +293,6 @@ export default {
   doesRunAt: doesRunAt,
   getNextRunDate: getNextRunDate,
   getDateByMinutes: getDateByMinutes,
+  parseParisLocalDate: parseParisLocalDate,
   getTripDepartureDateByStopTime: getTripDepartureDateByStopTime
 };

@@ -1,15 +1,11 @@
 import axios from 'axios';
 import assert from 'assert';
+import SNCFData from './SNCFData.js';
 
 //TODO: clean the cache periodically by removing the entries that have not been requested after N mn
 
 const freshingDelay = 30 * 1000; // 30 s
 const Requests = {};
-
-function parseRealTime(time) {
-  let matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
-  return new Date(Number(matches[3]), Number(matches[2]) - 1, Number(matches[1]), Number(matches[4]), Number(matches[5]));
-}
 
 function isFresh(url) {
   return Requests[url] && (Requests[url].fetchTime + freshingDelay) >= Date.now();
@@ -41,7 +37,7 @@ function requesting(url) {
           number: train.getElementsByTagName('num')[0].textContent,
           mission: train.getElementsByTagName('miss')[0].textContent,
           term: train.getElementsByTagName('term')[0].textContent,
-          time: parseRealTime(train.getElementsByTagName('date')[0].textContent),
+          time: SNCFData.parseParisLocalDate(train.getElementsByTagName('date')[0].textContent),
           mode: train.getElementsByTagName('date')[0].attributes['mode'].nodeValue,
           state: train.getElementsByTagName('etat').length ? train.getElementsByTagName('etat')[0].textContent : ''
         };

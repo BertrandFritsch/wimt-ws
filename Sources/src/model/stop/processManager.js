@@ -36,6 +36,8 @@ export const commands = {
 
     publishEvent({ type: moduleEvents.STOP_VIEWER_UPDATED, data: { stopViewer: selectStops(stopViewer, departureStop, arrivalStop, date), url: `/stop${departureUrlPart}${arrivalUrlPart}` } });
   }
+
+  //TODO: handle historyEvents.NAVIGATION_STEP_REMOVED
 };
 
 function checkValidStop(stopStr) {
