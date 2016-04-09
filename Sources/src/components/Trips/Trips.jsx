@@ -74,7 +74,7 @@ let Trips = connectToLayoutContainer(React.createClass({
       let date;
 
       return trips.reduce((rows, e, index) => {
-        if (date !== e.date) {
+        if (!date || date.getTime() !== e.date.getTime()) {
           date = e.date;
           rows.push(<DayHeaderRow key={date.getTime()} date={date}/>);
         }

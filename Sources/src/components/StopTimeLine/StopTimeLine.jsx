@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from './../../SNCFData';
+import DateHelpers from './../../DateHelpers';
 import { connectToTrainPosition } from '../Trip/TrainPosition';
 import { realTimeStateDisplay } from '../formatters.js';
 import { tripStates } from '../../model/tripsStates/states.js';
@@ -50,7 +51,7 @@ const StopTimeLine = connectToTrainPosition(React.createClass({
            onClick={() => this.props.onStopTimeSelected(SNCFData.getTripId(trip), this.props.date)}>
         <div className="stop-time-line-text-container">
           <span className="stop-time-line-container">{
-            (SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delayed)).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            (DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delayed)).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit' })
           } - {
             SNCFData.getTripMission(trip)
           } - {

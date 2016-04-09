@@ -1,10 +1,9 @@
 /* global Services */
 /* global Stops */
 /* global Trips */
-//import Routes from '../SNCFData/routes.js'
-//import Services from '../SNCFData/routes.js'
-//import Stops from '../SNCFData/stops.js'
-//import Trips from '../SNCFData/stop.js'
+
+import DateHelpers from './DateHelpers';
+import ParisTimeZone from './ParisTimezone';
 
 /**
  * Data structures:
@@ -29,29 +28,9 @@
  *
  */
 
-// utils
-
-const PARIS_TIMEZONE_OFFSET = 60;
-const PARIS_TIMEZONE_OFFSET_STR = '+01:00'; //FIXME: handle summer timezone
-const PARIS_JETLAG = new Date().getTimezoneOffset() + PARIS_TIMEZONE_OFFSET;
-
-// gets the number of days since 01/01/1970 in locale time
-function getDateAsDays(date) {
-  return Math.floor((date.getTime() - (date.getTimezoneOffset() * 60 * 1000)) / 1000 / 60 / 60 / 24);
-}
-
-// gets the date according the number of days since 01/01/1970 in locale time
-function getDateByDays(days) {
-  return new Date(days * 24 * 60 * 60 * 1000 + (new Date().getTimezoneOffset() * 60 * 1000));
-}
-
-function getDateByMinutes(time, date = new Date()) {
-  return new Date(new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() + ((time - PARIS_JETLAG) * 60 * 1000));
-}
-
 function parseParisLocalDate(time) {
-  let matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
-  return new Date(`${matches[3]}-${matches[2]}-${matches[1]}T${matches[4]}:${matches[5]}${PARIS_TIMEZONE_OFFSET_STR}`);
+  const matches = /(\d\d)\/(\d\d)\/(\d\d\d\d) (\d\d):(\d\d)/.exec(time);
+  return new Date(`${matches[3]}-${matches[2]}-${matches[1]}T${matches[4]}:${matches[5]}${ParisTimeZone.getParisTimeZoneStr()}`);
 }
 
 // SNCFData interface
@@ -60,7 +39,7 @@ function getStopTimeTrip(stopTime) {
 }
 
 function getStopTimeTime(stopTime) {
-  return stopTime[0];
+  return stopTime[0] - ParisTimeZone.getParisJetlag();
 }
 
 function getStopTimeStop(stopTime) {
@@ -178,17 +157,17 @@ function getTripLastStop(trip) {
  * @param {Date} date the date of the stop time
  * @returns {Date} the departure date
  */
-function getTripDepartureDateByStopTime(stopTime, date = new Date()) {
-  const minutesPerDay = 24 * 60;
-
-  //be aware of trips that starts the day before
-  if (getStopTimeTime(stopTime) >= minutesPerDay) {
-    date = new Date(date.getTime());
-    date.setDate(date.getDate() - 1);
-  }
-
-  return getDateByMinutes(getStopTimeTime(getTripFirstStopTime(getTrip(getStopTimeTrip(stopTime)))), date);
-}
+// function getTripDepartureDateByStopTime(stopTime, date = new Date()) {
+//   const minutesPerDay = 24 * 60;
+//
+//   //be aware of trips that starts the day before
+//   if (getStopTimeTime(stopTime) >= minutesPerDay) {
+//     date = new Date(date.getTime());
+//     date.setDate(date.getDate() - 1);
+//   }
+//
+//   return DateHelpers.getDateByMinutes(getStopTimeTime(getTripFirstStopTime(getTrip(getStopTimeTrip(stopTime)))), date);
+// }
 
 function getService(id) {
   return Services[id];
@@ -198,7 +177,7 @@ function doesRunAt(trip, date) {
   const minutesPerDay = 24 * 60;
   const stopTime = trip[5][0];
 
-  let day = getDateAsDays(date);
+  let day = DateHelpers.getDateAsDays(date);
 
   // be aware of trips that starts the day before
   if (stopTime[0] >= minutesPerDay) {
@@ -226,7 +205,7 @@ function doesRunAt(trip, date) {
 
 // get the next run date of the trip after the provided date
 function getNextRunDate(trip, date) {
-  let day = getDateAsDays(date);
+  let day = DateHelpers.getDateAsDays(date);
   let service = Services[trip[2]];
   let startDay = service[0];
   let endDay = service[1];
@@ -258,41 +237,39 @@ function getNextRunDate(trip, date) {
   }
 
   if (startDay) {
-    return getDateByDays(startDay);
+    return DateHelpers.getDateByDays(startDay);
   }
 }
 
 export default {
-  getStopsArray: getStopsArray,
-  getStop: getStop,
-  getStopById: getStopById,
-  getStopId: getStopId,
-  getStopName: getStopName,
-  getStopUICCode: getStopUICCode,
-  getStopTrips: getStopTrips,
-  getTripLastStopTime: getTripLastStopTime,
-  getTripNextStopTime: getTripNextStopTime,
-  getTripPrevStopTime: getTripPrevStopTime,
-  getTripFirstStop: getTripFirstStop,
-  getTripLastStop: getTripLastStop,
-  isTripByNumber: isTripByNumber,
-  getStopTimeStop: getStopTimeStop,
-  getStopStopTimeByTrip: getStopStopTimeByTrip,
-  getStopTimeSequence: getStopTimeSequence,
-  getStopTimeTrip: getStopTimeTrip,
-  getStopTimeTime: getStopTimeTime,
-  getTripStopTimes: getTripStopTimes,
-  getTripFirstStopTime: getTripFirstStopTime,
-  isTripFirstStopTime: isTripFirstStopTime,
-  getTripNumber: getTripNumber,
-  getTripMission: getTripMission,
-  getTrip: getTrip,
-  getTripById: getTripById,
-  getTripId: getTripId,
-  getService: getService,
-  doesRunAt: doesRunAt,
-  getNextRunDate: getNextRunDate,
-  getDateByMinutes: getDateByMinutes,
-  parseParisLocalDate: parseParisLocalDate,
-  getTripDepartureDateByStopTime: getTripDepartureDateByStopTime
+  parseParisLocalDate,
+  getStopsArray,
+  getStop,
+  getStopById,
+  getStopId,
+  getStopName,
+  getStopUICCode,
+  getStopTrips,
+  getTripLastStopTime,
+  getTripNextStopTime,
+  getTripPrevStopTime,
+  getTripFirstStop,
+  getTripLastStop,
+  isTripByNumber,
+  getStopTimeStop,
+  getStopStopTimeByTrip,
+  getStopTimeSequence,
+  getStopTimeTrip,
+  getStopTimeTime,
+  getTripStopTimes,
+  getTripFirstStopTime,
+  isTripFirstStopTime,
+  getTripNumber,
+  getTripMission,
+  getTrip,
+  getTripById,
+  getTripId,
+  getService,
+  doesRunAt,
+  getNextRunDate
 };

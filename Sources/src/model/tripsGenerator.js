@@ -1,12 +1,15 @@
 ﻿import SNCFData from '../SNCFData.js';
+import DateHelpers from '../DateHelpers';
+import ParisTimezone from '../ParisTimezone';
 
 export function tripsGenerator(departureStop, arrivalStop, date) {
   let tripsGenerator = (function* () {
-    const minutesPerDay = 24 * 60;
+//    const minutesPerDay = 24 * 60;
     let trips = [];
-    const now = (date.getTime() - SNCFData.getDateByMinutes(0).getTime()) / 1000 / 60;
+    const now = (date.getTime() - DateHelpers.getDateByMinutes(0).getTime()) / 1000 / 60;
 
-    date = SNCFData.getDateByMinutes(0, date);
+    date = ParisTimezone.toParisTimezone(date);
+    date = DateHelpers.getDateByMinutes(0, date);
 
     if (!departureStop) {
       departureStop = arrivalStop;
@@ -30,9 +33,9 @@ export function tripsGenerator(departureStop, arrivalStop, date) {
       let cursor = trips.findIndex(t => {
         let lastStopTime = SNCFData.getStopTimeTime(SNCFData.getTripLastStopTime(SNCFData.getTrip(SNCFData.getStopTimeTrip(t))));
 
-        if (lastStopTime >= minutesPerDay) {
-          lastStopTime -= minutesPerDay;
-        }
+        // if (lastStopTime >= minutesPerDay) {
+        //   lastStopTime -= minutesPerDay;
+        // }
 
         return now <= lastStopTime;
       });

@@ -1,4 +1,5 @@
 ﻿import SNCFData from '../../SNCFData.js';
+import DateHelpers from '../../DateHelpers';
 import RealTimeRequester from '../../SNCFDataRTRequester.js';
 import { RealTimeStatus } from './states.js';
 import assert from 'assert';
@@ -41,7 +42,7 @@ class RealTimeTrainState {
           case RealTimeTrainState.Events.TRIP_PLANNED:
             // the train is not running but is planned for a further trip
             this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(param1, true), SNCFData.getTripFirstStopTime(this.trip));
-            this.notifiers.plannedTrip(SNCFData.getTripId(this.trip), SNCFData.getDateByMinutes(0, param1), param1);
+            this.notifiers.plannedTrip(SNCFData.getTripId(this.trip), DateHelpers.getDateByMinutes(0, param1), param1);
             this.state = RealTimeTrainState.States.TRIP_PLANNED;
             break;
 
@@ -106,7 +107,7 @@ class RealTimeTrainState {
             // the train is running
             this.notifiers.runningTrip(SNCFData.getTripId(this.trip), this.date, param1, param2 / (1000 * 60));
             this.notifiers.tripRealTimeState(SNCFData.getTripId(this.trip), this.date, RealTimeStatus.ONLINE);
-            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
+            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
             this.state = RealTimeTrainState.States.TRIP_RT_RUNNING;
             break;
 
@@ -154,7 +155,7 @@ class RealTimeTrainState {
             // the train is running
             this.notifiers.runningTrip(SNCFData.getTripId(this.trip), this.date, param1, param2 / (1000 * 60));
             this.notifiers.tripRealTimeState(SNCFData.getTripId(this.trip), this.date, RealTimeStatus.ONLINE);
-            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
+            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(param1) + (param2 / (1000 * 60))), false), param1);
             break;
 
           case RealTimeTrainState.Events.TRIP_ARRIVED:
@@ -206,7 +207,7 @@ class RealTimeTrainState {
           case RealTimeTrainState.Events.TRIP_RUNNING:
             // another planned stop has to be reached
             this.notifiers.runningTrip(SNCFData.getTripId(this.trip), this.date, param1, param2);
-            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(param1) + param2), false), param1);
+            this.nextCheckAt(RealTimeTrainState.getNextCheckTimeout(DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(param1) + param2), false), param1);
             break;
 
           case RealTimeTrainState.Events.TRIP_ARRIVED:
@@ -244,7 +245,7 @@ class RealTimeTrainState {
         this.transition(RealTimeTrainState.Events.TRIP_RT_DELAYED, stopTime);
       }
       else {
-        this.transition(RealTimeTrainState.Events.TRIP_RT_RUNNING, stopTime, train.time.getTime() - SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime());
+        this.transition(RealTimeTrainState.Events.TRIP_RT_RUNNING, stopTime, train.time.getTime() - DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime());
       }
     }
     else {
@@ -265,7 +266,7 @@ class RealTimeTrainState {
       // the last stop information is deduced from the previous time
       // we assume that the is no delay that will occur until then
       setTimeout(() => {
-        const arrivalTime = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delay);
+        const arrivalTime = DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delay);
 
         if (arrivalTime.getTime() > Date.now()) {
           this.transition(RealTimeTrainState.Events.GOT_TRIP_REAL_TIME, stopTime, delay, {
@@ -312,7 +313,7 @@ class RealTimeTrainState {
 
     // determine the next planned stop the train has not already passed by
     let stopTime = SNCFData.getTripStopTimes(this.trip).find((stopTime) => {
-      return SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delayed).getTime() > now.getTime();
+      return DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(stopTime) + delayed).getTime() > now.getTime();
     });
 
     if (stopTime) {
@@ -335,7 +336,7 @@ class RealTimeTrainState {
 
     if (RealTimeTrainState.isDateToday(date) && SNCFData.doesRunAt(this.trip, now)) {
       // the trip is planned today
-      let departureDate = SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)));
+      let departureDate = DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)));
       if (departureDate.getTime() > now.getTime()) {
         // the trip has not yet started
         this.transition(RealTimeTrainState.Events.TRIP_PLANNED, departureDate);
@@ -343,7 +344,7 @@ class RealTimeTrainState {
       else {
         // determine the last planned stop the train has just passed
         let prevStopTime = SNCFData.getTripStopTimes(this.trip).reduce((r, stopTime) => {
-          return SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime() < now.getTime() ? stopTime : r;
+          return DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(stopTime)).getTime() < now.getTime() ? stopTime : r;
         }, null);
 
         if (prevStopTime !== SNCFData.getTripLastStopTime(this.trip)) {
@@ -363,7 +364,7 @@ class RealTimeTrainState {
       }
       else {
         // next run is at nextRunDate
-        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, SNCFData.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), nextRunDate));
+        this.transition(RealTimeTrainState.Events.TRIP_PLANNED, DateHelpers.getDateByMinutes(SNCFData.getStopTimeTime(SNCFData.getTripFirstStopTime(this.trip)), nextRunDate));
       }
     }
   }

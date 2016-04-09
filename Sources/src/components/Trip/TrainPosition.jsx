@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import SNCFData from '../../SNCFData.js';
+import DateHelpers from './../../DateHelpers';
 import { tripStates } from '../../model/tripsStates/states.js';
 
 /**
@@ -51,7 +52,7 @@ export function connectToTrainPosition(Component, showTrainPositionTransformer) 
         if (this.state.showTrainPosition) {
           if (hasTrainPosition) {
             let stopTimeTime = SNCFData.getStopTimeTime(this.props.tripState.state.stopTime) + (this.props.tripState.state.delayed || 0) - stopTimeTime0;
-            let now = ((Date.now() - SNCFData.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
+            let now = ((Date.now() - DateHelpers.getDateByMinutes(0)) / (60 * 1000)) - stopTimeTime0;
 
             if (this.state.showTrainPosition === 1 && !this.initialTrainPositionPromise) {
               this.registerInitialTrainPosition(2000).then(() => this.setState({ showTrainPosition: 2 }));
