@@ -1,6 +1,13 @@
+'use strict';
+
 var express = require('express');
 var request = require('request');
+var path = require('path');
 var app = express();
+
+console.log('NODE_ENV: ', process.env.NODE_ENV);
+
+var isProduction = process.env.NODE_ENV === 'production';
 
 // SNCF data
 app.get(/^(\/gare\/.*)$/, function (req, res) {
@@ -16,16 +23,15 @@ app.get(/^(\/gare\/.*)$/, function (req, res) {
   }).pipe(res);
 });
 
-// SNCFData.js
-app.get(/^\/wimt\/(assets\/SNCFData.min.js)$/, function (req, res) {
-  console.log('^\/wimt\/(assets\/SNCFData.min.js)', ' -> ', req.url);
-  request.get('http://localhost:8083/' + req.params[0]).pipe(res);
-});
-
 // all other requests
-app.get(/^\/(.*)$/, function (req, res) {
-  console.log('^\/(.*)$', ' -> ', req.url, ' --> ', req.params[0]);
-  request.get('http://localhost:8083/' + req.params[0]).pipe(res);
-});
+if (!isProduction) {
+  app.get(/^\/(.*)$/, function (req, res) {
+    console.log('^\/(.*)$', ' -> ', req.url, ' --> ', req.params[0]);
+    request.get('http://localhost:8083/' + req.params[0]).pipe(res);
+  });
+}
+else {
+  app.use('/', express.static(path.join(__dirname, '../dist')));
+}
 
 app.listen(8082);
