@@ -10,10 +10,10 @@ import theme from './gridlayout.css'
  * @namespace Exposes the grid layout API.
  * Expects finding in the DOM tree an element with the gGridLayoutRoot id.
  * The layout will be done on the gGridLayoutRoot-rooted subtree.
- * <p>All the API functions, but {@link GridLayout.InvalidLayout}, are mainly called by the CSF module when the DOM tree is updated.
+ * <p>All the API functions, but {@link GridLayout.InvalidLayout}, are mainly called by the owning module when the DOM tree is updated.
  * The {@link GridLayout.InvalidLayout} function might be called by the component authors when the component layout is updated
  * outside a server-initiated updating phase of the DOM tree.</p>
- * <p>Component authors might subscribe to the onAfterLayout CSF event to be informed when the layout has been updated.</p>
+ * <p>Component authors might subscribe to the onAfterLayout owning event to be informed when the layout has been updated.</p>
  */
 var GridLayout = (function() {
 
