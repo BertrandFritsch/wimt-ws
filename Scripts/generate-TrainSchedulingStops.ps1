@@ -31,7 +31,7 @@ function Create-IndexedCollectoin($coll, $props) {
   return $collIndexed
 }
 
-$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$'
+$stops = gi $RootDir\Assets\gtfs-lines-last\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$'
 
 $partitionLen = 5
 $partition = [Math]::Ceiling($stops.Length / $partitionLen)

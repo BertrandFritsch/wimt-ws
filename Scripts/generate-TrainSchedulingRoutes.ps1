@@ -16,7 +16,7 @@ if (-not $RootDir) {
   )
 }
 
-$routes = gi $RootDir\Assets\export-TN-GTFS-LAST\routes.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
+$routes = gi $RootDir\Assets\gtfs-lines-last\routes.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
 
 function generate-routes() {
 "

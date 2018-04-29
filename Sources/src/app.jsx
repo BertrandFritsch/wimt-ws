@@ -56,7 +56,7 @@ const routeMappings = [
 
 const ConnectedRouteSelector = connectWithRouteSelector(routeMappings, RouteSelector);
 
-publishEvent({ type: events.INITIAL_NAVIGATION_COMPLETED, data: { url: window.location.href } });
+publishEvent({ type: events.INITIAL_NAVIGATION_COMPLETED, data: { url: window.location.hash ? window.location.href : `${ window.location.href }#/line/87382887/arrival/87382218` } });
 
 ReactDOM.render(
   <Provider store={store}>

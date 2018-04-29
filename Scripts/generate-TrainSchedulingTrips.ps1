@@ -16,7 +16,7 @@ if (-not $RootDir) {
   )
 }
 
-$trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
+$trips = gi $RootDir\Assets\gtfs-lines-last\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1"
 
 $partitionLen = 5
 $partition = [Math]::Ceiling($trips.Length / $partitionLen)

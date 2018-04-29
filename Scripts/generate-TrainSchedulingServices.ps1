@@ -38,7 +38,7 @@ if (-not $RootDir) {
 # be aware that services may exist without exceptions -- but also services may not exist but still have exceptions
 
 $TrueOrFalse = @{ '0' = 0; '1' = 1; '2' = 0 }
-$calendar_dates = gi $rootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
+$calendar_dates = gi $rootDir\Assets\gtfs-lines-last\calendar_dates.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }
 $calendarDatesColl = @{}
 $calendar_dates |% {
     if (-not $calendarDatesColl[$_.service_id]) {
@@ -48,7 +48,7 @@ $calendar_dates |% {
     $calendarDatesColl[$_.service_id].Exceptions[$_.date] = $_
 }
 
-gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? { $Date -le $_.end_date } |% {
+gi $RootDir\Assets\gtfs-lines-last\calendar.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? { $Date -le $_.end_date } |% {
     if (-not $calendarDatesColl[$_.service_id]) {
         $calendarDatesColl[$_.service_id] = [PSCustomObject] @{ Service = $null; Exceptions = $null }
     }

@@ -30,7 +30,7 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: 'src/assets/SNCFData.min.js' }
+      { from: 'src/assets/SNCFData.min.js', to: '/' }
     ]),
     new HtmlWebpackPlugin({
       template: 'src/index.html',

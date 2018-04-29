@@ -53,12 +53,12 @@ if (-not $RootDir) {
     )
 }
 
-$trips = gi $rootDir\Assets\export-TN-GTFS-LAST\trips.txt | & $rootDir\Scripts\load-GTFS2.ps1 | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
+$trips = gi $rootDir\Assets\gtfs-lines-last\trips.txt | & $rootDir\Scripts\load-GTFS2.ps1 | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
 
-$stop_times = gi $rootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | & $rootDir\Scripts\load-GTFS2.ps1
-$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
-$servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
-$routesColl = Create-IndexedCollectoin (gi $rootDir\Assets\export-TN-GTFS-LAST\routes.txt | & $rootDir\Scripts\load-GTFS2.ps1) route_id
+$stop_times = gi $rootDir\Assets\gtfs-lines-last\stop_times.txt | & $rootDir\Scripts\load-GTFS2.ps1
+$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\gtfs-lines-last\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
+$servicesColl = Create-IndexedCollectoin (gi $rootDir\Assets\gtfs-lines-last\calendar.txt | & $rootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
+$routesColl = Create-IndexedCollectoin (gi $rootDir\Assets\gtfs-lines-last\routes.txt | & $rootDir\Scripts\load-GTFS2.ps1) route_id
 $tripIdGenerator = 0
 $tripsColl = Create-IndexedCollectoin ($trips |? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] }) trip_id
 $tripsStopTimes = $stop_times |
@@ -83,7 +83,7 @@ $tripsStopTimes |% {
 }
 
 $stopIdGenerator = -1
-$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' |
+$stops = gi $RootDir\Assets\gtfs-lines-last\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' |
            % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue (++$stopIdGenerator) -PassThru }
 $stopsColl = Create-IndexedCollectoin $stops stop_id
 

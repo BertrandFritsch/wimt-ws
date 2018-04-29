@@ -53,20 +53,20 @@ $stations = Get-Content $RootDir\Assets\sncf-gares-et-arrets-transilien-ile-de-f
 $stationsColl = @{}
 $stations | %{ $stationsColl[$_.'Code UIC' -replace '.$'] = $_ }
 
-$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
-$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\export-TN-GTFS-LAST\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
+$servicesColl = Create-IndexedCollectoin (gi $RootDir\Assets\gtfs-lines-last\calendar.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.end_date }) service_id
+$calendarDatesColl = Create-IndexedCollectoin (gi $RootDir\Assets\gtfs-lines-last\calendar_dates.txt | & $RootDir\Scripts\load-GTFS2.ps1 |? { $Date -le $_.date }) service_id
 
 $tripIdGenerator = -1
-$trips = gi $RootDir\Assets\export-TN-GTFS-LAST\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" | %{ ++$tripIdGenerator; $_ } |
+$trips = gi $RootDir\Assets\gtfs-lines-last\trips.txt | &"$RootDir\Scripts\load-GTFS2.ps1" | %{ ++$tripIdGenerator; $_ } |
     ? { $servicesColl[$_.service_id] -or $calendarDatesColl[$_.service_id] } |
     % { $_ | Add-Member -NotePropertyName idSeq -NotePropertyValue $tripIdGenerator -PassThru }
 
 $tripsColl = Create-IndexedCollectoin $trips trip_id
 
-$stops = gi $RootDir\Assets\export-TN-GTFS-LAST\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
+$stops = gi $RootDir\Assets\gtfs-lines-last\stops.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |? stop_id -Match '^StopPoint:DUA(\d{7})$' | Select-Object -Index @(($Partition.startIndex)..($Partition.endIndex))
 $stopsColl = Create-IndexedCollectoin $stops stop_id
 
-$sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
+$sortedStopTimes = gi $RootDir\Assets\gtfs-lines-last\stop_times.txt | &"$RootDir\Scripts\load-GTFS2.ps1" |
   ? { $stopsColl[$_.stop_id] } |
     ? { $tripsColl[$_.trip_id] } |
       ? departure_time -NE '' |
@@ -78,7 +78,7 @@ $sortedStopTimes = gi $RootDir\Assets\export-TN-GTFS-LAST\stop_times.txt | &"$Ro
               trip_id=$tripsColl[$_.trip_id].idSeq
               stop_time=$_ 
             } 
-          } | sort time
+          } | Sort-Object time
 
 
 $sortedStopColl = @{}

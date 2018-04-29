@@ -15,7 +15,7 @@ $rootDir = $(
 )
 
 $tmpFile = [IO.Path]::GetTempFileName()
-$outputDir = $( if ($Check ) { "$tmpFile.dir" } else { "$rootDir\Assets\export-TN-GTFS-LAST" } )
+$outputDir = $( if ($Check ) { "$tmpFile.dir" } else { "$rootDir\Assets\gtfs-lines-last" } )
 
 Write-Host "Get the remote assets"
 Invoke-RestMethod 'http://medias.sncf.com/sncfcom/open-data/gtfs/gtfs-lines-last.zip' -OutFile "$tmpFile.zip"
@@ -32,7 +32,7 @@ if (-not $Check -and (Test-Path $outputDir))
 
 if ($Check)
 {
-    $outDatedFiles = Get-Item  $outputDir\* |? { -not(Test-Path "$rootDir\Assets\export-TN-GTFS-LAST\$($_.Name)") -or (Get-Item "$rootDir\Assets\export-TN-GTFS-LAST\$($_.Name)").LastWriteTime -lt $_.LastWriteTime }
+    $outDatedFiles = Get-Item  $outputDir\* |? { -not(Test-Path "$rootDir\Assets\gtfs-lines-last\$($_.Name)") -or (Get-Item "$rootDir\Assets\gtfs-lines-last\$($_.Name)").LastWriteTime -lt $_.LastWriteTime }
     if ($outDatedFiles )
     {
         Write-Host "Some assets are not up to date:"
