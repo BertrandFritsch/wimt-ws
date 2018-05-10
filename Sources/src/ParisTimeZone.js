@@ -16,7 +16,7 @@ function initialize() {
   const startSummerDate = new Date(Date.UTC(date.getUTCFullYear(), 2, 31 - dayOf31OfMarch, 1)); // last sunday of March at 1am
 
   const dayOf31OfOctober = new Date(Date.UTC(date.getUTCFullYear(), 9, 31)).getUTCDay();
-  const endOfSummerDate = new Date(Date.UTC(date.getUTCFullYear(), 2, 31 - dayOf31OfOctober, 1)); // last sunday of October at 1am
+  const endOfSummerDate = new Date(Date.UTC(date.getUTCFullYear(), 9, 31 - dayOf31OfOctober, 1)); // last sunday of October at 1am
 
   const timeOffset = 1 + (startSummerDate.getTime() <= date.getTime() && date.getTime() < endOfSummerDate ? 1 : 0);
 
