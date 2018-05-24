@@ -24,17 +24,17 @@ $RootDir = $(
 )
 
 if (-not $NoStops) {
-  Start-Job -FilePath $RootDir\scripts\generate-TrainSchedulingStops.ps1 -ArgumentList $RootDir | Receive-Job -Wait
+  Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingStops.ps1 -ArgumentList $RootDir | Receive-Job -Wait
 }
 
 if (-not $NoRoutes) {
-   Start-Job -FilePath $RootDir\scripts\generate-TrainSchedulingRoutes.ps1 -ArgumentList $RootDir | Receive-Job -Wait
+   Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingRoutes.ps1 -ArgumentList $RootDir | Receive-Job -Wait
 }
 
 if (-not $NoServices) {
-   Start-Job -FilePath $RootDir\scripts\generate-TrainSchedulingServices.ps1 -ArgumentList $RootDir | Receive-Job -Wait
+   Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingServices.ps1 -ArgumentList $RootDir | Receive-Job -Wait
 }
 
 if (-not $NoTrips) {
-   Start-Job -FilePath $RootDir\scripts\generate-TrainSchedulingTrips.ps1 -ArgumentList $RootDir | Receive-Job -Wait
+   Start-Job -FilePath $RootDir\Scripts\generate-TrainSchedulingTrips.ps1 -ArgumentList $RootDir | Receive-Job -Wait
 }
